@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>QUANTA — Quantum State Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  /* ── Deep Space × Electric Blue palette ── */
+  --ink:        #020408;
+  --ink-2:      #050810;
+  --ink-3:      #080d18;
+  --ink-4:      #0d1424;
+
+  /* Blue spectrum — electric cyan-blue signature */
+  --gold:       #3b9eff;
+  --gold-bright:#6bbfff;
+  --gold-warm:  #a8d8ff;
+  --gold-dim:   #1a4a8a;
+  --gold-glow:  rgba(59,158,255,0.18);
+  --gold-subtle:rgba(59,158,255,0.07);
+  --gold-border:rgba(59,158,255,0.18);
+  --gold-hi:    rgba(59,158,255,0.35);
+
+  /* Neutral frosts — cooler blue-white */
+  --frost:      rgba(210,230,255,0.92);
+  --frost-mid:  rgba(210,230,255,0.48);
+  --frost-low:  rgba(210,230,255,0.22);
+  --frost-ghost:rgba(210,230,255,0.06);
+
+  /* Legacy border aliases → blue */
+  --border:     rgba(59,158,255,0.14);
+  --border-hi:  rgba(59,158,255,0.34);
+  --sky:        #3b9eff;
+  --sky-dim:    #1a4a8a;
+  --sky-glow:   rgba(59,158,255,0.18);
+  --sky-subtle: rgba(59,158,255,0.07);
+
+  /* Type */
+  --font-ui:    'Cormorant Garamond', 'Georgia', serif;
+  --font-mono:  'Space Mono', monospace;
+  --font-sans:  'Inter', sans-serif;
+
+  /* Easing */
+  --ease-out:   cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Spike RGB vars — hours: violet-blue, minutes: cyan, seconds: ice-white */
+  --h:  100,140,255;
+  --m:  0,210,255;
+  --s:  180,230,255;
+  --blue: 59,158,255;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--ink);
+  overflow: hidden;
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--frost);
+}
+
+/* ═══════════════════════════════════
+   ROOT LAYOUT
+   ═══════════════════════════════════ */
+#root {
+  position: relative;
+  width: 100%; height: 100%;
+}
+
+/* Canvas area */
+#cloudArea {
+  position: absolute;
+  top: 108px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+canvas {
+  display: block;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+canvas:active { cursor: grabbing; }
+
+/* ═══════════════════════════════════
+   AMBIENT BG LAYERS
+   ═══════════════════════════════════ */
+#bgGlow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 38% at 50% 52%,
+      rgba(30,80,180,0.10) 0%,
+      transparent 70%),
+    radial-gradient(ellipse 90% 50% at 18% 0%,
+      rgba(10,40,120,0.12) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 70% 50% at 82% 100%,
+      rgba(20,60,160,0.08) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 10%,
+      rgba(59,158,255,0.04) 0%,
+      transparent 60%);
+}
+
+/* ═══════════════════════════════════
+   TOP BAR
+   ═══════════════════════════════════ */
+#canvasTop {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  pointer-events: none;
+  padding: 16px 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+/* Wordmark */
+#wordmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  user-select: none;
+}
+
+#wordmark-logo {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#wordmark-logo svg {
+  width: 100%;
+  height: 100%;
+}
+
+#wordmark-text {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: rgba(200,225,255,0.78);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#wordmark-sep {
+  width: 1px;
+  height: 11px;
+  background: var(--gold-border);
+  margin: 0 2px;
+}
+
+#wordmark-sub {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  color: rgba(59,158,255,0.44);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+/* Status row */
+#statusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  pointer-events: none;
+}
+
+#stateDot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(59,158,255,0.30);
+  flex-shrink: 0;
+  transition: background 0.5s, box-shadow 0.5s;
+}
+#stateDot.active {
+  background: rgb(var(--s));
+  box-shadow: 0 0 0 3px rgba(180,230,255,0.14), 0 0 12px rgba(59,158,255,0.6);
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%,100% { box-shadow: 0 0 0 3px rgba(59,158,255,0.14), 0 0 10px rgba(59,158,255,0.45); }
+  50%      { box-shadow: 0 0 0 5px rgba(59,158,255,0.06), 0 0 22px rgba(59,158,255,0.22); }
+}
+
+#phaseLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  color: rgba(180,215,255,0.24);
+  text-transform: lowercase;
+  transition: color 0.5s;
+}
+#phaseLabel.bright { color: rgba(180,215,255,0.62); }
+
+/* Controls row */
+#controlsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  pointer-events: all;
+}
+
+/* Mode toggle */
+#modeToggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(59,158,255,0.04);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.mbtn {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(180,215,255,0.30);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  white-space: nowrap;
+}
+.mbtn.active {
+  background: rgba(59,158,255,0.16);
+  color: rgba(210,235,255,0.90);
+}
+.mbtn:not(.active):hover {
+  color: rgba(180,215,255,0.58);
+  background: rgba(59,158,255,0.07);
+}
+
+/* Theme picker */
+#themePicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tswatch {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.tswatch:hover  { transform: scale(1.25); }
+.tswatch.active {
+  border-color: rgba(210,235,255,0.75);
+  box-shadow: 0 0 0 3px rgba(59,158,255,0.18);
+  transform: scale(1.20);
+}
+#tsBlue   { background: radial-gradient(circle at 35% 35%, #90c8ff, #1a6ed8); }
+#tsRed    { background: radial-gradient(circle at 35% 35%, #ffb0b0, #e02244); }
+#tsGreen  { background: radial-gradient(circle at 35% 35%, #aaffc8, #18c860); }
+#tsYellow { background: radial-gradient(circle at 35% 35%, #fff4a8, #e0b800); }
+
+/* ═══════════════════════════════════
+   BOTTOM SHEET (mobile)
+   ═══════════════════════════════════ */
+#sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 20;
+  padding: 0 28px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+  background: linear-gradient(
+    to top,
+    rgba(2,4,8,1.0) 0%,
+    rgba(2,4,8,0.96) 40%,
+    rgba(2,4,8,0.0)  100%
+  );
+  pointer-events: none;
+}
+
+#sheetInner {
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding-top: 48px;
+}
+
+/* ═══════════════════════════════════
+   DESKTOP SIDE PANEL
+   ═══════════════════════════════════ */
+@media (min-width: 800px) and (orientation: landscape) {
+  #cloudArea {
+    top: 0;
+    right: 300px;
+  }
+  #canvasTop {
+    right: 300px;
+    padding: 20px 26px 0;
+  }
+  #sheet {
+    position: absolute;
+    left: auto; bottom: 0; top: 0; right: 0;
+    width: 300px;
+    background: rgba(2,4,8,0.97);
+    border-left: 1px solid rgba(59,158,255,0.12);
+    padding: 0 32px;
+    padding-top: max(30px, env(safe-area-inset-top, 30px));
+    padding-bottom: max(30px, env(safe-area-inset-bottom));
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    overflow-y: auto;
+    pointer-events: all;
+  }
+  #sheetInner {
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100%;
+    height: auto;
+    padding-top: 0;
+    gap: 0;
+  }
+}
+
+/* ═══════════════════════════════════
+   TIME DISPLAY
+   ═══════════════════════════════════ */
+#timeDisplay {
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(42px, 10vw, 62px);
+  letter-spacing: -0.01em;
+  color: rgba(210,235,255,0.97);
+  line-height: 1;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  user-select: none;
+  margin-top: 0;
+  margin-bottom: 2px;
+  text-shadow: 0 0 40px rgba(59,158,255,0.28), 0 0 80px rgba(30,80,200,0.18);
+}
+#timeDisplay.show { opacity:1; transform:translateY(0); }
+
+@media (min-width: 800px) and (orientation: landscape) {
+  #timeDisplay {
+    font-size: clamp(30px, 3.8vw, 52px);
+    margin-top: 6px;
+    margin-bottom: 6px;
+  }
+}
+
+/* ═══════════════════════════════════
+   DATE DISPLAY
+   ═══════════════════════════════════ */
+#dateDisplay {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: rgba(59,158,255,0.58);
+  margin-bottom: 16px;
+  opacity: 0;
+  transition: opacity 0.6s 0.15s;
+  text-transform: uppercase;
+}
+#dateDisplay.show { opacity: 1; }
+
+/* ═══════════════════════════════════
+   LEGEND
+   ═══════════════════════════════════ */
+#legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.6s 0.2s;
+  margin-bottom: 20px;
+  max-width: 240px;
+}
+#legend.show { opacity: 1; }
+
+@media (min-width: 800px) and (orientation: landscape) {
+  #legend {
+    max-width: 100%;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+}
+
+.litem {
+  display: grid;
+  grid-template-columns: 18px 1fr 34px;
+  align-items: center;
+  gap: 14px;
+}
+
+.lkey {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.ltrack {
+  height: 1px;
+  background: rgba(59,158,255,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lfill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition: width 1s var(--ease-out);
+}
+
+.lval {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(180,215,255,0.42);
+  text-align: right;
+  letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════
+   OBSERVE BUTTON — PREMIUM GOLD
+   ═══════════════════════════════════ */
+#btn {
+  position: relative;
+  background: transparent;
+  border: 1px solid rgba(59,158,255,0.32);
+  border-radius: 3px;
+  padding: 0;
+  height: 52px;
+  min-width: 196px;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: border-color 0.35s, box-shadow 0.35s, transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+/* Hairline corner accents — blue ice signature */
+#btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(59,158,255,0.10) 0%,
+    rgba(59,158,255,0.04) 40%,
+    transparent 65%
+  );
+  border-radius: inherit;
+  transition: opacity 0.35s;
+}
+
+/* Top specular line */
+#btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 22%; right: 22%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180,225,255,0.18), transparent);
+}
+
+.btn-orb {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px rgba(59,158,255,0.65), 0 0 20px rgba(59,158,255,0.30);
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.btn-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: rgba(180,215,255,0.62);
+  text-transform: uppercase;
+  transition: color 0.25s;
+  padding-left: 2px;
+}
+
+@media (hover: hover) {
+  #btn:not(:disabled):hover {
+    border-color: rgba(59,158,255,0.62);
+    box-shadow: 0 0 0 1px rgba(59,158,255,0.08),
+                0 6px 32px rgba(20,60,160,0.35),
+                0 0 28px rgba(59,158,255,0.15);
+    transform: translateY(-1px);
+  }
+  #btn:not(:disabled):hover .btn-label { color: rgba(210,235,255,0.92); }
+  #btn:not(:disabled):hover .btn-orb {
+    background: var(--gold-warm);
+    box-shadow: 0 0 18px rgba(59,158,255,0.80), 0 0 36px rgba(59,158,255,0.40);
+    transform: scale(1.3);
+  }
+}
+
+#btn:not(:disabled):active {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+#btn:disabled {
+  opacity: 0.22;
+  cursor: default;
+  border-color: rgba(180,215,255,0.05);
+}
+
+/* ═══════════════════════════════════
+   HINT TEXT
+   ═══════════════════════════════════ */
+#hint {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: rgba(180,215,255,0.13);
+  text-transform: uppercase;
+  text-align: center;
+}
+@media (min-width: 800px) and (orientation: landscape) {
+  #hint { text-align: left; margin-top: 10px; }
+}
+
+/* ═══════════════════════════════════
+   ZOOM CONTROLS
+   ═══════════════════════════════════ */
+#zoomBar {
+  position: absolute;
+  top: 114px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+@media (min-width: 800px) and (orientation: landscape) {
+  #zoomBar {
+    top: 26px;
+    right: 316px;
+  }
+}
+
+.zbtn {
+  width: 36px; height: 36px;
+  background: rgba(2,4,8,0.82);
+  border: 1px solid rgba(59,158,255,0.16);
+  border-radius: 4px;
+  color: rgba(180,215,255,0.40);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.zbtn:hover {
+  background: rgba(59,158,255,0.10);
+  border-color: rgba(59,158,255,0.36);
+  color: rgba(210,235,255,0.88);
+}
+.zbtn:active { transform: scale(0.90); }
+
+#zLvl {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: rgba(180,215,255,0.22);
+  letter-spacing: 0.04em;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+/* ═══════════════════════════════════
+   TOAST
+   ═══════════════════════════════════ */
+#toast {
+  position: fixed;
+  left: 50%; bottom: 88px;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(2,4,8,0.94);
+  border: 1px solid rgba(59,158,255,0.18);
+  border-radius: 3px;
+  padding: 6px 16px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.20em;
+  color: rgba(180,215,255,0.42);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 99;
+  white-space: nowrap;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════
+   FLASH OVERLAY
+   ═══════════════════════════════════ */
+#flash {
+  position: fixed; inset: 0;
+  background: rgba(120,190,255,0);
+  pointer-events: none;
+  z-index: 98;
+}
+
+/* ═══════════════════════════════════
+   VIGNETTE
+   ═══════════════════════════════════ */
+#vig {
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at 42% 50%,
+    transparent 22%, rgba(2,4,8,0.80) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+@media (min-width: 800px) and (orientation: landscape) {
+  #vig {
+    background: radial-gradient(ellipse at 35% 50%,
+      transparent 24%, rgba(8,9,13,0.58) 100%);
+  }
+}
+
+/* ═══════════════════════════════════
+   CORNER MARKS — gold hairlines (signature)
+   ═══════════════════════════════════ */
+.cm { display: none; }
+
+@media (min-width: 800px) and (orientation: landscape) {
+  #cm-tr { right: 316px; }
+  #cm-br { right: 316px; }
+}
+
+/* ═══════════════════════════════════
+   PANEL HEADER (desktop only)
+   ═══════════════════════════════════ */
+#panelHeader {
+  display: none;
+}
+@media (min-width: 800px) and (orientation: landscape) {
+  #panelHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(59,158,255,0.12);
+    width: 100%;
+  }
+  #panelBrand {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    color: rgba(59,158,255,0.48);
+    text-transform: uppercase;
+  }
+  #panelTitle {
+    font-family: var(--font-ui);
+    font-size: 18px;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(200,225,255,0.76);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ═══════════════════════════════════
+   SCAN LINE AMBIANCE
+   ═══════════════════════════════════ */
+#scanLine {
+  position: fixed;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59,158,255,0.04) 20%,
+    rgba(59,158,255,0.10) 50%,
+    rgba(59,158,255,0.04) 80%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: 5;
+  animation: scanMove 18s linear infinite;
+  opacity: 0.60;
+}
+@keyframes scanMove {
+  0%   { top: -1px; }
+  100% { top: 100%; }
+}
+
+
+
+/* ═══════════════════════════════════
+   FILM GRAIN OVERLAY
+   ═══════════════════════════════════ */
+#grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  #scanLine { display: none; }
+  #bezelRing::before { animation: none; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="bgGlow"></div>
+<div id="scanLine"></div>
+<div id="flash"></div>
+<div id="vig"></div>
+<div id="grain"></div>
+<div class="cm" id="cm-tl"></div>
+<div class="cm" id="cm-tr"></div>
+<div class="cm" id="cm-bl"></div>
+<div class="cm" id="cm-br"></div>
+<div id="toast"></div>
+
+<div id="root">
+
+  <!-- Top canvas overlay -->
+  <div id="canvasTop">
+
+    <!-- Back to landing -->
+    <a href="index.html" id="backLink" style="
+      display:inline-flex;align-items:center;gap:6px;
+      font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.20em;
+      text-transform:uppercase;color:rgba(59,158,255,0.45);text-decoration:none;
+      pointer-events:all;transition:color 0.2s;margin-bottom:4px;
+    " onmouseover="this.style.color='rgba(107,191,255,0.85)'" onmouseout="this.style.color='rgba(59,158,255,0.45)'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </a>
+
+    <!-- Wordmark -->
+    <div id="wordmark">
+      <div id="wordmark-logo">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Atom ring -->
+          <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8"/>
+          <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8" transform="rotate(60 11 11)"/>
+          <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8" transform="rotate(120 11 11)"/>
+          <!-- Nucleus -->
+          <circle cx="11" cy="11" r="1.8" fill="rgba(59,158,255,0.90)"/>
+          <circle cx="11" cy="11" r="0.7" fill="rgba(210,235,255,0.98)"/>
+        </svg>
+      </div>
+      <span id="wordmark-text">Quanta</span>
+      <div id="wordmark-sep"></div>
+      <span id="wordmark-sub">quantum state clock</span>
+    </div>
+
+    <!-- Phase status -->
+    <div id="statusRow">
+      <div id="stateDot"></div>
+      <div id="phaseLabel">superposition · unobserved</div>
+    </div>
+
+    <!-- Controls -->
+    <div id="controlsRow">
+      <div id="modeToggle">
+        <button class="mbtn active" id="modeParticle">Particle</button>
+        <button class="mbtn"        id="modeGaussian">Gaussian</button>
+        <button class="mbtn"        id="mode3D">3D</button>
+      </div>
+      <div id="themePicker">
+        <button class="tswatch active" id="tsBlue"   title="Blue"   aria-label="Blue theme"></button>
+        <button class="tswatch"        id="tsRed"    title="Red"    aria-label="Red theme"></button>
+        <button class="tswatch"        id="tsGreen"  title="Green"  aria-label="Green theme"></button>
+        <button class="tswatch"        id="tsYellow" title="Yellow" aria-label="Yellow theme"></button>
+      </div>
+    </div>
+
+  </div><!-- /canvasTop -->
+
+  <!-- Canvas -->
+  <div id="cloudArea">
+    <canvas id="c"></canvas>
+    <canvas id="c3d" style="position:absolute;inset:0;display:none;"></canvas>
+  </div>
+
+  <!-- Zoom controls -->
+  <div id="zoomBar">
+    <button class="zbtn" id="zIn">+</button>
+    <div id="zLvl">1×</div>
+    <button class="zbtn" id="zOut">−</button>
+    <button class="zbtn" id="zRst" style="font-size:10px; margin-top:2px;">⊙</button>
+  </div>
+
+  <!-- Side panel / bottom sheet -->
+  <div id="sheet">
+    <div id="sheetInner">
+
+      <!-- Desktop panel header -->
+      <div id="panelHeader">
+        <div id="panelBrand">Quanta</div>
+        <div id="panelTitle">Quantum State Clock</div>
+      </div>
+
+      <div id="timeDisplay"></div>
+      <div id="dateDisplay"></div>
+
+      <div id="legend">
+        <div class="litem">
+          <span class="lkey" style="color:rgba(var(--h),0.75)">H</span>
+          <div class="ltrack"><div class="lfill" id="fh" style="background:linear-gradient(90deg,rgba(var(--h),0.5),rgba(var(--h),0.85))"></div></div>
+          <span class="lval" id="vh">--</span>
+        </div>
+        <div class="litem">
+          <span class="lkey" style="color:rgba(var(--m),0.75)">M</span>
+          <div class="ltrack"><div class="lfill" id="fm" style="background:linear-gradient(90deg,rgba(var(--m),0.5),rgba(var(--m),0.85))"></div></div>
+          <span class="lval" id="vm">--</span>
+        </div>
+        <div class="litem">
+          <span class="lkey" style="color:rgba(var(--s),0.75)">S</span>
+          <div class="ltrack"><div class="lfill" id="fs" style="background:linear-gradient(90deg,rgba(var(--s),0.5),rgba(var(--s),0.85))"></div></div>
+          <span class="lval" id="vs">--</span>
+        </div>
+      </div>
+
+      <button id="btn">
+        <div class="btn-orb"></div>
+        <div class="btn-label">Observe</div>
+      </button>
+
+      <div id="hint">scroll · pinch · drag to explore</div>
+
+    </div>
+  </div>
+
+</div><!-- /root -->
+
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+
+  /* ─── Canvas ─────────────────────────────────── */
+  var canvas = document.getElementById('c');
+  var ctx    = canvas.getContext('2d');
+  var W, H, CX, CY, R;
+
+  /* ─── Zoom / pan state ───────────────────────── */
+  var zoom = 1, ZMIN = 0.35, ZMAX = 7;
+  var panX = 0, panY = 0;
+  var isPanning = false, lastMX = 0, lastMY = 0;
+  var lastTouches = null, toastTmr = null;
+
+  /* ─── Simulation state ───────────────────────── */
+  var phase = 'super';
+  var collapseT = 0, spikeT = 0, fadeT = 0;
+  var spikeAngles = {h:0,m:0,s:0}, spikeVals = {h:0,m:0,s:0};
+  var busy = false, gT = 0, dt = 0.016;
+  var waves = [], pts = [];
+
+  /* ─── Colour themes ──────────────────────────── */
+  var THEMES = {
+    blue: {
+      cloud:    [40, 130, 255],    // vivid electric blue
+      nucleus:  [[140,200,255],[60,140,255]],
+      core:     [[240,250,255],[180,215,255],[110,175,255],[60,120,255]],
+      rings:    [60,130,255],
+      bg:       [10,25,100],
+      wave:     [[80,150,255],[120,180,255],[80,140,255],[180,215,255]],
+      flash:    [120,190,255],
+    },
+    red: {
+      cloud:    [255, 40, 40],    // vivid pure red
+      nucleus:  [[255,140,120],[220,40,40]],
+      core:     [[255,245,240],[255,180,160],[220,90,80],[180,30,30]],
+      rings:    [220,40,40],
+      bg:       [90,10,10],
+      wave:     [[255,80,60],[230,100,80],[200,40,40],[255,140,120]],
+      flash:    [255,140,130],
+    },
+    green: {
+      cloud:    [20, 240, 100],   // vivid neon green
+      nucleus:  [[120,255,170],[20,200,80]],
+      core:     [[230,255,240],[150,255,190],[60,200,120],[20,140,70]],
+      rings:    [20,210,80],
+      bg:       [5,70,20],
+      wave:     [[60,230,120],[100,240,150],[40,200,100],[160,255,200]],
+      flash:    [120,255,180],
+    },
+    yellow: {
+      cloud:    [255, 200, 0],    // vivid golden yellow
+      nucleus:  [[255,240,120],[210,160,0]],
+      core:     [[255,255,220],[255,235,140],[220,180,40],[160,120,0]],
+      rings:    [210,170,0],
+      bg:       [70,50,0],
+      wave:     [[255,210,40],[240,185,60],[200,155,10],[255,235,120]],
+      flash:    [255,235,120],
+    },
+  };
+  var activeTheme = 'blue';
+  function T() { return THEMES[activeTheme]; }
+
+  /* ─── Cloud mode ─────────────────────────────── */
+  var cloudMode = 'particle'; // set properly via setMode() at boot
+
+  var SP = [
+    { key:'h', rgb:[100,140,255],  max:23 },  // violet-blue for hours
+    { key:'m', rgb:[0,210,255],    max:59 },  // cyan for minutes
+    { key:'s', rgb:[180,230,255],  max:59 },  // ice white for seconds
+  ];
+
+  /* ─── Resize ─────────────────────────────────── */
+  /*
+   * Canvas always fills the full cloudArea so zoomed content never clips.
+   * CX/CY = atom world-centre (canvas midpoint).
+   * R is based on shorter dimension so atom fits at zoom=1.
+   */
+  function resize() {
+    var area = document.getElementById('cloudArea');
+    canvas.width  = Math.max(area.clientWidth,  1);
+    canvas.height = Math.max(area.clientHeight, 1);
+    W = canvas.width; H = canvas.height;
+    CX = W / 2; CY = H / 2;
+    R  = Math.min(W, H) * 0.34;
+    initCloud();
+    if (cloudMode === '3d') resize3D();
+  }
+  window.addEventListener('resize', function(){ clearTimeout(window._rt); window._rt = setTimeout(resize, 60); });
+
+  /* ─── Zoom helpers ───────────────────────────── */
+  /*
+   * The canvas fills the full cloudArea, so CX/CY is always the screen centre.
+   * panX/panY shift where the atom centre appears relative to CX/CY.
+   *
+   * Transform applied in render:
+   *   ctx.setTransform(zoom, 0, 0, zoom,  CX + panX - CX*zoom,  CY + panY - CY*zoom)
+   *
+   * This places the atom world-origin at (CX + panX, CY + panY) on screen,
+   * then scales everything around that point by zoom.
+   *
+   * Zoom toward focal point (fx,fy) in canvas pixels:
+   *   We want the world point under (fx,fy) to remain fixed.
+   *   World point = (fx - tx) / zoom  where tx = CX + panX - CX*zoom
+   *   Setting before = after and solving for new panX:
+   *     newPanX = fx - CX - (fx - CX - panX) * (nz / zoom)
+   *
+   * Button zoom → focal = (CX, CY) → newPanX = panX * (nz/zoom)
+   *   panX just scales; if panX=0 it stays 0 → atom stays perfectly centred.
+   */
+  function clamp(z) { return Math.max(ZMIN, Math.min(ZMAX, z)); }
+
+  function applyZoom(nz, fx, fy) {
+    if (fx === undefined) { fx = CX; fy = CY; }
+    var r = nz / zoom;
+    panX = fx - CX - (fx - CX - panX) * r;
+    panY = fy - CY - (fy - CY - panY) * r;
+    zoom = nz;
+    updateZLvl();
+  }
+
+  function updateZLvl() {
+    var z = (cloudMode === '3d') ? zoom3d : zoom;
+    document.getElementById('zLvl').textContent =
+      (z > 0.97 && z < 1.03) ? '1×' : z.toFixed(1) + '×';
+  }
+
+  function showToast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTmr);
+    toastTmr = setTimeout(function(){ el.classList.remove('show'); }, 1300);
+  }
+
+  function resetView() {
+    zoom = 1; panX = 0; panY = 0;
+    zoom3d = 1.0;
+    updateZLvl();
+    showToast('1× · reset');
+  }
+
+  /* ─── Zoom button events ─────────────────────── */
+  document.getElementById('zIn').addEventListener('click', function(){
+    if(cloudMode === '3d'){
+      zoom3d = Math.max(0.3, Math.min(4.0, zoom3d * 1.5));
+      updateZLvl(); showToast(zoom3d.toFixed(1) + '×');
+    } else {
+      applyZoom(clamp(zoom * 1.6));
+      showToast(zoom.toFixed(1) + '×');
+    }
+  });
+  document.getElementById('zOut').addEventListener('click', function(){
+    if(cloudMode === '3d'){
+      zoom3d = Math.max(0.3, Math.min(4.0, zoom3d / 1.5));
+      updateZLvl(); showToast(zoom3d.toFixed(1) + '×');
+    } else {
+      applyZoom(clamp(zoom / 1.6));
+      showToast(zoom.toFixed(1) + '×');
+    }
+  });
+  document.getElementById('zRst').addEventListener('click', resetView);
+
+  /* ─── Scroll zoom ────────────────────────────── */
+  canvas.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    applyZoom(clamp(zoom * (e.deltaY < 0 ? 1.12 : 1/1.12)),
+              e.clientX - rect.left,
+              e.clientY - rect.top);
+    showToast(zoom.toFixed(1) + '×');
+  }, {passive:false});
+
+  /* ─── Mouse pan ──────────────────────────────── */
+  canvas.addEventListener('mousedown', function(e){
+    if (e.button !== 0) return;
+    isPanning = true; lastMX = e.clientX; lastMY = e.clientY;
+  });
+  window.addEventListener('mousemove', function(e){
+    if (!isPanning) return;
+    panX += e.clientX - lastMX;
+    panY += e.clientY - lastMY;
+    lastMX = e.clientX; lastMY = e.clientY;
+  });
+  window.addEventListener('mouseup', function(){ isPanning = false; });
+  canvas.addEventListener('dblclick', resetView);
+
+  /* ─── Touch pinch + pan ──────────────────────── */
+  canvas.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    lastTouches = Array.from(e.touches);
+  }, {passive:false});
+
+  canvas.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    var ts = Array.from(e.touches);
+    if (ts.length === 1 && lastTouches && lastTouches.length === 1) {
+      panX += ts[0].clientX - lastTouches[0].clientX;
+      panY += ts[0].clientY - lastTouches[0].clientY;
+    } else if (ts.length === 2 && lastTouches && lastTouches.length >= 2) {
+      var d0 = Math.hypot(lastTouches[1].clientX - lastTouches[0].clientX,
+                          lastTouches[1].clientY - lastTouches[0].clientY);
+      var d1 = Math.hypot(ts[1].clientX - ts[0].clientX, ts[1].clientY - ts[0].clientY);
+      if (d0 > 1) {
+        var rect = canvas.getBoundingClientRect();
+        var cx = (ts[0].clientX + ts[1].clientX) / 2 - rect.left;
+        var cy = (ts[0].clientY + ts[1].clientY) / 2 - rect.top;
+        applyZoom(clamp(zoom * d1 / d0), cx, cy);
+        showToast(zoom.toFixed(1) + '×');
+      }
+    }
+    lastTouches = ts;
+  }, {passive:false});
+
+  canvas.addEventListener('touchend', function(e){
+    lastTouches = Array.from(e.touches);
+  });
+
+  /* ─── Keyboard ───────────────────────────────── */
+  window.addEventListener('keydown', function(e){
+    if (e.code === 'Space' && !busy) { e.preventDefault(); measure(); }
+    if (e.code === 'Equal'  || e.code === 'NumpadAdd')      applyZoom(clamp(zoom * 1.25));
+    if (e.code === 'Minus'  || e.code === 'NumpadSubtract') applyZoom(clamp(zoom / 1.25));
+    if (e.code === 'Digit0' || e.code === 'Numpad0')        resetView();
+  });
+
+  /* ─── Gauss ──────────────────────────────────── */
+  function gauss() {
+    var u=0,v=0;
+    while(!u) u=Math.random(); while(!v) v=Math.random();
+    return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  }
+
+  /* ─── Particle field (Particle mode) ────────────
+     Two overlapping populations build the probability cloud:
+       · CORE — dense inner shell, full brightness; streams toward the
+                hour spike once a measurement collapses the wavefunction.
+       · HAZE — sparse, wider, dimmer shell; trails toward the seconds
+                spike, giving the collapse a faint secondary wisp.
+     Every point keeps its own slow precession + radial "breathing" phase
+     so the sphere never looks static while unobserved.
+
+     CENTRE FADE: a particle sitting near either pole of the sphere (cosP
+     close to ±1) projects to (CX,CY) no matter what its azimuth is — i.e.
+     dead centre, right on top of the nucleus — and with 'lighter' additive
+     blending, several such particles stack into a visible glowing clump.
+     Excluding that polar band geometrically left a visible empty ring
+     instead, so the fix is just a smooth brightness taper as a particle's
+     projected distance from centre (sinP) approaches zero: it stays at
+     full brightness everywhere except the few pixels the nucleus already
+     covers, where it quietly fades out instead of piling on top of it.
+  ──────────────────────────────────────────────── */
+  var FADE_LO = 0.05, FADE_HI = 0.16; // sinP band over which a particle eases out near the poles
+
+  function seedParticle(shellR, spread, arm, peak) {
+    var rad    = Math.abs(shellR + gauss()*spread);
+    var cosP   = 2*Math.random()-1, sinP = Math.sqrt(1-cosP*cosP);
+    var az     = Math.random()*Math.PI*2;
+    var strayN = Math.abs(rad-shellR)/spread; // distance from the shell's centre, in sigmas
+    return {
+      rad:rad, az:az, cosP:cosP, sinP:sinP, restCos:cosP,
+      x:rad*sinP*Math.cos(az), y:rad*sinP*Math.sin(az), z:rad*cosP,
+      sx:CX+rad*sinP*Math.cos(az), sy:CY+rad*sinP*Math.sin(az), depth:0.5,
+      fade:1,
+      spin:(Math.random()-0.5)*0.0032,
+      bob: 0.4+Math.random()*0.8,
+      seed:Math.random()*Math.PI*2,
+      glow: peak * Math.exp(-strayN*strayN*0.5),
+      grain: Math.random()*1.2+0.28,
+      arm:arm, shellR:shellR
+    };
+  }
+
+  function initCloud() {
+    pts = [];
+    var shellR = R * 0.68;
+    for (var i=0;i<3200;i++) pts.push(seedParticle(shellR,        R*0.036, 0, 1.0));
+    for (var i=0;i<600; i++) pts.push(seedParticle(shellR*1.27,   R*0.066, 2, 0.14));
+    pts.sort(function(a,b){ return a.z-b.z; });
+  }
+
+  function updateCloud() {
+    for (var i=0;i<pts.length;i++) {
+      var p = pts[i];
+      p.az  += p.spin + Math.sin(gT*0.18+p.seed)*0.0016;
+      var cosP = p.restCos + Math.sin(gT*p.bob + p.seed)*0.06;
+      p.cosP = Math.max(-0.9999, Math.min(0.9999, cosP));
+      p.sinP = Math.sqrt(1-p.cosP*p.cosP);
+      var breathe = 1 + Math.sin(gT*0.25+p.seed*0.2)*0.010;
+      var rad = p.rad*breathe;
+      p.x = rad*p.sinP*Math.cos(p.az); p.y = rad*p.sinP*Math.sin(p.az);
+      p.z = rad*p.cosP;
+      p.sx = CX+p.x; p.sy = CY+p.y*0.9+p.z*0.07;
+      p.depth = (p.z/R+1)*0.5;
+      var ft = (p.sinP-FADE_LO)/(FADE_HI-FADE_LO);
+      ft = Math.max(0, Math.min(1, ft));
+      p.fade = ft*ft*(3-2*ft); // smoothstep — eases out near the poles instead of cutting off
+    }
+  }
+
+  /* ─── Angles ─────────────────────────────────── */
+  function timeToAngles(h,m,s) {
+    // Standard analog clock angles, 12-o'clock = -π/2
+    var hAngle = -Math.PI/2 + (((h % 12) + m/60) / 12) * Math.PI * 2;
+    var mAngle = -Math.PI/2 + ((m + s/60) / 60) * Math.PI * 2;
+    var sAngle = -Math.PI/2 + (s / 60) * Math.PI * 2;
+    // Spread the three hands slightly so they never fully overlap
+    var spread = Math.PI * 0.08;
+    return {
+      h: hAngle - spread,
+      m: mAngle,
+      s: sAngle + spread,
+    };
+  }
+
+  /* ─── Draw: BG ───────────────────────────────── */
+  function drawBG() {
+    ctx.fillStyle = '#020510'; ctx.fillRect(0,0,W,H);
+    var bg = T().bg;
+    // Layer 1: wide deep colour bloom — use full canvas diagonal so it fills on desktop too
+    var diag = Math.sqrt(W*W+H*H)*0.55;
+    var g1 = ctx.createRadialGradient(CX,CY,0,CX,CY,diag);
+    g1.addColorStop(0,  'rgba('+bg[0]+','+bg[1]+','+bg[2]+',0.48)');
+    g1.addColorStop(0.3,'rgba('+(bg[0]*0.7|0)+','+(bg[1]*0.7|0)+','+(bg[2]*0.7|0)+',0.22)');
+    g1.addColorStop(0.7,'rgba('+(bg[0]*0.35|0)+','+(bg[1]*0.35|0)+','+(bg[2]*0.35|0)+',0.09)');
+    g1.addColorStop(1,  'rgba(0,0,0,0)');
+    ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
+
+  }
+
+  /* ─── Draw: nucleus ──────────────────────────── */
+  function drawNucleus() {
+    var pf  = 0.5 + 0.5 * Math.sin(gT * 1.35);
+    var tc  = T().cloud;
+    var r   = tc[0], g = tc[1], b = tc[2];
+    var BASE = R * 0.014 * (1 + pf * 0.03);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Wide soft theme colour atmosphere — boosted
+    var atmR = BASE * 7.5;
+    var atm  = ctx.createRadialGradient(CX, CY, 0, CX, CY, atmR);
+    for (var i = 0; i <= 20; i++) {
+      var t = i / 20;
+      var a = Math.exp(-(t * t) * 5.5) * 0.55;
+      atm.addColorStop(t, 'rgba('+r+','+g+','+b+','+a.toFixed(4)+')');
+    }
+    ctx.beginPath(); ctx.arc(CX, CY, atmR, 0, Math.PI*2);
+    ctx.fillStyle = atm; ctx.fill();
+
+    // Tight theme colour corona — boosted
+    var corR = BASE * 3.2;
+    var cor  = ctx.createRadialGradient(CX, CY, 0, CX, CY, corR);
+    for (var i = 0; i <= 14; i++) {
+      var t = i / 14;
+      var a = Math.exp(-(t * t) * 6.0) * 0.90;
+      cor.addColorStop(t, 'rgba('+r+','+g+','+b+','+a.toFixed(4)+')');
+    }
+    ctx.beginPath(); ctx.arc(CX, CY, corR, 0, Math.PI*2);
+    ctx.fillStyle = cor; ctx.fill();
+
+    // White-hot core
+    var dotR = BASE * 0.55;
+    var dot  = ctx.createRadialGradient(CX, CY, 0, CX, CY, dotR);
+    dot.addColorStop(0.00, 'rgba(255,255,255,1.00)');
+    dot.addColorStop(0.50, 'rgba(255,255,255,0.85)');
+    dot.addColorStop(0.85, 'rgba('+r+','+g+','+b+',0.30)');
+    dot.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0.00)');
+    ctx.beginPath(); ctx.arc(CX, CY, dotR, 0, Math.PI*2);
+    ctx.fillStyle = dot; ctx.fill();
+
+    // Pure white specular spark
+    var spR = BASE * 0.18;
+    var spG = ctx.createRadialGradient(CX, CY, 0, CX, CY, spR);
+    spG.addColorStop(0.00, 'rgba(255,255,255,1.00)');
+    spG.addColorStop(1.00, 'rgba(255,255,255,0.00)');
+    ctx.beginPath(); ctx.arc(CX, CY, spR, 0, Math.PI*2);
+    ctx.fillStyle = spG; ctx.fill();
+
+    ctx.restore();
+  }
+
+  /* ─── Draw: orbital rings ────────────────────── */
+  function drawRings() {
+    var rc = T().rings;
+    [[0.68,0.042],[0.49,0.018],[0.90,0.011]].forEach(function(ro){
+      ctx.beginPath(); ctx.arc(CX,CY,R*ro[0],0,Math.PI*2);
+      ctx.strokeStyle='rgba('+rc[0]+','+rc[1]+','+rc[2]+','+ro[1]+')';
+      ctx.lineWidth=0.8; ctx.stroke();
+    });
+  }
+
+  /* ─── Draw: gaussian cloud ───────────────────── */
+  function drawGaussianCloud(cp) {
+    var tc = T().cloud;
+    var r = tc[0], g = tc[1], b = tc[2];
+
+    var breathe = 1 + 0.025 * Math.sin(gT * 0.52);
+    var collapse = 1 - cp * 0.60;
+    var ext = R * breathe * collapse;
+
+    // ── TRUE GAUSSIAN: sample e^(-x²) at many radii and map to alpha ──
+    // We approximate the bell curve with many colour stops derived from
+    // exp(-t²*k) so the falloff is mathematically smooth, not hand-tuned.
+    // We stack three passes at different scales so the centre is bright,
+    // the mid-field rich, and the edge dissolves to absolute zero.
+
+    // Helper: build a radial gradient whose alpha follows e^(-(t*k)²)
+    function gaussGrad(rad, peakAlpha, k, rr, gg, bb) {
+      var gd = ctx.createRadialGradient(CX, CY, 0, CX, CY, rad);
+      var steps = 18;
+      for (var i = 0; i <= steps; i++) {
+        var t   = i / steps;                          // 0 → 1 (centre → edge)
+        var val = Math.exp(-(t * t) * k);             // 1 → ~0  (bell curve)
+        var a   = Math.min(peakAlpha * val, 1);
+        gd.addColorStop(t, 'rgba('+rr+','+gg+','+bb+','+a.toFixed(4)+')');
+      }
+      return gd;
+    }
+
+    // ── Pass A: wide outer cloud — broad σ, low peak ──
+    var extA = ext * 1.10;
+    var gA = gaussGrad(extA, 0.38, 3.2, r, g, b);
+    ctx.beginPath(); ctx.arc(CX, CY, extA, 0, Math.PI*2);
+    ctx.fillStyle = gA; ctx.fill();
+
+    // ── Pass B: mid cloud — medium σ, medium peak ──
+    var extB = ext * 0.68;
+    var gB = gaussGrad(extB, 0.55, 4.5, r, g, b);
+    ctx.beginPath(); ctx.arc(CX, CY, extB, 0, Math.PI*2);
+    ctx.fillStyle = gB; ctx.fill();
+
+    // ── Pass C: tight inner core — narrow σ, high peak, blends to white ──
+    var extC = ext * 0.30;
+    // Interpolate colour → white at centre for the hot-core effect
+    var gC = ctx.createRadialGradient(CX, CY, 0, CX, CY, extC);
+    var stepsC = 20;
+    for (var i = 0; i <= stepsC; i++) {
+      var t    = i / stepsC;
+      var val  = Math.exp(-(t * t) * 6.0);
+      var rr   = Math.round(r + (255 - r) * Math.pow(1 - t, 3));
+      var gg2  = Math.round(g + (255 - g) * Math.pow(1 - t, 3));
+      var bb   = Math.round(b + (255 - b) * Math.pow(1 - t, 3));
+      var a    = Math.min(0.80 * val, 1);
+      gC.addColorStop(t, 'rgba('+rr+','+gg2+','+bb+','+a.toFixed(4)+')');
+    }
+    ctx.beginPath(); ctx.arc(CX, CY, extC, 0, Math.PI*2);
+    ctx.fillStyle = gC; ctx.fill();
+
+    // ── Pass D: additive bloom — same gaussian curve, composite 'lighter' ──
+    // This is what makes the centre feel luminous rather than painted.
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    // Bloom layer 1 — wide soft additive haze
+    var gD1 = gaussGrad(ext * 0.95, 0.055, 2.8, r, g, b);
+    ctx.beginPath(); ctx.arc(CX, CY, ext * 0.95, 0, Math.PI*2);
+    ctx.fillStyle = gD1; ctx.fill();
+
+    // Bloom layer 2 — medium additive
+    var gD2 = gaussGrad(ext * 0.50, 0.075, 4.0, r, g, b);
+    ctx.beginPath(); ctx.arc(CX, CY, ext * 0.50, 0, Math.PI*2);
+    ctx.fillStyle = gD2; ctx.fill();
+
+    // Bloom layer 3 — tight bright centre
+    var gD3 = gaussGrad(ext * 0.18, 0.18, 5.5, r, g, b);
+    ctx.beginPath(); ctx.arc(CX, CY, ext * 0.18, 0, Math.PI*2);
+    ctx.fillStyle = gD3; ctx.fill();
+
+    // White-hot pinpoint additive spark
+    var spR = ext * 0.042;
+    var spG = ctx.createRadialGradient(CX, CY, 0, CX, CY, spR);
+    spG.addColorStop(0.00, 'rgba(255,255,255,0.95)');
+    spG.addColorStop(0.35, 'rgba('+r+','+g+','+b+',0.60)');
+    spG.addColorStop(0.70, 'rgba('+r+','+g+','+b+',0.15)');
+    spG.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0.00)');
+    ctx.beginPath(); ctx.arc(CX, CY, spR, 0, Math.PI*2);
+    ctx.fillStyle = spG; ctx.fill();
+
+    ctx.restore();
+  }
+
+  /* ─── Draw: gaussian spikes ─────────────────── */
+  function drawGaussianSpikes(sp) {
+    if (sp <= 0) return;
+    SP.forEach(function(spDef) {
+      var r = spDef.rgb[0], g = spDef.rgb[1], b = spDef.rgb[2];
+      var ang = spikeAngles[spDef.key], val = spikeVals[spDef.key];
+      var len = (R * 0.16 + (val / spDef.max) * (R * 0.82 - R * 0.16)) * sp;
+      var ex = CX + Math.cos(ang) * len, ey = CY + Math.sin(ang) * len;
+
+      // Single smooth gradient ray
+      var gr = ctx.createLinearGradient(CX, CY, ex, ey);
+      gr.addColorStop(0,    'rgba('+r+','+g+','+b+',0)');
+      gr.addColorStop(0.08, 'rgba('+r+','+g+','+b+','+(0.6*sp)+')');
+      gr.addColorStop(0.85, 'rgba('+r+','+g+','+b+','+(0.9*sp)+')');
+      gr.addColorStop(1,    'rgba(255,255,255,'+(0.95*sp)+')');
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      // Wide soft glow
+      ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(ex, ey);
+      ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+(0.18*sp)+')';
+      ctx.lineWidth = 18; ctx.lineCap = 'round'; ctx.stroke();
+      // Core ray
+      ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(ex, ey);
+      ctx.strokeStyle = gr;
+      ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.stroke();
+      ctx.restore();
+
+      // Tip glow
+      if (sp > 0.1) {
+        var p2 = Math.max(0, (sp - 0.1) / 0.9);
+        var tp = R * 0.08 * sp;
+        var tip = ctx.createRadialGradient(ex, ey, 0, ex, ey, tp);
+        tip.addColorStop(0,    'rgba(255,255,255,'+(0.95*p2)+')');
+        tip.addColorStop(0.2,  'rgba('+r+','+g+','+b+','+(0.9*p2)+')');
+        tip.addColorStop(1,    'rgba('+r+','+g+','+b+',0)');
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath(); ctx.arc(ex, ey, tp, 0, Math.PI*2);
+        ctx.fillStyle = tip; ctx.fill();
+        ctx.restore();
+      }
+
+      // Label
+      if (sp > 0.55) {
+        var lp = (sp - 0.55) / 0.45;
+        var ldist = len + R * 0.11;
+        var lx = CX + Math.cos(ang) * ldist, ly = CY + Math.sin(ang) * ldist;
+        ctx.save();
+        ctx.globalAlpha = lp;
+        ctx.font = '300 ' + Math.floor(Math.min(W, H) * 0.044) + 'px "Space Grotesk",sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba('+r+','+g+','+b+',0.92)'; ctx.shadowBlur = 22;
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.fillText(String(val).padStart(2, '0'), lx, ly);
+        ctx.restore();
+      }
+    });
+  }
+  /*
+   * Glow sprite atlas — avoids per-particle gradient allocation.
+   *
+   * Canvas2D's createRadialGradient() is expensive when called per-particle
+   * per-frame (thousands of times a frame). Instead, bake one small tinted
+   * glow sprite per colour the first time it's needed, then stamp it
+   * everywhere with drawImage() — compositing moves to the GPU and the CPU
+   * only touches plain pixel blits. Keeps the particle field at 60fps.
+   */
+  var GLOW_ATLAS = {};
+  var GLOW_SIZE  = 32; /* px — sprite canvas side length */
+
+  function getGlowSprite(r, g, b) {
+    var key = r + ',' + g + ',' + b;
+    var cached = GLOW_ATLAS[key];
+    if (cached) return cached;
+    var s   = GLOW_SIZE;
+    var spr = document.createElement('canvas');
+    spr.width = spr.height = s;
+    var sc  = spr.getContext('2d');
+    var mid = s / 2;
+    var grad = sc.createRadialGradient(mid, mid, 0, mid, mid, mid);
+    grad.addColorStop(0.00, 'rgba('+r+','+g+','+b+',1)');
+    grad.addColorStop(0.35, 'rgba('+r+','+g+','+b+',0.55)');
+    grad.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0)');
+    sc.fillStyle = grad;
+    sc.fillRect(0, 0, s, s);
+    GLOW_ATLAS[key] = spr;
+    return spr;
+  }
+
+  function clearGlowAtlas() { GLOW_ATLAS = {}; }
+
+  function drawCloud(cp) {
+    if (cloudMode === 'gaussian') { drawGaussianCloud(cp); return; }
+    var tc = T().cloud;
+
+    /* ── Resolve each particle's screen position + colour for this frame ── */
+    var shaded = [];
+    for (var i = 0; i < pts.length; i++) {
+      var p     = pts[i];
+      var sx    = p.sx, sy = p.sy, grain = p.grain;
+      var depth = p.depth;
+      var spike = SP[p.arm];
+      var lift  = 0.35 + depth * 1.1;
+      var rv = Math.min(255, tc[0] * lift) | 0;
+      var gv = Math.min(255, tc[1] * lift) | 0;
+      var bv = Math.min(255, tc[2] * lift) | 0;
+      var alpha = p.glow * p.fade * (0.25 + depth * 0.75);
+
+      if (cp > 0) {
+        var ang = spikeAngles[spike.key];
+        var targetDist = p.shellR;
+        var tx = CX + Math.cos(ang) * targetDist;
+        var ty = CY + Math.sin(ang) * targetDist;
+        var ease = 0;
+        if (cp >= 0.26) {
+          var t = (cp - 0.26) / 0.74;
+          ease = 1 - Math.pow(1 - t, 4);
+        }
+        ease = Math.min(1, ease);
+        var ox = CX + p.x, oy = CY + p.y * 0.9 + p.z * 0.07;
+        sx = ox + (tx - ox) * ease;
+        sy = oy + (ty - oy) * ease;
+        grain = p.grain * (1 + ease * 3.5);
+        alpha *= (1 - ease * 0.72);
+        if (ease > 0.38) {
+          rv = spike.rgb[0]; gv = spike.rgb[1]; bv = spike.rgb[2];
+          alpha *= (0.32 + ((ease - 0.38) / 0.62) * 0.68);
+        }
+      }
+      if (alpha < 0.005) continue;
+      shaded.push({ sx:sx, sy:sy, grain:grain, depth:depth, rv:rv, gv:gv, bv:bv, alpha:alpha });
+    }
+
+    /* ── Layer 1: soft glow halos, stamped from the sprite atlas ── */
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (var i = 0; i < shaded.length; i++) {
+      var q      = shaded[i];
+      var sprite = getGlowSprite(q.rv, q.gv, q.bv);
+      var rad    = Math.max(1.5, q.grain * (2.2 + q.depth * 1.6) * (1 - cp * 0.7));
+      ctx.globalAlpha = Math.min(q.alpha * 0.55, 1);
+      ctx.drawImage(sprite, q.sx - rad, q.sy - rad, rad * 2, rad * 2);
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    /* ── Layer 2: crisp cores, batched into one fill path per colour bucket ── */
+    var buckets = {};
+    for (var i = 0; i < shaded.length; i++) {
+      var q         = shaded[i];
+      var bucketKey = ((q.rv >> 4) << 8) | ((q.gv >> 4) << 4) | (q.bv >> 4);
+      var bucket    = buckets[bucketKey];
+      if (!bucket) bucket = buckets[bucketKey] = { rv:q.rv, gv:q.gv, bv:q.bv, items:[] };
+      bucket.items.push(q);
+    }
+    for (var key in buckets) {
+      var bucket = buckets[key];
+      ctx.beginPath();
+      for (var i = 0; i < bucket.items.length; i++) {
+        var q      = bucket.items[i];
+        var coreR  = Math.max(0.18, q.grain * 0.60 * (1 - cp * 0.60));
+        ctx.moveTo(q.sx + coreR, q.sy);
+        ctx.arc(q.sx, q.sy, coreR, 0, Math.PI * 2);
+      }
+      ctx.fillStyle = 'rgba('+bucket.rv+','+bucket.gv+','+bucket.bv+',0.95)';
+      ctx.fill();
+    }
+
+    /* ── Layer 3: pinpoint white sparkle on the brightest particles ── */
+    ctx.beginPath();
+    for (var i = 0; i < shaded.length; i++) {
+      var q = shaded[i];
+      if (q.alpha < 0.55) continue;
+      var sparkR = Math.max(0.15, q.grain * 0.28 * (1 - cp * 0.5));
+      ctx.moveTo(q.sx + sparkR, q.sy);
+      ctx.arc(q.sx, q.sy, sparkR, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fill();
+  }
+
+  /* ─── Draw: waves ────────────────────────────── */
+  function addWave(s,r,g,b){ waves.push({t:0,maxR:R*s,r:r,g:g,b:b}); }
+  function drawWaves() {
+    waves=waves.filter(function(w){return w.t<1;});
+    waves.forEach(function(w){
+      w.t+=dt;
+      var rad=w.maxR*Math.pow(w.t,0.50), op=Math.pow(1-w.t,3)*0.80;
+      ctx.beginPath(); ctx.arc(CX,CY,rad,0,Math.PI*2);
+      ctx.strokeStyle='rgba('+w.r+','+w.g+','+w.b+','+op+')';
+      ctx.lineWidth=1.7*(1-w.t); ctx.stroke();
+      if (w.t<0.48) {
+        ctx.beginPath(); ctx.arc(CX,CY,rad*0.63,0,Math.PI*2);
+        ctx.strokeStyle='rgba('+w.r+','+w.g+','+w.b+','+(op*0.26)+')';
+        ctx.lineWidth=0.65*(1-w.t); ctx.stroke();
+      }
+    });
+  }
+
+  /* ─── Draw: spikes ───────────────────────────── */
+  function drawSpikes(prog) {
+    if (prog<=0) return;
+    SP.forEach(function(sp){
+      var r=sp.rgb[0],g=sp.rgb[1],b=sp.rgb[2];
+      var ang=spikeAngles[sp.key], val=spikeVals[sp.key];
+      var len=(R*0.16+(val/sp.max)*(R*0.86-R*0.16))*prog;
+      var ex=CX+Math.cos(ang)*len, ey=CY+Math.sin(ang)*len;
+      ctx.save();
+      [[62,0.045],[30,0.110],[14,0.260],[5.5,0.65]].forEach(function(lo){
+        ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(ex,ey);
+        ctx.strokeStyle='rgba('+r+','+g+','+b+','+(lo[1]*prog)+')';
+        ctx.lineWidth=lo[0]; ctx.lineCap='round'; ctx.stroke();
+      });
+      var gr=ctx.createLinearGradient(CX,CY,ex,ey);
+      gr.addColorStop(0,    'rgba('+r+','+g+','+b+',0)');
+      gr.addColorStop(0.04, 'rgba('+r+','+g+','+b+','+(0.75*prog)+')');
+      gr.addColorStop(0.82, 'rgba('+r+','+g+','+b+','+(1.00*prog)+')');
+      gr.addColorStop(1,    'rgba(255,255,255,'+(1.00*prog)+')');
+      ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(ex,ey);
+      ctx.strokeStyle=gr; ctx.lineWidth=2.2; ctx.lineCap='butt'; ctx.stroke();
+      ctx.restore();
+
+      if (prog>0.10) {
+        var p2=Math.max(0,(prog-0.10)/0.90);
+        var tp=R*0.092*prog*(1+0.08*Math.sin(gT*2.1+r));
+        var tip=ctx.createRadialGradient(ex,ey,0,ex,ey,tp);
+        tip.addColorStop(0,    'rgba(255,255,255,'+(1.00*p2)+')');
+        tip.addColorStop(0.11, 'rgba('+r+','+g+','+b+','+(1.00*p2)+')');
+        tip.addColorStop(0.44, 'rgba('+r+','+g+','+b+','+(0.45*p2)+')');
+        tip.addColorStop(1,    'rgba('+r+','+g+','+b+',0)');
+        ctx.beginPath(); ctx.arc(ex,ey,tp,0,Math.PI*2);
+        ctx.fillStyle=tip; ctx.fill();
+        ctx.beginPath(); ctx.arc(ex,ey,Math.max(2.0,3.5*prog),0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,'+(p2*1.00)+')'; ctx.fill();
+      }
+
+      if (prog>0.55) {
+        var lp=(prog-0.55)/0.45;
+        var ldist=len+R*0.12;
+        var lx=CX+Math.cos(ang)*ldist, ly=CY+Math.sin(ang)*ldist;
+        ctx.save();
+        ctx.globalAlpha=lp;
+        ctx.font='300 '+Math.floor(Math.min(W,H)*0.044)+'px "Space Grotesk",sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.shadowColor='rgba('+r+','+g+','+b+',0.92)'; ctx.shadowBlur=22;
+        ctx.fillStyle='rgba(255,255,255,0.95)';
+        ctx.fillText(String(val).padStart(2,'0'),lx,ly);
+        ctx.restore();
+      }
+    });
+  }
+
+  /* ─── Render loop ────────────────────────────── */
+  var _lastRafT = 0;
+  function render(now) {
+    dt = _lastRafT ? Math.min((now - _lastRafT) / 1000, 0.012) : 0.008;
+    _lastRafT = now;
+    gT += dt;
+    var _isActive = phase==='collapsing'||phase==='collapsed'||phase==='fading';
+    if (!_isActive) updateCloud();
+
+    /* Always clear 2D canvas — prevents stale frames showing on mode switch */
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,W,H);
+
+    if (cloudMode !== '3d') {
+      drawBG();
+      ctx.setTransform(zoom, 0, 0, zoom, CX + panX - CX*zoom, CY + panY - CY*zoom);
+      var cp = phase==='collapsing' ? collapseT : (phase==='collapsed'||phase==='fading') ? 1 : 0;
+      var sp = phase==='collapsed' ? spikeT : phase==='fading' ? spikeT*(1-fadeT) : 0;
+      drawRings();
+      drawCloud(cp);
+      drawWaves();
+      if (cloudMode === 'particle') {
+        /* Simple glowing nucleus */
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        var nc = T().cloud;
+        var ng = ctx.createRadialGradient(CX, CY, 0, CX, CY, R*0.045);
+        ng.addColorStop(0,   'rgba(255,255,255,0.95)');
+        ng.addColorStop(0.2, 'rgba('+nc[0]+','+nc[1]+','+nc[2]+',0.80)');
+        ng.addColorStop(1,   'rgba('+nc[0]+','+nc[1]+','+nc[2]+',0)');
+        ctx.beginPath(); ctx.arc(CX, CY, R*0.045, 0, Math.PI*2);
+        ctx.fillStyle = ng; ctx.fill();
+        ctx.restore();
+        drawSpikes(sp);
+      }
+      if (cloudMode === 'gaussian') { drawNucleus(); drawGaussianSpikes(sp); }
+      ctx.setTransform(1,0,0,1,0,0);
+    }
+    requestAnimationFrame(render);
+  }
+
+  /* ─── Easing ─────────────────────────────────── */
+  function eIO(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+  function eOut(t){ return t===1?1:1-Math.pow(2,-10*t); }
+  function anim(set,from,to,dur,ef,cb){
+    var s=performance.now();
+    (function tick(now){
+      var raw=Math.min((now-s)/dur,1);
+      set(from+(to-from)*ef(raw));
+      if(raw<1) requestAnimationFrame(tick); else {set(to);if(cb)cb();}
+    })(performance.now());
+  }
+
+  /* ─── UI helpers ─────────────────────────────── */
+  var phaseEl  = document.getElementById('phaseLabel');
+  var timeEl   = document.getElementById('timeDisplay');
+  var dateEl   = document.getElementById('dateDisplay');
+  var legendEl = document.getElementById('legend');
+  var dotEl    = document.getElementById('stateDot');
+  var btn      = document.getElementById('btn');
+
+  function setPhase(txt, bright) {
+    phaseEl.style.opacity='0';
+    setTimeout(function(){
+      phaseEl.textContent=txt;
+      phaseEl.classList.toggle('bright', !!bright);
+      phaseEl.style.opacity='1';
+    }, 240);
+  }
+
+  function pad2(v){ return String(v).padStart(2,'0'); }
+
+  function flash(op,dur){
+    var fc = T().flash;
+    var el=document.getElementById('flash');
+    el.style.transition='background 0s';
+    el.style.background='rgba('+fc[0]+','+fc[1]+','+fc[2]+','+op+')';
+    setTimeout(function(){
+      el.style.transition='background '+dur+'s cubic-bezier(0.16,1,0.3,1)';
+      el.style.background='rgba('+fc[0]+','+fc[1]+','+fc[2]+',0)';
+    },30);
+  }
+
+  /* ─── Theme picker ───────────────────────────── */
+  var swatches = document.querySelectorAll('.tswatch');
+  swatches.forEach(function(sw) {
+    sw.addEventListener('click', function() {
+      var tid = sw.id.replace('ts','').toLowerCase();
+      if (!THEMES[tid]) return;
+      activeTheme = tid;
+      clearGlowAtlas();
+      swatches.forEach(function(s){ s.classList.remove('active'); });
+      sw.classList.add('active');
+    });
+  });
+
+  /* ─── Mode toggle ────────────────────────────── */
+  var canvas3d = document.getElementById('c3d');
+  var gl3d = null, glProg = null, glState = null;
+
+  var rendering3d = false; // guard so render3D loop doesn't double-start
+
+  function setMode(m) {
+    cloudMode = m;
+    document.getElementById('modeParticle').classList.toggle('active', m==='particle');
+    document.getElementById('modeGaussian').classList.toggle('active', m==='gaussian');
+    document.getElementById('mode3D').classList.toggle('active',       m==='3d');
+    var is3d = m === '3d';
+
+    /* Clear the 2D canvas so old mode frames don't bleed through */
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    /* Clear the 3D overlay canvas if it exists */
+    if (glState && glState.overlay) {
+      var ov = glState.overlay;
+      glState.overlayCtx.clearRect(0, 0, ov.width, ov.height);
+      glState.overlay.style.display = is3d ? '' : 'none';
+    }
+    /* Clear the WebGL canvas */
+    if (gl3d) {
+      gl3d.clear(gl3d.COLOR_BUFFER_BIT);
+    }
+
+    canvas.style.display    = is3d ? 'none' : 'block';
+    canvas3d.style.display  = is3d ? 'block' : 'none';
+    if (is3d) {
+      if (!gl3d) init3D();
+      else { resize3D(); if (!rendering3d) { rendering3d=true; render3D(); } }
+    }
+  }
+
+  document.getElementById('modeParticle').addEventListener('click', function(){ setMode('particle'); });
+  document.getElementById('modeGaussian').addEventListener('click', function(){ setMode('gaussian'); });
+  document.getElementById('mode3D').addEventListener('click',       function(){ setMode('3d'); });
+
+  /* ════════════════════════════════════════════════════
+     3D MODE — WebGL orbital + coplanar clock spikes
+     ════════════════════════════════════════════════════ */
+  var zoom3d = 1.0; // separate zoom for 3D camera
+
+  function resize3D() {
+    var area = document.getElementById('cloudArea');
+    canvas3d.width  = area.clientWidth;
+    canvas3d.height = area.clientHeight;
+    if (gl3d) gl3d.viewport(0, 0, canvas3d.width, canvas3d.height);
+  }
+
+  function init3D() {
+    gl3d = canvas3d.getContext('webgl', {antialias:true, alpha:false}) ||
+           canvas3d.getContext('experimental-webgl', {antialias:true, alpha:false});
+    if (!gl3d) { console.warn('WebGL not available'); return; }
+
+    var gl = gl3d;
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.clearColor(0.004, 0.008, 0.030, 1.0);
+
+    /* ── Particle vertex shader ── */
+    /* Particles form a proper s-orbital shell (hollow sphere).
+       On collapse they stream into 3 coplanar spikes in the XZ plane (y=0),
+       spread by clock angle. Zoom is applied as camera distance. */
+    var VS_PTS = [
+      'attribute vec3  aXYZ;',
+      'attribute float aBright;',
+      'uniform mat3    uRot;',
+      'uniform vec2    uRes;',
+      'uniform float   uCollapseT;',
+      'uniform float   uSpikeT;',
+      'uniform float   uFadeT;',
+      'uniform vec3    uAngles;',   // h,m,s clock angles (XZ plane)
+      'uniform float   uZoom;',
+      'varying float   vBright;',
+      'varying vec3    vCol;',
+      'uniform vec3    uCloudCol;',
+      'uniform vec3    uColH;',
+      'uniform vec3    uColM;',
+      'uniform vec3    uColS;',
+      'void main(){',
+      '  vec3 p = aXYZ;',
+      /* collapse: squeeze cloud toward origin */
+      '  float scale = max(0.06, 1.0 - uCollapseT * 0.94);',
+      '  p *= scale;',
+      '  float sp = uSpikeT * (1.0 - uFadeT);',
+      /* spike directions: all in XZ plane (y=0) — coplanar clock hands */
+      '  vec3 dH = normalize(vec3(cos(uAngles.x), 0.0, sin(uAngles.x)));',
+      '  vec3 dM = normalize(vec3(cos(uAngles.y), 0.0, sin(uAngles.y)));',
+      '  vec3 dS = normalize(vec3(cos(uAngles.z), 0.0, sin(uAngles.z)));',
+      /* assign each particle to nearest spike direction */
+      '  vec3 n = normalize(aXYZ + vec3(0.001));',
+      '  float dH_ = dot(n, dH);',
+      '  float dM_ = dot(n, dM);',
+      '  float dS_ = dot(n, dS);',
+      '  float isH = step(dM_, dH_) * step(dS_, dH_);',
+      '  float isM = step(dH_, dM_) * step(dS_, dM_) * (1.0 - isH);',
+      '  float isS = 1.0 - isH - isM;',
+      /* spike target: along direction, length proportional to original r */
+      '  float r0 = length(aXYZ);',
+      '  vec3 tgt = (dH * isH + dM * isM + dS * isS) * r0 * 2.4;',
+      '  p = mix(p, tgt, sp);',
+      '  vCol = mix(uCloudCol, uColH*isH + uColM*isM + uColS*isS, sp);',
+      /* project: camera at (0,0,camZ), perspective */
+      '  vec3 pr = uRot * p;',
+      '  float camZ = 3.5 / uZoom;',
+      '  float fov  = 0.55;',
+      '  float depth = pr.z + camZ;',
+      '  if(depth < 0.01) { gl_Position = vec4(2.0,2.0,0.0,1.0); vBright=0.0; return; }',
+      '  vec2 proj = pr.xy / (depth * fov);',
+      '  proj.x *= uRes.y / uRes.x;',
+      '  gl_Position = vec4(proj, 0.0, 1.0);',
+      '  float df = clamp(depth / (camZ * 1.6), 0.0, 1.0);',
+      '  gl_PointSize = clamp((3.0 + df * 2.5) * aBright * uZoom, 0.8, 10.0) * (1.0 - uFadeT);',
+      '  vBright = aBright * df * (1.0 - uFadeT);',
+      '}'
+    ].join('\n');
+
+    var FS_PTS = [
+      'precision mediump float;',
+      'varying float vBright;',
+      'varying vec3  vCol;',
+      'void main(){',
+      '  vec2 uv = gl_PointCoord - 0.5;',
+      '  float d = dot(uv,uv) * 4.0;',
+      '  if(d > 1.0) discard;',
+      /* wide soft halo fades gently outward */
+      '  float halo = exp(-d * 1.1);',
+      '  float core = exp(-d * 10.0);',
+      '  vec3 deepBlue = vCol * 0.55;',
+      '  vec3 col = deepBlue * halo + vec3(0.72, 0.88, 1.0) * core * 0.7;',
+      '  float alpha = (halo * 0.38 + core * 1.2) * vBright * 4.2;',
+      '  gl_FragColor = vec4(col * alpha, alpha);',
+      '}'
+    ].join('\n');
+
+    /* ── Nucleus: drawn as a 3D point at origin, projects correctly with zoom ── */
+    var VS_NUC = [
+      'attribute vec2 aPos;',        /* -1..1 billboard in screen space */
+      'uniform vec2  uRes;',
+      'uniform float uZoom;',
+      'uniform float uFadeT;',
+      'varying vec2  vUV;',
+      'void main(){',
+      /* nucleus world radius = 0.04 units; project to screen via same camZ as particles */
+      '  float camZ = 3.5 / uZoom;',
+      '  float fov  = 0.55;',
+      /* projected screen radius in NDC: r_world / (camZ * fov), corrected for aspect */
+      '  float r_ndc = 0.04 / (camZ * fov);',    /* world radius in NDC y */
+      '  float rx = r_ndc * (uRes.y / uRes.x);',  /* aspect correct for x */
+      '  vUV = aPos;',
+      '  gl_Position = vec4(aPos.x * rx, aPos.y * r_ndc, 0.0, 1.0);',
+      '}'
+    ].join('\n');
+
+    var FS_NUC = [
+      'precision mediump float;',
+      'uniform vec3  uCol;',
+      'uniform float uTime;',
+      'uniform float uFadeT;',
+      'uniform float uCollapseT;',
+      'varying vec2  vUV;',
+      'void main(){',
+      '  float d = dot(vUV, vUV);',
+      '  if(d > 1.0) discard;',
+      /* smooth nucleus: wide soft halo + bright core, no ring artifact */
+      '  float halo  = exp(-d * 2.2) * 1.4;',
+      '  float core  = exp(-d * 14.0) * 5.0;',
+      '  float pulse = 0.88 + 0.12 * sin(uTime * 2.2);',
+      '  float fade  = (1.0 - uFadeT) * pulse;',
+      '  vec3  haloCol = uCol * 0.6 + vec3(0.0, 0.04, 0.18);',
+      '  vec3  col = haloCol * halo + vec3(0.85, 0.95, 1.0) * core;',
+      '  float alpha = (halo * 0.5 + core) * fade;',
+      '  gl_FragColor = vec4(col * fade, clamp(alpha, 0.0, 1.0));',
+      '}'
+    ].join('\n');
+
+    function compile(src, type) {
+      var sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS))
+        console.error('Shader:', gl.getShaderInfoLog(sh));
+      return sh;
+    }
+    function makeProgram(vs, fs) {
+      var p = gl.createProgram();
+      gl.attachShader(p, compile(vs, gl.VERTEX_SHADER));
+      gl.attachShader(p, compile(fs, gl.FRAGMENT_SHADER));
+      gl.linkProgram(p); return p;
+    }
+
+    var progPts = makeProgram(VS_PTS, FS_PTS);
+    var progNuc = makeProgram(VS_NUC, FS_NUC);
+
+    /* ── Fullscreen quad for nucleus ── */
+    var quadBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+
+    /* ── Particles: dense uniform spherical s-orbital shell ── */
+    var N = 16000;
+    var posArr   = new Float32Array(N * 3);
+    var brightArr = new Float32Array(N);
+    var a0 = 0.62;   /* shell peak radius */
+    var sig = 0.18;  /* tight sigma → thin hollow sphere */
+    for (var i = 0; i < N; i++) {
+      /* radius: Gaussian around a0 (thin shell) */
+      var r = a0 + (gauss() * sig);
+      r = Math.max(0.05, Math.min(r, 1.8));
+      /* perfectly uniform direction on sphere (Marsaglia method) */
+      var u, v, s;
+      do { u = Math.random()*2-1; v = Math.random()*2-1; s = u*u+v*v; } while(s>=1);
+      var sq = Math.sqrt(1-s);
+      posArr[i*3]   = 2*u*sq * r;
+      posArr[i*3+1] = 2*v*sq * r;
+      posArr[i*3+2] = (1-2*s) * r;
+      /* brightness: uniform with slight sparkle */
+      var norm = (r - a0) / sig;
+      brightArr[i] = (0.4 + Math.random()*0.6) * Math.exp(-norm*norm * 0.8);
+    }
+
+    var posBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, posArr, gl.STATIC_DRAW);
+
+    var brightBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, brightBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, brightArr, gl.STATIC_DRAW);
+
+    /* ── Overlay canvas for 2D labels (removed/replaced on re-init) ── */
+    if (glState && glState.overlay) glState.overlay.remove();
+    var ov = document.createElement('canvas');
+    ov.style.cssText = 'position:absolute;inset:0;pointer-events:none;display:' + (cloudMode==='3d' ? 'block' : 'none') + ';';
+    document.getElementById('cloudArea').appendChild(ov);
+
+    /* ── Cache locations ── */
+    glState = {
+      pts: {
+        prog:       progPts,
+        uRot:       gl.getUniformLocation(progPts, 'uRot'),
+        uRes:       gl.getUniformLocation(progPts, 'uRes'),
+        uCollapseT: gl.getUniformLocation(progPts, 'uCollapseT'),
+        uSpikeT:    gl.getUniformLocation(progPts, 'uSpikeT'),
+        uFadeT:     gl.getUniformLocation(progPts, 'uFadeT'),
+        uAngles:    gl.getUniformLocation(progPts, 'uAngles'),
+        uZoom:      gl.getUniformLocation(progPts, 'uZoom'),
+        uCloudCol:  gl.getUniformLocation(progPts, 'uCloudCol'),
+        uColH:      gl.getUniformLocation(progPts, 'uColH'),
+        uColM:      gl.getUniformLocation(progPts, 'uColM'),
+        uColS:      gl.getUniformLocation(progPts, 'uColS'),
+        aXYZ:       gl.getAttribLocation(progPts,  'aXYZ'),
+        aBright:    gl.getAttribLocation(progPts,  'aBright'),
+      },
+      nuc: {
+        prog:       progNuc,
+        uRes:       gl.getUniformLocation(progNuc, 'uRes'),
+        uCol:       gl.getUniformLocation(progNuc, 'uCol'),
+        uTime:      gl.getUniformLocation(progNuc, 'uTime'),
+        uFadeT:     gl.getUniformLocation(progNuc, 'uFadeT'),
+        uCollapseT: gl.getUniformLocation(progNuc, 'uCollapseT'),
+        uZoom:      gl.getUniformLocation(progNuc, 'uZoom'),
+        aPos:       gl.getAttribLocation(progNuc,  'aPos'),
+      },
+      quadBuf, posBuf, brightBuf, N,
+      overlay: ov,
+      overlayCtx: ov.getContext('2d'),
+    };
+
+    /* ── Orbit drag (mouse + touch) ── */
+    var drag3d = false, lastX3 = 0, lastY3 = 0;
+    var rotX3 = 0.28, rotY3 = 0.0;
+
+    canvas3d.addEventListener('mousedown', function(e){ drag3d=true; lastX3=e.clientX; lastY3=e.clientY; });
+    window.addEventListener('mousemove', function(e){
+      if(!drag3d) return;
+      rotY3 += (e.clientX - lastX3) * 0.013;
+      rotX3 += (e.clientY - lastY3) * 0.010;
+      rotX3 = Math.max(-1.3, Math.min(1.3, rotX3));
+      lastX3=e.clientX; lastY3=e.clientY;
+    });
+    window.addEventListener('mouseup', function(){ drag3d=false; });
+
+    /* Pinch-zoom on the 3D canvas */
+    var last3dTouches = null;
+    canvas3d.addEventListener('touchstart', function(e){
+      e.preventDefault(); last3dTouches=Array.from(e.touches); drag3d=true;
+    }, {passive:false});
+    canvas3d.addEventListener('touchmove', function(e){
+      e.preventDefault();
+      var ts = Array.from(e.touches);
+      if(ts.length===1 && last3dTouches && last3dTouches.length===1){
+        rotY3 += (ts[0].clientX - last3dTouches[0].clientX) * 0.013;
+        rotX3 += (ts[0].clientY - last3dTouches[0].clientY) * 0.010;
+        rotX3 = Math.max(-1.3, Math.min(1.3, rotX3));
+      } else if(ts.length===2 && last3dTouches && last3dTouches.length>=2){
+        var d0 = Math.hypot(last3dTouches[1].clientX-last3dTouches[0].clientX,
+                            last3dTouches[1].clientY-last3dTouches[0].clientY);
+        var d1 = Math.hypot(ts[1].clientX-ts[0].clientX, ts[1].clientY-ts[0].clientY);
+        if(d0>1){ zoom3d = Math.max(0.3, Math.min(4.0, zoom3d * d1/d0)); updateZLvl(); }
+      }
+      last3dTouches=ts;
+    }, {passive:false});
+    canvas3d.addEventListener('touchend', function(e){ last3dTouches=Array.from(e.touches); if(!last3dTouches.length) drag3d=false; });
+
+    /* Scroll-wheel zoom on 3D canvas */
+    canvas3d.addEventListener('wheel', function(e){
+      e.preventDefault();
+      zoom3d = Math.max(0.3, Math.min(4.0, zoom3d * (e.deltaY < 0 ? 1.12 : 1/1.12)));
+      updateZLvl();
+      showToast(zoom3d.toFixed(1) + '×');
+    }, {passive:false});
+
+    glState.rotX3 = function(){ return rotX3; };
+    glState.rotY3 = function(){ return rotY3 + gT * 0.10; };
+
+    resize3D();
+    rendering3d = true;
+    render3D();
+  }
+
+  function render3D() {
+    if(cloudMode !== '3d'){ rendering3d = false; return; }
+    requestAnimationFrame(render3D);
+    if(!gl3d || !glState) return;
+
+    var gl = gl3d;
+    var W3 = canvas3d.width, H3 = canvas3d.height;
+    gl.viewport(0, 0, W3, H3);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    var tc = T().cloud;
+    var cp = phase==='collapsing' ? collapseT : (phase==='collapsed'||phase==='fading') ? 1 : 0;
+    var sp = phase==='collapsed' ? spikeT : phase==='fading' ? spikeT*(1-fadeT) : 0;
+    var fd = phase==='fading' ? fadeT : 0;
+    var rx = glState.rotX3();
+    var ry = glState.rotY3();
+
+    /* Rotation matrix: rotY then rotX */
+    var cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry);
+    var rot=[cy,0,sy, sx*sy,cx,-sx*cy, -cx*sy,sx,cx*cy];
+
+    /* ── Particles ── */
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.useProgram(glState.pts.prog);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, glState.posBuf);
+    gl.enableVertexAttribArray(glState.pts.aXYZ);
+    gl.vertexAttribPointer(glState.pts.aXYZ, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, glState.brightBuf);
+    gl.enableVertexAttribArray(glState.pts.aBright);
+    gl.vertexAttribPointer(glState.pts.aBright, 1, gl.FLOAT, false, 0, 0);
+
+    gl.uniformMatrix3fv(glState.pts.uRot,       false, rot);
+    gl.uniform2f(glState.pts.uRes,               W3, H3);
+    gl.uniform1f(glState.pts.uCollapseT,         cp);
+    gl.uniform1f(glState.pts.uSpikeT,            0.0); /* overlay draws sticks — suppress GPU spike trails */
+    gl.uniform1f(glState.pts.uFadeT,             Math.max(fd, sp * 0.85)); /* fade cloud as sticks grow */
+    gl.uniform3f(glState.pts.uAngles,            spikeAngles.h, spikeAngles.m, spikeAngles.s);
+    gl.uniform1f(glState.pts.uZoom,              zoom3d);
+    gl.uniform3f(glState.pts.uCloudCol,          tc[0]/255, tc[1]/255, tc[2]/255);
+    gl.uniform3f(glState.pts.uColH,              255/255, 105/255,  97/255);
+    gl.uniform3f(glState.pts.uColM,              255/255, 196/255,  66/255);
+    gl.uniform3f(glState.pts.uColS,               62/255, 224/255, 160/255);
+    gl.drawArrays(gl.POINTS, 0, glState.N);
+
+    gl.disableVertexAttribArray(glState.pts.aXYZ);
+    gl.disableVertexAttribArray(glState.pts.aBright);
+
+    /* nucleus billboard removed in 3D — particles carry the look */
+
+    /* ── 2D overlay setup (must happen before any oc usage) ── */
+    var ov = glState.overlay;
+    var oc = glState.overlayCtx;
+
+    /* ── 2D overlay: natural ambient glow + spike sticks ── */
+    ov.width = W3; ov.height = H3;
+    oc.clearRect(0, 0, W3, H3);
+
+    /* ── Centre nucleus — simple clean glow, no ring artifacts ── */
+    (function(){
+      var CX3 = W3/2, CY3 = H3/2;
+      var r = tc[0], g = tc[1], b = tc[2];
+      var fade = 1.0 - fd;
+      if(fade <= 0.01) return;
+      var pulse = 0.9 + 0.1 * Math.sin(gT * 2.2);
+      var S = Math.min(W3, H3);
+
+      oc.save();
+      oc.globalCompositeOperation = 'lighter';
+
+      /* Soft outer glow — fades smoothly to nothing */
+      var glowR = S * 0.045 * pulse;
+      var glow = oc.createRadialGradient(CX3, CY3, 0, CX3, CY3, glowR);
+      glow.addColorStop(0.0,  'rgba('+r+','+g+','+b+','+(0.35*fade)+')');
+      glow.addColorStop(0.5,  'rgba('+r+','+g+','+b+','+(0.10*fade)+')');
+      glow.addColorStop(1.0,  'rgba('+r+','+g+','+b+',0)');
+      oc.beginPath(); oc.arc(CX3, CY3, glowR, 0, Math.PI*2);
+      oc.fillStyle = glow; oc.fill();
+
+      /* White-hot pinpoint core */
+      var coreR = S * 0.008 * pulse;
+      var core = oc.createRadialGradient(CX3, CY3, 0, CX3, CY3, coreR);
+      core.addColorStop(0.0,  'rgba(255,255,255,'+(1.0*fade)+')');
+      core.addColorStop(0.5,  'rgba('+r+','+g+','+b+','+(0.8*fade)+')');
+      core.addColorStop(1.0,  'rgba('+r+','+g+','+b+',0)');
+      oc.beginPath(); oc.arc(CX3, CY3, coreR, 0, Math.PI*2);
+      oc.fillStyle = core; oc.fill();
+
+      oc.restore();
+    })();
+
+    /* ── Soft volumetric ambient glow — pure smooth radials, no hard edges ── */
+    (function(){
+      var CX3 = W3/2, CY3 = H3/2;
+      var r = tc[0], g = tc[1], b = tc[2];
+      var cloudScale = Math.max(0.06, 1.0 - cp * 0.94);
+      var fadeAlpha  = 1.0 - Math.max(fd, sp * 0.85);
+      if(fadeAlpha <= 0.01) return;
+
+      var breathe = 1 + 0.03 * Math.sin(gT * 0.48);
+      var base = Math.min(W3, H3) * 0.5 * cloudScale * breathe;
+
+      oc.save();
+      oc.globalCompositeOperation = 'lighter';
+
+      /* Outermost wisp — very faint, very wide */
+      var g1 = oc.createRadialGradient(CX3, CY3, 0, CX3, CY3, base * 2.2);
+      g1.addColorStop(0.00, 'rgba('+r+','+g+','+b+','+(0.030*fadeAlpha)+')');
+      g1.addColorStop(0.30, 'rgba('+r+','+g+','+b+','+(0.015*fadeAlpha)+')');
+      g1.addColorStop(0.65, 'rgba('+r+','+g+','+b+','+(0.004*fadeAlpha)+')');
+      g1.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0)');
+      oc.beginPath(); oc.arc(CX3, CY3, base * 2.2, 0, Math.PI*2);
+      oc.fillStyle = g1; oc.fill();
+
+      /* Mid atmosphere — medium radius, gentle */
+      var g2 = oc.createRadialGradient(CX3, CY3, 0, CX3, CY3, base * 1.1);
+      g2.addColorStop(0.00, 'rgba('+r+','+g+','+b+','+(0.07*fadeAlpha)+')');
+      g2.addColorStop(0.40, 'rgba('+r+','+g+','+b+','+(0.03*fadeAlpha)+')');
+      g2.addColorStop(0.80, 'rgba('+r+','+g+','+b+','+(0.006*fadeAlpha)+')');
+      g2.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0)');
+      oc.beginPath(); oc.arc(CX3, CY3, base * 1.1, 0, Math.PI*2);
+      oc.fillStyle = g2; oc.fill();
+
+      /* Inner warm corona */
+      var g3 = oc.createRadialGradient(CX3, CY3, 0, CX3, CY3, base * 0.75);
+      g3.addColorStop(0.00, 'rgba('+r+','+g+','+b+','+(0.06*fadeAlpha)+')');
+      g3.addColorStop(0.60, 'rgba('+r+','+g+','+b+','+(0.02*fadeAlpha)+')');
+      g3.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0)');
+      oc.beginPath(); oc.arc(CX3, CY3, base * 0.75, 0, Math.PI*2);
+      oc.fillStyle = g3; oc.fill();
+
+      oc.restore();
+    })();
+
+
+
+    if(sp > 0.05){
+      var lp = Math.min(1, sp / 0.45);
+      var CX3 = W3/2, CY3 = H3/2;
+      var fov = 0.55, camZ = 3.5 / zoom3d;
+
+      function project3D(wx, wy, wz){
+        var px=rot[0]*wx+rot[1]*wy+rot[2]*wz;
+        var py=rot[3]*wx+rot[4]*wy+rot[5]*wz;
+        var pz=rot[6]*wx+rot[7]*wy+rot[8]*wz;
+        var dep = pz + camZ;
+        if(dep <= 0.01) return null;
+        return {
+          x: CX3 + (px/(dep*fov))*(H3/2)*(W3>H3?1:1),
+          y: CY3 - (py/(dep*fov))*(H3/2)
+        };
+      }
+
+      /* Origin = sphere centre (0,0,0) */
+      var origin = project3D(0, 0, 0);
+
+      /* ── Flat clock-body disc in XZ plane (y=0) ── */
+      (function(){
+        if(!origin) return;
+        var S3 = Math.min(W3, H3);
+        var discR = 1.45 * sp;           /* world-space radius — slightly beyond max spike (r0base=1.2) */
+        var SEGS  = 72;                  /* smoothness of the ellipse */
+        var r3 = tc[0], g3 = tc[1], b3 = tc[2];
+
+        /* Project a ring of points around the disc edge */
+        var pts = [];
+        for(var i = 0; i <= SEGS; i++){
+          var a = (i / SEGS) * Math.PI * 2;
+          var p = project3D(Math.cos(a)*discR, 0, Math.sin(a)*discR);
+          pts.push(p);
+        }
+
+        /* --- Filled disc body ---------------------------------------- */
+        oc.save();
+        oc.globalAlpha = lp * 0.38;
+
+        /* Build clipping/fill path from projected ring */
+        oc.beginPath();
+        var started = false;
+        for(var i = 0; i < pts.length; i++){
+          if(!pts[i]) continue;
+          if(!started){ oc.moveTo(pts[i].x, pts[i].y); started=true; }
+          else         { oc.lineTo(pts[i].x, pts[i].y); }
+        }
+        oc.closePath();
+
+        /* Radial gradient fill — darker at edge, a touch brighter at centre */
+        if(origin){
+          var dg = oc.createRadialGradient(
+            origin.x, origin.y, 0,
+            origin.x, origin.y, S3 * 0.48
+          );
+          dg.addColorStop(0.00, 'rgba('+r3+','+g3+','+b3+',0.22)');
+          dg.addColorStop(0.45, 'rgba('+r3+','+g3+','+b3+',0.10)');
+          dg.addColorStop(0.80, 'rgba('+r3+','+g3+','+b3+',0.04)');
+          dg.addColorStop(1.00, 'rgba('+r3+','+g3+','+b3+',0)');
+          oc.fillStyle = dg;
+        } else {
+          oc.fillStyle = 'rgba('+r3+','+g3+','+b3+',0.06)';
+        }
+        oc.fill();
+        oc.restore();
+
+        /* --- Outer rim stroke ---------------------------------------- */
+        oc.save();
+        oc.globalAlpha = lp * 0.72;
+        oc.beginPath();
+        started = false;
+        for(var i = 0; i < pts.length; i++){
+          if(!pts[i]) continue;
+          if(!started){ oc.moveTo(pts[i].x, pts[i].y); started=true; }
+          else         { oc.lineTo(pts[i].x, pts[i].y); }
+        }
+        oc.closePath();
+        oc.strokeStyle = 'rgba('+r3+','+g3+','+b3+',0.55)';
+        oc.lineWidth = 1.2;
+        oc.stroke();
+        oc.restore();
+
+        /* --- Outer rim soft glow (wider, transparent stroke) ---------- */
+        oc.save();
+        oc.globalAlpha = lp * 0.30;
+        oc.beginPath();
+        started = false;
+        for(var i = 0; i < pts.length; i++){
+          if(!pts[i]) continue;
+          if(!started){ oc.moveTo(pts[i].x, pts[i].y); started=true; }
+          else         { oc.lineTo(pts[i].x, pts[i].y); }
+        }
+        oc.closePath();
+        oc.strokeStyle = 'rgba('+r3+','+g3+','+b3+',0.40)';
+        oc.lineWidth = 7;
+        oc.stroke();
+        oc.restore();
+
+        /* --- Inner concentric ring at ~55% radius -------------------- */
+        var innerR = discR * 0.55;
+        var ipts = [];
+        for(var i = 0; i <= SEGS; i++){
+          var a = (i / SEGS) * Math.PI * 2;
+          var p = project3D(Math.cos(a)*innerR, 0, Math.sin(a)*innerR);
+          ipts.push(p);
+        }
+        oc.save();
+        oc.globalAlpha = lp * 0.28;
+        oc.beginPath();
+        started = false;
+        for(var i = 0; i < ipts.length; i++){
+          if(!ipts[i]) continue;
+          if(!started){ oc.moveTo(ipts[i].x, ipts[i].y); started=true; }
+          else         { oc.lineTo(ipts[i].x, ipts[i].y); }
+        }
+        oc.closePath();
+        oc.strokeStyle = 'rgba('+r3+','+g3+','+b3+',0.38)';
+        oc.lineWidth = 0.8;
+        oc.stroke();
+        oc.restore();
+
+        /* --- 12 hour tick marks on the rim --------------------------- */
+        oc.save();
+        oc.globalAlpha = lp * 0.65;
+        for(var t = 0; t < 12; t++){
+          var ta = (t / 12) * Math.PI * 2 - Math.PI/2;
+          var outerPt = project3D(Math.cos(ta)*discR, 0, Math.sin(ta)*discR);
+          var innerPt = project3D(Math.cos(ta)*(discR*0.88), 0, Math.sin(ta)*(discR*0.88));
+          if(!outerPt || !innerPt) continue;
+          oc.beginPath();
+          oc.moveTo(outerPt.x, outerPt.y);
+          oc.lineTo(innerPt.x, innerPt.y);
+          oc.strokeStyle = 'rgba('+r3+','+g3+','+b3+',0.70)';
+          oc.lineWidth = t === 0 ? 1.8 : 0.9;
+          oc.stroke();
+        }
+        oc.restore();
+
+        /* --- 60 minute tick marks (shorter) -------------------------- */
+        oc.save();
+        oc.globalAlpha = lp * 0.30;
+        for(var t = 0; t < 60; t++){
+          if(t % 5 === 0) continue; /* skip where hour ticks are */
+          var ta = (t / 60) * Math.PI * 2 - Math.PI/2;
+          var outerPt = project3D(Math.cos(ta)*discR, 0, Math.sin(ta)*discR);
+          var innerPt = project3D(Math.cos(ta)*(discR*0.93), 0, Math.sin(ta)*(discR*0.93));
+          if(!outerPt || !innerPt) continue;
+          oc.beginPath();
+          oc.moveTo(outerPt.x, outerPt.y);
+          oc.lineTo(innerPt.x, innerPt.y);
+          oc.strokeStyle = 'rgba('+r3+','+g3+','+b3+',0.60)';
+          oc.lineWidth = 0.7;
+          oc.stroke();
+        }
+        oc.restore();
+      })();
+
+      /* Spike tips: in XZ plane (y=0), radius proportional to value */
+      /* r0base: world-space spike reach. At camZ=3.5, fov=0.55, a world unit
+         projects to H3/2 / (3.5*0.55) ≈ 0.52 * H3 px from centre.
+         r0base=1.2 → max spike ≈ 62% of half-height — stays inside disc (discR=2.55). */
+      var r0base = 1.2;
+      [
+        { key:'h', ang: spikeAngles.h, val: spikeVals.h, max: 23, rgb:[100,140,255]  },
+        { key:'m', ang: spikeAngles.m, val: spikeVals.m, max: 59, rgb:[0,210,255]    },
+        { key:'s', ang: spikeAngles.s, val: spikeVals.s, max: 59, rgb:[180,230,255]  },
+      ].forEach(function(sd){
+        /* length proportional to value, just like 2D mode */
+        var lenFrac = 0.18 + (sd.val / sd.max) * 0.82;
+        var r0 = r0base * lenFrac * sp;
+        var tipX = Math.cos(sd.ang) * r0;
+        var tipY = 0.0;
+        var tipZ = Math.sin(sd.ang) * r0;
+        var projTip = project3D(tipX, tipY, tipZ);
+        if(!origin || !projTip) return;
+
+        var cr = sd.rgb[0], cg = sd.rgb[1], cb = sd.rgb[2];
+
+        /* ── Draw line stick from origin to tip ── */
+        oc.save();
+        oc.globalAlpha = lp;
+        oc.lineCap = 'round';
+
+        /* Wide soft outer glow */
+        oc.beginPath();
+        oc.moveTo(origin.x, origin.y);
+        oc.lineTo(projTip.x, projTip.y);
+        oc.strokeStyle = 'rgba('+cr+','+cg+','+cb+','+(0.12*lp)+')';
+        oc.lineWidth = 22;
+        oc.stroke();
+
+        /* Mid glow */
+        oc.beginPath();
+        oc.moveTo(origin.x, origin.y);
+        oc.lineTo(projTip.x, projTip.y);
+        oc.strokeStyle = 'rgba('+cr+','+cg+','+cb+','+(0.32*lp)+')';
+        oc.lineWidth = 8;
+        oc.stroke();
+
+        /* Core bright line — gradient from dark at origin to bright at tip */
+        var grad = oc.createLinearGradient(origin.x, origin.y, projTip.x, projTip.y);
+        grad.addColorStop(0,    'rgba('+cr+','+cg+','+cb+',0)');
+        grad.addColorStop(0.05, 'rgba('+cr+','+cg+','+cb+','+(0.7*lp)+')');
+        grad.addColorStop(0.88, 'rgba('+cr+','+cg+','+cb+','+(1.0*lp)+')');
+        grad.addColorStop(1,    'rgba(255,255,255,'+(1.0*lp)+')');
+        oc.beginPath();
+        oc.moveTo(origin.x, origin.y);
+        oc.lineTo(projTip.x, projTip.y);
+        oc.strokeStyle = grad;
+        oc.lineWidth = 2.5;
+        oc.stroke();
+
+        /* Tip glow blob */
+        if(lp > 0.15){
+          var tipR = Math.min(W3, H3) * 0.055 * lp;
+          var tipGrad = oc.createRadialGradient(projTip.x, projTip.y, 0, projTip.x, projTip.y, tipR);
+          tipGrad.addColorStop(0,    'rgba(255,255,255,'+(0.95*lp)+')');
+          tipGrad.addColorStop(0.18, 'rgba('+cr+','+cg+','+cb+','+(0.9*lp)+')');
+          tipGrad.addColorStop(1,    'rgba('+cr+','+cg+','+cb+',0)');
+          oc.beginPath();
+          oc.arc(projTip.x, projTip.y, tipR, 0, Math.PI*2);
+          oc.fillStyle = tipGrad;
+          oc.fill();
+          /* White pinpoint dot */
+          oc.beginPath();
+          oc.arc(projTip.x, projTip.y, Math.max(2.5, 4*lp), 0, Math.PI*2);
+          oc.fillStyle = 'rgba(255,255,255,'+(lp)+')';
+          oc.fill();
+        }
+
+        /* ── Tip plane card ── */
+        if(lp > 0.35){
+          var llp = Math.min(1, (lp - 0.35) / 0.50);
+          var dx = projTip.x - origin.x, dy = projTip.y - origin.y;
+          var dist = Math.sqrt(dx*dx+dy*dy);
+          var nx = dist > 1 ? dx/dist : 0;
+          var ny = dist > 1 ? dy/dist : 0;
+          /* Card centre: beyond tip along spike direction */
+          var S3 = Math.min(W3, H3);
+          var cardDist = S3 * 0.088;
+          var cx3 = projTip.x + nx * cardDist;
+          var cy3 = projTip.y + ny * cardDist;
+
+          /* Card dimensions */
+          var cw = S3 * 0.22;
+          var ch = S3 * 0.11;
+          var cr2 = S3 * 0.012; /* corner radius */
+
+          oc.save();
+          oc.globalAlpha = llp;
+
+          /* Card background — glassy dark panel */
+          oc.beginPath();
+          oc.moveTo(cx3 - cw/2 + cr2, cy3 - ch/2);
+          oc.lineTo(cx3 + cw/2 - cr2, cy3 - ch/2);
+          oc.arcTo(cx3 + cw/2, cy3 - ch/2, cx3 + cw/2, cy3 - ch/2 + cr2, cr2);
+          oc.lineTo(cx3 + cw/2, cy3 + ch/2 - cr2);
+          oc.arcTo(cx3 + cw/2, cy3 + ch/2, cx3 + cw/2 - cr2, cy3 + ch/2, cr2);
+          oc.lineTo(cx3 - cw/2 + cr2, cy3 + ch/2);
+          oc.arcTo(cx3 - cw/2, cy3 + ch/2, cx3 - cw/2, cy3 + ch/2 - cr2, cr2);
+          oc.lineTo(cx3 - cw/2, cy3 - ch/2 + cr2);
+          oc.arcTo(cx3 - cw/2, cy3 - ch/2, cx3 - cw/2 + cr2, cy3 - ch/2, cr2);
+          oc.closePath();
+
+          /* Fill: dark glass */
+          oc.fillStyle = 'rgba(2,6,18,0.72)';
+          oc.fill();
+
+          /* Border: spike colour */
+          oc.strokeStyle = 'rgba('+cr+','+cg+','+cb+','+(0.55*llp)+')';
+          oc.lineWidth = 1;
+          oc.stroke();
+
+          /* Top-edge specular line */
+          oc.beginPath();
+          oc.moveTo(cx3 - cw/2 + cr2, cy3 - ch/2);
+          oc.lineTo(cx3 + cw/2 - cr2, cy3 - ch/2);
+          oc.strokeStyle = 'rgba(255,255,255,'+(0.10*llp)+')';
+          oc.lineWidth = 1;
+          oc.stroke();
+
+          /* Inner glow fill */
+          var innerGrad = oc.createRadialGradient(cx3, cy3 - ch*0.1, 0, cx3, cy3, cw*0.55);
+          innerGrad.addColorStop(0,   'rgba('+cr+','+cg+','+cb+','+(0.08*llp)+')');
+          innerGrad.addColorStop(1,   'rgba('+cr+','+cg+','+cb+',0)');
+          oc.beginPath();
+          oc.moveTo(cx3 - cw/2 + cr2, cy3 - ch/2);
+          oc.lineTo(cx3 + cw/2 - cr2, cy3 - ch/2);
+          oc.arcTo(cx3 + cw/2, cy3 - ch/2, cx3 + cw/2, cy3 - ch/2 + cr2, cr2);
+          oc.lineTo(cx3 + cw/2, cy3 + ch/2 - cr2);
+          oc.arcTo(cx3 + cw/2, cy3 + ch/2, cx3 + cw/2 - cr2, cy3 + ch/2, cr2);
+          oc.lineTo(cx3 - cw/2 + cr2, cy3 + ch/2);
+          oc.arcTo(cx3 - cw/2, cy3 + ch/2, cx3 - cw/2, cy3 + ch/2 - cr2, cr2);
+          oc.lineTo(cx3 - cw/2, cy3 - ch/2 + cr2);
+          oc.arcTo(cx3 - cw/2, cy3 - ch/2, cx3 - cw/2 + cr2, cy3 - ch/2, cr2);
+          oc.closePath();
+          oc.fillStyle = innerGrad;
+          oc.fill();
+
+          /* Label key (H / M / S) */
+          var keyLabel = sd.key === 'h' ? 'HRS' : sd.key === 'm' ? 'MIN' : 'SEC';
+          oc.font = Math.floor(S3 * 0.022) + 'px "Space Mono", monospace';
+          oc.textAlign = 'center';
+          oc.textBaseline = 'middle';
+          oc.shadowBlur = 0;
+          oc.fillStyle = 'rgba('+cr+','+cg+','+cb+','+(0.70*llp)+')';
+          oc.fillText(keyLabel, cx3, cy3 - ch * 0.20);
+
+          /* Value number — large */
+          oc.font = 'bold ' + Math.floor(S3 * 0.048) + 'px "Space Mono", monospace';
+          oc.shadowColor = 'rgba('+cr+','+cg+','+cb+',0.8)';
+          oc.shadowBlur = 14;
+          oc.fillStyle = 'rgba(255,255,255,'+(0.97*llp)+')';
+          oc.fillText(String(sd.val).padStart(2,'0'), cx3, cy3 + ch * 0.20);
+
+          oc.restore();
+        }
+
+        oc.restore();
+      });
+    }
+  }
+
+  function setLegend(h,m,s){
+    document.getElementById('fh').style.width=((h/23)*100)+'%'; // 0–23 range
+    document.getElementById('fm').style.width=((m/59)*100)+'%';
+    document.getElementById('fs').style.width=((s/59)*100)+'%';
+    document.getElementById('vh').textContent=pad2(h);
+    document.getElementById('vm').textContent=pad2(m);
+    document.getElementById('vs').textContent=pad2(s);
+  }
+
+  var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  /* ─── Measure ────────────────────────────────── */
+  function measure() {
+    if (busy) return;
+    busy=true; btn.disabled=true;
+    timeEl.classList.remove('show');
+    dateEl.classList.remove('show');
+    legendEl.classList.remove('show');
+    dotEl.classList.remove('active');
+
+    var now=new Date();
+    spikeVals={h:now.getHours(),m:now.getMinutes(),s:now.getSeconds()};
+    spikeAngles=timeToAngles(spikeVals.h,spikeVals.m,spikeVals.s);
+    initCloud();
+    phase='flutter'; collapseT=0; spikeT=0; fadeT=0; waves=[];
+    setPhase('observing ···', false);
+
+    setTimeout(function(){
+      phase='collapsing';
+      setPhase('wave function collapsing', true);
+      dotEl.classList.add('active');
+      flash(0.07, 0.5);
+      var wc = T().wave;
+      addWave(0.50, wc[0][0],wc[0][1],wc[0][2]);
+
+      anim(function(v){collapseT=v;},0,1,1350,eIO,function(){
+        phase='collapsed';
+        flash(0.30, 1.6);
+        addWave(1.08,wc[1][0],wc[1][1],wc[1][2]);
+        setTimeout(function(){addWave(1.46,wc[2][0],wc[2][1],wc[2][2]);},210);
+        setTimeout(function(){addWave(0.74,wc[3][0],wc[3][1],wc[3][2]);},440);
+        setPhase('eigenstate', true);
+
+        anim(function(v){spikeT=v;},0,1,1250,eOut,function(){
+          var h12=spikeVals.h%12||12, ap=spikeVals.h<12?'am':'pm';
+          timeEl.textContent=pad2(h12)+':'+pad2(spikeVals.m)+':'+pad2(spikeVals.s)+'\u2009'+ap;
+          var d=new Date();
+          dateEl.textContent=DAYS[d.getDay()]+' · '+d.getDate()+' '+MONS[d.getMonth()];
+          setLegend(spikeVals.h,spikeVals.m,spikeVals.s);
+          timeEl.classList.add('show');
+          dateEl.classList.add('show');
+          legendEl.classList.add('show');
+          setPhase('measurement complete', false);
+
+          setTimeout(function(){
+            phase='fading';
+            dotEl.classList.remove('active');
+            setPhase('decoherence', false);
+            setTimeout(function(){
+              timeEl.classList.remove('show');
+              dateEl.classList.remove('show');
+              legendEl.classList.remove('show');
+            }, 200);
+            anim(function(v){fadeT=v;},0,1,1700,eIO,function(){
+              initCloud();
+              phase='super'; collapseT=0; spikeT=0; fadeT=0; waves=[];
+              setPhase('superposition · unobserved', false);
+              btn.disabled=false; busy=false;
+            });
+          }, 5800);
+        });
+      });
+    }, 380);
+  }
+
+  btn.addEventListener('click', measure);
+
+  /* ─── Auto-collapse on watch ─────────────────────
+     Mirrors tapping "Observe": the moment you open this page, or come
+     back to it after switching away, the wavefunction collapses on its
+     own and reveals the time — like glancing at a watch instead of
+     having to press a button. Manual taps still work exactly as before.
+  ──────────────────────────────────────────────── */
+  var _lastAutoObserve = 0;
+  function autoObserve() {
+    var now = Date.now();
+    if (now - _lastAutoObserve < 1500) return; // focus + visibilitychange can both fire for one "look"
+    if (busy || phase !== 'super') return;      // only from a settled, unobserved state
+    _lastAutoObserve = now;
+    measure();
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') setTimeout(autoObserve, 550);
+  });
+  window.addEventListener('focus', function () { setTimeout(autoObserve, 550); });
+  window.addEventListener('pageshow', function () { setTimeout(autoObserve, 550); });
+
+  /* ─── Boot ───────────────────────────────────── */
+  setMode('particle');
+  resize();
+  setTimeout(resize, 300);
+  updateZLvl();
+  render();
+  setTimeout(autoObserve, 900); // first watch — page just opened
+});
+</script>
+</body>
+</html>
