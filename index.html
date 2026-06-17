@@ -6,7 +6,6 @@
 <title>QUANTA — Quantum State Clock</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Space+Mono:wght@400;700&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
-
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -25,15 +24,13 @@
   --frost:       rgba(210,230,255,0.92);
   --frost-mid:   rgba(210,230,255,0.50);
   --frost-low:   rgba(210,230,255,0.24);
-  --frost-ghost: rgba(210,230,255,0.07);
-
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-mono:    'Space Mono', monospace;
-  --font-body:    'Inter', sans-serif;
+  --font-display:'Cormorant Garamond', Georgia, serif;
+  --font-mono:   'Space Mono', monospace;
+  --font-body:   'Inter', sans-serif;
+  --ease:        cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html { scroll-behavior: smooth; }
-
 body {
   background: var(--ink);
   color: var(--frost);
@@ -42,12 +39,8 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Ambient background ── */
 .bg-ambient {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
     radial-gradient(ellipse 60% 40% at 50% 55%, rgba(30,80,180,0.09) 0%, transparent 70%),
     radial-gradient(ellipse 90% 50% at 15% 0%,  rgba(10,40,120,0.10) 0%, transparent 60%),
@@ -55,658 +48,518 @@ body {
     radial-gradient(ellipse 40% 30% at 50% 8%,  rgba(59,158,255,0.04) 0%, transparent 60%);
 }
 
-/* ═══════════════════════════
-   NAV
-═══════════════════════════ */
+/* ── NAV ── */
 nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 40px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
   border-bottom: 1px solid transparent;
   transition: border-color 0.4s, background 0.4s;
 }
 nav.scrolled {
-  background: rgba(2,4,8,0.85);
-  backdrop-filter: blur(16px);
+  background: rgba(2,4,8,0.88);
+  backdrop-filter: blur(20px);
   border-color: var(--blue-border);
 }
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-.nav-logo-mark {
-  width: 20px; height: 20px;
-  opacity: 0.85;
-}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-mark { width: 22px; height: 22px; }
 .nav-logo-text {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.30em;
-  color: rgba(200,225,255,0.80);
-  text-transform: uppercase;
+  font-family: var(--font-display); font-size: 14px; font-weight: 500;
+  letter-spacing: 0.30em; color: rgba(200,225,255,0.82); text-transform: uppercase;
 }
 .nav-logo-sep { width: 1px; height: 10px; background: var(--blue-border); margin: 0 2px; }
 .nav-logo-sub {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.15em;
-  color: rgba(59,158,255,0.42);
-  text-transform: lowercase;
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.15em;
+  color: rgba(59,158,255,0.42); text-transform: lowercase;
 }
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  list-style: none;
-}
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
 .nav-links a {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--frost-low);
-  text-decoration: none;
-  transition: color 0.2s;
+  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--frost-low); text-decoration: none; transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--blue-bright); }
-
 .nav-cta {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  color: var(--blue);
-  background: var(--blue-subtle);
-  border: 1px solid var(--blue-border);
-  border-radius: 6px;
-  padding: 9px 18px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.20em;
+  text-transform: uppercase; color: var(--blue); background: var(--blue-subtle);
+  border: 1px solid var(--blue-border); border-radius: 6px; padding: 9px 20px;
+  text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
-.nav-cta:hover {
-  background: rgba(59,158,255,0.14);
-  border-color: rgba(59,158,255,0.40);
-  color: var(--blue-bright);
-}
+.nav-cta:hover { background: rgba(59,158,255,0.14); border-color: rgba(59,158,255,0.40); color: var(--blue-bright); }
 
-/* ═══════════════════════════
-   HERO
-═══════════════════════════ */
+/* ── HERO ── */
 .hero {
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 0;
-  padding-top: 80px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center; padding-top: 80px;
 }
-
 .hero-copy {
   padding: 80px 56px 80px 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+  display: flex; flex-direction: column; gap: 28px;
 }
-
-.hero-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.hero-eyebrow { display: flex; align-items: center; gap: 10px; }
 .hero-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--blue);
+  width: 5px; height: 5px; border-radius: 50%; background: var(--blue);
   box-shadow: 0 0 8px rgba(59,158,255,0.7);
-  animation: pulse 2s ease-in-out infinite;
+  animation: dotpulse 2s ease-in-out infinite;
 }
-@keyframes pulse {
+@keyframes dotpulse {
   0%,100% { box-shadow: 0 0 6px rgba(59,158,255,0.6); }
   50%      { box-shadow: 0 0 18px rgba(59,158,255,0.25); }
 }
 .hero-eyebrow-text {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.52);
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.24em;
+  text-transform: uppercase; color: rgba(59,158,255,0.52);
 }
-
 .hero-headline {
-  font-family: var(--font-display);
-  font-size: clamp(52px, 5.5vw, 82px);
-  font-weight: 300;
-  line-height: 1.04;
-  letter-spacing: -0.01em;
-  color: var(--frost);
+  font-family: var(--font-display); font-size: clamp(52px, 5.5vw, 82px);
+  font-weight: 300; line-height: 1.04; letter-spacing: -0.01em; color: var(--frost);
 }
-.hero-headline em {
-  font-style: italic;
-  font-weight: 300;
-  color: var(--blue-warm);
-}
-
+.hero-headline em { font-style: italic; font-weight: 300; color: var(--blue-warm); }
 .hero-body {
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--frost-mid);
-  max-width: 380px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 300;
+  line-height: 1.75; color: var(--frost-mid); max-width: 380px;
 }
-
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
-}
+.hero-actions { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
 .btn-primary {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink);
-  background: var(--blue);
-  border: none;
-  border-radius: 6px;
-  padding: 14px 28px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.2s, opacity 0.2s;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--ink); background: var(--blue);
+  border: none; border-radius: 6px; padding: 14px 28px;
+  cursor: pointer; text-decoration: none; transition: background 0.2s;
 }
 .btn-primary:hover { background: var(--blue-bright); }
-
 .btn-ghost {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--frost-mid);
-  background: transparent;
-  border: none;
-  padding: 14px 4px;
-  cursor: pointer;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: color 0.2s;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--frost-mid); background: transparent;
+  border: none; padding: 14px 4px; cursor: pointer; text-decoration: none;
+  display: flex; align-items: center; gap: 8px; transition: color 0.2s;
 }
 .btn-ghost:hover { color: var(--frost); }
 .btn-ghost svg { transition: transform 0.2s; }
 .btn-ghost:hover svg { transform: translateX(3px); }
-
-.hero-stat-row {
-  display: flex;
-  gap: 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--blue-border);
-  margin-top: 8px;
+.hero-stats {
+  display: flex; gap: 32px; padding-top: 16px;
+  border-top: 1px solid var(--blue-border); margin-top: 8px;
 }
-.hero-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.hero-stat { display: flex; flex-direction: column; gap: 4px; }
 .hero-stat-val {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 300;
-  color: var(--frost);
-  line-height: 1;
+  font-family: var(--font-display); font-size: 28px; font-weight: 300;
+  color: var(--frost); line-height: 1;
 }
 .hero-stat-label {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.42);
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.20em;
+  text-transform: uppercase; color: rgba(59,158,255,0.42);
 }
 
-/* Clock iframe pane */
-.hero-clock {
-  position: relative;
-  height: 100vh;
+/* ── SVG CLOCK PANE ── */
+.hero-visual {
+  position: relative; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
   border-left: 1px solid var(--blue-border);
   overflow: hidden;
 }
-.hero-clock::before {
+.hero-visual::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, var(--ink) 0%, transparent 80px);
+  z-index: 2; pointer-events: none;
+}
+/* ambient glow behind clock */
+.hero-visual::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, var(--ink) 0%, transparent 60px);
-  z-index: 2;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(59,158,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
   pointer-events: none;
 }
-.hero-clock iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
-}
 
-/* ═══════════════════════════
-   DIVIDER
-═══════════════════════════ */
-.section-divider {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 0 80px;
-  margin: 80px 0 0;
-}
-.section-divider-line { flex: 1; height: 1px; background: var(--blue-border); }
-.section-divider-label {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.34);
-  white-space: nowrap;
-}
-
-/* ═══════════════════════════
-   PRINCIPLES
-═══════════════════════════ */
-.principles {
-  position: relative;
-  z-index: 1;
-  padding: 80px 80px 120px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--blue-border);
-  border: 1px solid var(--blue-border);
-  margin: 40px 80px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.principle {
-  background: var(--ink-2);
-  padding: 52px 44px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  transition: background 0.3s;
-}
-.principle:hover { background: var(--ink-3); }
-
-.principle-index {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.24em;
-  color: rgba(59,158,255,0.36);
-  text-transform: uppercase;
-}
-
-.principle-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--blue-subtle);
-  border: 1px solid var(--blue-border);
-  border-radius: 8px;
-}
-
-.principle-title {
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.10;
-  color: var(--frost);
-  letter-spacing: -0.01em;
-}
-
-.principle-body {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--frost-low);
-}
-
-.principle-detail {
-  margin-top: auto;
-  padding-top: 24px;
-  border-top: 1px solid var(--blue-border);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.18em;
-  color: rgba(59,158,255,0.40);
-  text-transform: lowercase;
-}
-
-/* ═══════════════════════════
-   MANIFESTO / FULL-BLEED QUOTE
-═══════════════════════════ */
-.manifesto {
-  position: relative;
-  z-index: 1;
-  padding: 120px 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 24px;
-}
-
-.manifesto-quote {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 3.6vw, 58px);
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.18;
-  color: var(--frost);
-  max-width: 820px;
-  letter-spacing: -0.01em;
-}
-.manifesto-quote span {
-  color: var(--blue-warm);
-  font-style: normal;
-}
-
-.manifesto-attribution {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.38);
-}
-
-/* ═══════════════════════════
-   MODES / FEATURES
-═══════════════════════════ */
-.modes {
-  position: relative;
-  z-index: 1;
-  padding: 0 80px 120px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
-}
-
-.modes-intro {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-top: 12px;
-}
-
-.modes-intro-label {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.44);
-}
-
-.modes-intro-title {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 3.2vw, 54px);
-  font-weight: 300;
-  line-height: 1.10;
-  color: var(--frost);
-  letter-spacing: -0.01em;
-}
-
-.modes-intro-body {
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.72;
-  color: var(--frost-mid);
-  max-width: 400px;
-}
-
-.modes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  border: 1px solid var(--blue-border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.mode-item {
-  background: var(--ink-2);
-  padding: 24px 28px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: background 0.25s;
-  cursor: default;
-}
-.mode-item:hover { background: var(--ink-3); }
-.mode-item + .mode-item { border-top: 1px solid var(--blue-border); }
-
-.mode-pill {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.18em;
-  text-transform: lowercase;
-  color: var(--blue);
-  background: var(--blue-subtle);
-  border: 1px solid var(--blue-border);
-  border-radius: 4px;
-  padding: 4px 10px;
-  white-space: nowrap;
-  margin-top: 2px;
+/* ── QUANTUM CLOCK SVG ── */
+#qclock {
+  position: relative; z-index: 3;
+  width: 340px; height: 340px;
   flex-shrink: 0;
 }
 
-.mode-content { display: flex; flex-direction: column; gap: 6px; }
-
-.mode-title {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 400;
-  color: var(--frost);
-  line-height: 1.2;
+/* particle field canvas */
+#particle-canvas {
+  position: absolute; inset: 0; z-index: 1;
 }
 
-.mode-desc {
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  font-weight: 300;
-  line-height: 1.65;
-  color: var(--frost-low);
+/* Outer decorative rings */
+.clock-ring-outer {
+  fill: none;
+  stroke: rgba(59,158,255,0.10);
+  stroke-width: 1;
+}
+.clock-ring-mid {
+  fill: none;
+  stroke: rgba(59,158,255,0.07);
+  stroke-width: 0.5;
+  stroke-dasharray: 4 8;
+}
+.clock-ring-tick {
+  fill: none;
+  stroke: rgba(59,158,255,0.22);
+  stroke-width: 1;
+}
+.clock-center-glow {
+  fill: radial-gradient(circle, rgba(59,158,255,0.6), transparent);
 }
 
-/* ═══════════════════════════
-   CTA BAND
-═══════════════════════════ */
-.cta-band {
-  position: relative;
-  z-index: 1;
-  margin: 0 80px 120px;
-  background: var(--ink-3);
+/* Hands */
+.hand-h { stroke: rgba(100,140,255,0.85); stroke-width: 3; stroke-linecap: round; fill: none; }
+.hand-m { stroke: rgba(0,210,255,0.85);   stroke-width: 2; stroke-linecap: round; fill: none; }
+.hand-s { stroke: rgba(180,230,255,0.95); stroke-width: 1; stroke-linecap: round; fill: none; }
+.hand-glow-h { stroke: rgba(100,140,255,0.25); stroke-width: 12; stroke-linecap: round; fill: none; filter: blur(4px); }
+.hand-glow-m { stroke: rgba(0,210,255,0.20);   stroke-width: 8;  stroke-linecap: round; fill: none; filter: blur(3px); }
+.hand-glow-s { stroke: rgba(180,230,255,0.18); stroke-width: 5;  stroke-linecap: round; fill: none; filter: blur(2px); }
+
+/* Labels */
+.clock-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  fill: rgba(59,158,255,0.45);
+  letter-spacing: 0.15em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.clock-time-display {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  fill: rgba(210,230,255,0.55);
+  letter-spacing: 0.12em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.clock-date-display {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  fill: rgba(59,158,255,0.35);
+  letter-spacing: 0.14em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 80px; margin: 80px 0 0;
+}
+.sdivline { flex: 1; height: 1px; background: var(--blue-border); }
+.sdivlabel {
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.26em;
+  text-transform: uppercase; color: rgba(59,158,255,0.34); white-space: nowrap;
+}
+
+/* ── PRINCIPLES ── */
+.principles {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--blue-border);
   border: 1px solid var(--blue-border);
-  border-radius: 14px;
-  padding: 72px 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 48px;
-  overflow: hidden;
+  margin: 40px 80px; border-radius: 12px; overflow: hidden;
+}
+.principle {
+  background: var(--ink-2); padding: 52px 44px;
+  display: flex; flex-direction: column; gap: 20px;
+  transition: background 0.3s;
+}
+.principle:hover { background: var(--ink-3); }
+.principle-index {
+  font-family: var(--font-mono); font-size: 8px;
+  letter-spacing: 0.24em; color: rgba(59,158,255,0.36); text-transform: uppercase;
+}
+.principle-icon {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--blue-subtle); border: 1px solid var(--blue-border); border-radius: 8px;
+}
+.principle-title {
+  font-family: var(--font-display); font-size: 32px; font-weight: 300;
+  font-style: italic; line-height: 1.10; color: var(--frost); letter-spacing: -0.01em;
+}
+.principle-body {
+  font-family: var(--font-body); font-size: 13px; font-weight: 300;
+  line-height: 1.75; color: var(--frost-low);
+}
+.principle-detail {
+  margin-top: auto; padding-top: 24px; border-top: 1px solid var(--blue-border);
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.18em;
+  color: rgba(59,158,255,0.40); text-transform: lowercase;
 }
 
+/* ── HOW IT WORKS ── */
+.how {
+  position: relative; z-index: 1;
+  padding: 0 80px 100px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+.how-steps { display: flex; flex-direction: column; gap: 0; }
+.how-step {
+  display: flex; gap: 28px; padding: 32px 0;
+  border-bottom: 1px solid var(--blue-border);
+  position: relative;
+}
+.how-step:first-child { padding-top: 0; }
+.how-step-num {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em;
+  color: rgba(59,158,255,0.35); padding-top: 4px; flex-shrink: 0; width: 28px;
+}
+.how-step-body { display: flex; flex-direction: column; gap: 8px; }
+.how-step-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 400;
+  color: var(--frost); line-height: 1.2;
+}
+.how-step-desc {
+  font-family: var(--font-body); font-size: 13px; font-weight: 300;
+  line-height: 1.70; color: var(--frost-low);
+}
+.how-visual {
+  display: flex; flex-direction: column; gap: 16px;
+  background: var(--ink-2); border: 1px solid var(--blue-border);
+  border-radius: 12px; padding: 36px; position: relative; overflow: hidden;
+}
+.how-visual::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(59,158,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.how-visual-label {
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(59,158,255,0.38);
+}
+.how-visual-title {
+  font-family: var(--font-display); font-size: 26px; font-weight: 300;
+  font-style: italic; color: var(--frost); line-height: 1.2;
+}
+.how-visual-body {
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 300;
+  line-height: 1.68; color: var(--frost-low);
+}
+.phase-bar { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.phase-row { display: flex; align-items: center; gap: 12px; }
+.phase-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.phase-dot.blue  { background: rgba(59,158,255,0.8); box-shadow: 0 0 8px rgba(59,158,255,0.5); }
+.phase-dot.cyan  { background: rgba(0,210,255,0.8);  box-shadow: 0 0 8px rgba(0,210,255,0.5); }
+.phase-dot.white { background: rgba(180,230,255,0.9);box-shadow: 0 0 8px rgba(180,230,255,0.5); }
+.phase-label-text {
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.16em;
+  text-transform: lowercase; color: var(--frost-low); flex: 1;
+}
+.phase-val {
+  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+  color: var(--frost-mid);
+}
+
+/* ── MANIFESTO ── */
+.manifesto {
+  position: relative; z-index: 1;
+  padding: 120px 80px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 24px;
+  border-top: 1px solid var(--blue-border);
+  border-bottom: 1px solid var(--blue-border);
+}
+.manifesto-quote {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 3.6vw, 58px);
+  font-weight: 300; font-style: italic;
+  line-height: 1.18; color: var(--frost); max-width: 820px; letter-spacing: -0.01em;
+}
+.manifesto-quote span { color: var(--blue-warm); font-style: normal; }
+.manifesto-attr {
+  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.26em;
+  text-transform: uppercase; color: rgba(59,158,255,0.38);
+}
+
+/* ── MODES ── */
+.modes {
+  position: relative; z-index: 1;
+  padding: 80px 80px 100px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
+}
+.modes-intro { display: flex; flex-direction: column; gap: 20px; padding-top: 8px; }
+.modes-intro-label {
+  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.26em;
+  text-transform: uppercase; color: rgba(59,158,255,0.44);
+}
+.modes-intro-title {
+  font-family: var(--font-display); font-size: clamp(36px,3.2vw,54px);
+  font-weight: 300; line-height: 1.10; color: var(--frost); letter-spacing: -0.01em;
+}
+.modes-intro-body {
+  font-family: var(--font-body); font-size: 14px; font-weight: 300;
+  line-height: 1.72; color: var(--frost-mid); max-width: 400px;
+}
+.modes-list {
+  display: flex; flex-direction: column; gap: 1px;
+  border: 1px solid var(--blue-border); border-radius: 10px; overflow: hidden;
+}
+.mode-item {
+  background: var(--ink-2); padding: 22px 26px;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: background 0.25s;
+}
+.mode-item:hover { background: var(--ink-3); }
+.mode-item + .mode-item { border-top: 1px solid var(--blue-border); }
+.mode-pill {
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
+  text-transform: lowercase; color: var(--blue); background: var(--blue-subtle);
+  border: 1px solid var(--blue-border); border-radius: 4px; padding: 4px 10px;
+  white-space: nowrap; margin-top: 2px; flex-shrink: 0;
+}
+.mode-content { display: flex; flex-direction: column; gap: 5px; }
+.mode-title {
+  font-family: var(--font-display); font-size: 19px; font-weight: 400;
+  color: var(--frost); line-height: 1.2;
+}
+.mode-desc {
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 300;
+  line-height: 1.65; color: var(--frost-low);
+}
+
+/* ── TECH SPECS ── */
+.specs {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0;
+  border: 1px solid var(--blue-border);
+  margin: 40px 80px 0; border-radius: 12px; overflow: hidden;
+}
+.spec-item {
+  background: var(--ink-2); padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: background 0.25s;
+  border-right: 1px solid var(--blue-border);
+}
+.spec-item:last-child { border-right: none; }
+.spec-item:hover { background: var(--ink-3); }
+.spec-val {
+  font-family: var(--font-display); font-size: 42px; font-weight: 300;
+  color: var(--blue-warm); line-height: 1;
+}
+.spec-unit {
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.18em;
+  color: rgba(59,158,255,0.42); text-transform: lowercase;
+}
+.spec-label {
+  font-family: var(--font-body); font-size: 12px; font-weight: 300;
+  color: var(--frost-low); line-height: 1.5;
+  border-top: 1px solid var(--blue-border);
+  padding-top: 12px; margin-top: 8px;
+}
+
+/* ── CTA BAND ── */
+.cta-band {
+  position: relative; z-index: 1;
+  margin: 80px 80px 120px;
+  background: var(--ink-3); border: 1px solid var(--blue-border);
+  border-radius: 14px; padding: 72px 80px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 48px; overflow: hidden;
+}
 .cta-band::before {
   content: '';
-  position: absolute;
-  top: -60px; right: -60px;
+  position: absolute; top: -60px; right: -60px;
   width: 320px; height: 320px;
   background: radial-gradient(circle, rgba(59,158,255,0.09) 0%, transparent 70%);
   pointer-events: none;
 }
-
-.cta-band-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 560px;
-}
-
+.cta-band-copy { display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
 .cta-band-title {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 3vw, 50px);
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.12;
-  color: var(--frost);
+  font-family: var(--font-display); font-size: clamp(32px,3vw,50px);
+  font-weight: 300; font-style: italic; line-height: 1.12; color: var(--frost);
 }
-
 .cta-band-sub {
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 300;
-  line-height: 1.7;
-  color: var(--frost-mid);
+  font-family: var(--font-body); font-size: 13.5px; font-weight: 300;
+  line-height: 1.7; color: var(--frost-mid);
 }
-
-.cta-band-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
+.cta-band-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0; }
 .cta-band-note {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(59,158,255,0.32);
-  text-align: right;
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(59,158,255,0.32); text-align: right;
 }
 
-/* ═══════════════════════════
-   FOOTER
-═══════════════════════════ */
+/* ── FOOTER ── */
 footer {
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   padding: 32px 80px;
   border-top: 1px solid var(--blue-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
 }
-
 .footer-logo {
-  font-family: var(--font-display);
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(200,225,255,0.30);
+  font-family: var(--font-display); font-size: 12.5px; font-weight: 500;
+  letter-spacing: 0.28em; text-transform: uppercase; color: rgba(200,225,255,0.28);
 }
-
 .footer-copy {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.14em;
   color: rgba(59,158,255,0.22);
 }
-
-.footer-links {
-  display: flex;
-  gap: 24px;
-  list-style: none;
-}
+.footer-links { display: flex; gap: 24px; list-style: none; }
 .footer-links a {
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(180,215,255,0.20);
-  text-decoration: none;
-  transition: color 0.2s;
+  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(180,215,255,0.20); text-decoration: none; transition: color 0.2s;
 }
 .footer-links a:hover { color: rgba(59,158,255,0.55); }
 
-/* ═══════════════════════════
-   SCROLL ANIMATION
-═══════════════════════════ */
+/* ── SCROLL REVEAL ── */
 .reveal {
-  opacity: 0;
-  transform: translateY(24px);
+  opacity: 0; transform: translateY(22px);
   transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
-.reveal.visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* stagger children */
+.reveal.visible { opacity: 1; transform: none; }
 .reveal-stagger > * {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
 }
-.reveal-stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: 0s; }
-.reveal-stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: 0.10s; }
-.reveal-stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: 0.20s; }
-.reveal-stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: 0.30s; }
-.reveal-stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: 0.40s; }
+.reveal-stagger.visible > *:nth-child(1) { opacity:1;transform:none;transition-delay:0s; }
+.reveal-stagger.visible > *:nth-child(2) { opacity:1;transform:none;transition-delay:0.10s; }
+.reveal-stagger.visible > *:nth-child(3) { opacity:1;transform:none;transition-delay:0.20s; }
+.reveal-stagger.visible > *:nth-child(4) { opacity:1;transform:none;transition-delay:0.30s; }
 
-/* ═══════════════════════════
-   RESPONSIVE
-═══════════════════════════ */
-@media (max-width: 1024px) {
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
   .hero { grid-template-columns: 1fr; min-height: auto; }
   .hero-copy { padding: 100px 40px 48px; }
-  .hero-clock { height: 480px; border-left: none; border-top: 1px solid var(--blue-border); }
-  .hero-clock::before { display: none; }
-  .principles { grid-template-columns: 1fr; margin: 40px 40px; padding: 0; }
-  .modes { grid-template-columns: 1fr; padding: 0 40px 80px; }
-  .manifesto { padding: 80px 40px; }
-  .cta-band { flex-direction: column; align-items: flex-start; margin: 0 40px 80px; padding: 48px 40px; }
+  .hero-visual { height: 400px; border-left: none; border-top: 1px solid var(--blue-border); }
+  .principles { grid-template-columns: 1fr; margin: 40px 40px; }
+  .how { grid-template-columns: 1fr; padding: 0 40px 80px; }
+  .modes { grid-template-columns: 1fr; padding: 80px 40px 80px; }
+  .specs { grid-template-columns: repeat(2,1fr); margin: 0 40px; }
+  .spec-item { border-right: none; border-bottom: 1px solid var(--blue-border); }
+  .spec-item:nth-child(odd) { border-right: 1px solid var(--blue-border); }
+  .spec-item:nth-last-child(-n+2) { border-bottom: none; }
+  .cta-band { flex-direction: column; align-items: flex-start; margin: 60px 40px 80px; padding: 48px 40px; }
   .cta-band-actions { align-items: flex-start; }
-  footer { flex-direction: column; text-align: center; padding: 28px 40px; gap: 16px; }
   nav { padding: 18px 24px; }
   .nav-links { display: none; }
   .section-divider { padding: 0 40px; }
+  .manifesto { padding: 80px 40px; }
+  footer { flex-direction: column; text-align: center; padding: 24px 40px; gap: 14px; }
 }
-
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .hero-copy { padding: 88px 24px 36px; }
-  .hero-stat-row { gap: 20px; }
-  .principles { margin: 40px 24px; }
-  .modes { padding: 0 24px 60px; }
-  .manifesto { padding: 60px 24px; }
-  .cta-band { margin: 0 24px 60px; padding: 40px 24px; }
+  .hero-stats { gap: 20px; }
+  .principles { margin: 40px 20px; }
+  .specs { grid-template-columns: repeat(2,1fr); margin: 0 20px; }
+  .spec-item { padding: 24px 20px; }
+  .spec-val { font-size: 32px; }
+  .cta-band { margin: 40px 20px 60px; padding: 36px 24px; }
   .section-divider { padding: 0 24px; }
+  .manifesto { padding: 60px 24px; }
+  .modes { padding: 60px 24px 60px; }
+  .how { padding: 0 24px 60px; }
   footer { padding: 24px; }
 }
-
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-stagger > * { transition: none; opacity: 1; transform: none; }
   .hero-dot { animation: none; }
-  @keyframes pulse {}
 }
 </style>
 </head>
@@ -717,7 +570,6 @@ footer {
 <!-- ── NAV ── -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <!-- Minimal quantum-disc SVG mark -->
     <span class="nav-logo-mark">
       <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8"/>
@@ -731,35 +583,28 @@ footer {
     <span class="nav-logo-sep"></span>
     <span class="nav-logo-sub">quantum state clock</span>
   </a>
-
   <ul class="nav-links">
     <li><a href="#principles">Principles</a></li>
+    <li><a href="#how">How it works</a></li>
     <li><a href="#modes">Modes</a></li>
     <li><a href="#about">About</a></li>
   </ul>
-
   <a href="simulation.html" class="nav-cta">Observe Now</a>
 </nav>
 
-<!-- ══════════════════════
-     HERO
-══════════════════════ -->
-<section class="hero" id="observe">
+<!-- ── HERO ── -->
+<section class="hero">
   <div class="hero-copy">
     <div class="hero-eyebrow reveal">
       <span class="hero-dot"></span>
       <span class="hero-eyebrow-text">Quantum State Timepiece · v2.0</span>
     </div>
-
     <h1 class="hero-headline reveal">
-      Time exists<br>
-      <em>only when<br>you look.</em>
+      Time exists<br><em>only when<br>you look.</em>
     </h1>
-
     <p class="hero-body reveal">
       QUANTA is a clock that behaves like a quantum particle. When unobserved, the hour, minute and second exist in superposition — an indeterminate cloud of all possible states. The moment you look, the wavefunction collapses, and time becomes real.
     </p>
-
     <div class="hero-actions reveal">
       <a href="simulation.html" class="btn-primary">Open the clock</a>
       <a href="#principles" class="btn-ghost">
@@ -769,8 +614,7 @@ footer {
         </svg>
       </a>
     </div>
-
-    <div class="hero-stat-row reveal">
+    <div class="hero-stats reveal">
       <div class="hero-stat">
         <span class="hero-stat-val">∞</span>
         <span class="hero-stat-label">Superposed states</span>
@@ -786,28 +630,83 @@ footer {
     </div>
   </div>
 
-  <div class="hero-clock reveal">
-    <iframe
-      src="simulation.html"
-      title="QUANTA — live quantum state clock"
-      loading="eager"
-      allowtransparency="true">
-    </iframe>
+  <!-- ── ANIMATED SVG CLOCK ── -->
+  <div class="hero-visual reveal">
+    <div id="qclock">
+      <svg id="clock-svg" viewBox="0 0 340 340" width="340" height="340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="rgba(59,158,255,0.5)"/>
+            <stop offset="100%" stop-color="rgba(59,158,255,0)"/>
+          </radialGradient>
+          <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="rgba(30,80,180,0.06)"/>
+            <stop offset="100%" stop-color="rgba(2,4,8,0)"/>
+          </radialGradient>
+          <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
+          <filter id="blur4"><feGaussianBlur stdDeviation="4"/></filter>
+          <filter id="blur1"><feGaussianBlur stdDeviation="1"/></filter>
+        </defs>
+
+        <!-- bg glow -->
+        <circle cx="170" cy="170" r="165" fill="url(#bgGlow)"/>
+
+        <!-- outer decorative rings -->
+        <circle cx="170" cy="170" r="158" class="clock-ring-outer"/>
+        <circle cx="170" cy="170" r="148" stroke="rgba(59,158,255,0.05)" stroke-width="0.5" fill="none"/>
+        <circle cx="170" cy="170" r="128" class="clock-ring-mid"/>
+        <circle cx="170" cy="170" r="108" stroke="rgba(59,158,255,0.06)" stroke-width="0.5" fill="none"/>
+
+        <!-- hour tick marks -->
+        <g id="ticks"></g>
+
+        <!-- hour numerals -->
+        <g id="numerals"></g>
+
+        <!-- glow hands (blur) -->
+        <line id="hglow" x1="170" y1="170" x2="170" y2="100" class="hand-glow-h" filter="url(#blur4)"/>
+        <line id="mglow" x1="170" y1="170" x2="170" y2="85"  class="hand-glow-m" filter="url(#blur4)"/>
+        <line id="sglow" x1="170" y1="170" x2="170" y2="78"  class="hand-glow-s" filter="url(#blur2)"/>
+
+        <!-- hands -->
+        <line id="hhand" x1="170" y1="185" x2="170" y2="100" class="hand-h"/>
+        <line id="mhand" x1="170" y1="185" x2="170" y2="82"  class="hand-m"/>
+        <line id="shand" x1="170" y1="185" x2="170" y2="72"  class="hand-s"/>
+
+        <!-- centre -->
+        <circle cx="170" cy="170" r="28" fill="url(#centerGlow)" opacity="0.7"/>
+        <circle cx="170" cy="170" r="14" fill="rgba(2,4,8,0.90)" stroke="rgba(59,158,255,0.30)" stroke-width="1"/>
+        <circle cx="170" cy="170" r="4"  fill="rgba(59,158,255,0.90)"/>
+        <circle cx="170" cy="170" r="1.8" fill="rgba(210,235,255,0.98)"/>
+
+        <!-- digital time & date below centre -->
+        <text id="digital-time" x="170" y="222" class="clock-time-display">00:00:00</text>
+        <text id="digital-date" x="170" y="238" class="clock-date-display">loading...</text>
+
+        <!-- H M S labels on hands -->
+        <text id="label-h" x="170" y="95" class="clock-label">H</text>
+        <text id="label-m" x="170" y="77" class="clock-label">M</text>
+        <text id="label-s" x="170" y="67" class="clock-label">S</text>
+
+        <!-- orbit ring label -->
+        <text x="170" y="17" class="clock-label" style="font-size:6px;fill:rgba(59,158,255,0.25);">QUANTA · QUANTUM STATE CLOCK</text>
+      </svg>
+
+      <!-- particle canvas overlay -->
+      <canvas id="particle-canvas" width="340" height="340"></canvas>
+    </div>
   </div>
 </section>
 
 <!-- ── DIVIDER ── -->
 <div class="section-divider reveal">
-  <div class="section-divider-line"></div>
-  <span class="section-divider-label">Three quantum principles</span>
-  <div class="section-divider-line"></div>
+  <div class="sdivline"></div>
+  <span class="sdivlabel">Three quantum principles</span>
+  <div class="sdivline"></div>
 </div>
 
-<!-- ══════════════════════
-     PRINCIPLES
-══════════════════════ -->
+<!-- ── PRINCIPLES ── -->
 <div class="principles reveal-stagger" id="principles">
-
   <div class="principle">
     <span class="principle-index">principle · i</span>
     <div class="principle-icon">
@@ -818,12 +717,9 @@ footer {
       </svg>
     </div>
     <h2 class="principle-title">Superposition</h2>
-    <p class="principle-body">
-      Between observations, every possible time exists simultaneously. The clock's particle cloud expresses this probabilistic fog — each point a candidate moment, each drift a flicker of possibility.
-    </p>
+    <p class="principle-body">Between observations, every possible time exists simultaneously. The particle cloud expresses this probabilistic fog — each point a candidate moment, each drift a flicker of possibility.</p>
     <div class="principle-detail">ψ = Σ αₙ|n⟩ · unobserved state</div>
   </div>
-
   <div class="principle">
     <span class="principle-index">principle · ii</span>
     <div class="principle-icon">
@@ -834,12 +730,9 @@ footer {
       </svg>
     </div>
     <h2 class="principle-title">Observation</h2>
-    <p class="principle-body">
-      The act of looking is not passive. When you press Observe, you become the measurement apparatus. Your attention is the instrument that forces reality to commit to a single value.
-    </p>
+    <p class="principle-body">The act of looking is not passive. When you press Observe, you become the measurement apparatus. Your attention is the instrument that forces reality to commit to a single value.</p>
     <div class="principle-detail">⟨ψ|Ô|ψ⟩ · wavefunction collapse</div>
   </div>
-
   <div class="principle">
     <span class="principle-index">principle · iii</span>
     <div class="principle-icon">
@@ -850,80 +743,166 @@ footer {
       </svg>
     </div>
     <h2 class="principle-title">Eigenstate</h2>
-    <p class="principle-body">
-      Collapse is irreversible. Three spikes emerge — hours, minutes, seconds — each a definite eigenvalue of the time operator. The system holds this state briefly before decoherence returns it to the fog.
-    </p>
+    <p class="principle-body">Collapse is irreversible. Three spikes emerge — hours, minutes, seconds — each a definite eigenvalue of the time operator. The system holds this state briefly before decoherence returns it to the fog.</p>
     <div class="principle-detail">Ô|ψ⟩ = λ|ψ⟩ · definite value</div>
   </div>
-
 </div>
 
-<!-- ══════════════════════
-     MANIFESTO QUOTE
-══════════════════════ -->
+<!-- ── DIVIDER ── -->
+<div class="section-divider reveal" style="margin-top:80px;">
+  <div class="sdivline"></div>
+  <span class="sdivlabel">How it works</span>
+  <div class="sdivline"></div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how" id="how" style="padding-top:60px;">
+  <div class="how-steps reveal">
+    <div class="how-step">
+      <span class="how-step-num">01</span>
+      <div class="how-step-body">
+        <span class="how-step-title">Page loads in superposition</span>
+        <p class="how-step-desc">The moment you open QUANTA, thousands of particles drift across the disc in a probability cloud. No time is displayed. The system is in an indeterminate state — all hours, all minutes, all seconds at once.</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <span class="how-step-num">02</span>
+      <div class="how-step-body">
+        <span class="how-step-title">Observation triggers collapse</span>
+        <p class="how-step-desc">Press Observe — or simply return to the tab after switching away. Your attention acts as the measurement event. The system reads the system clock at the exact moment of observation and begins to collapse.</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <span class="how-step-num">03</span>
+      <div class="how-step-body">
+        <span class="how-step-title">Three eigenstates emerge</span>
+        <p class="how-step-desc">The particle cloud contracts into three luminous spikes along the disc — hours in violet-blue, minutes in cyan, seconds in ice-white. Each spike tip shows its exact value. Time is known.</p>
+      </div>
+    </div>
+    <div class="how-step" style="border-bottom:none;">
+      <span class="how-step-num">04</span>
+      <div class="how-step-body">
+        <span class="how-step-title">Decoherence returns the fog</span>
+        <p class="how-step-desc">After a few seconds, the eigenstate decoheres. The spikes dissolve back into the probability cloud. Time becomes unknown again — until the next observation.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-visual reveal">
+    <span class="how-visual-label">Current phase</span>
+    <span class="how-visual-title">Superposition · unobserved</span>
+    <p class="how-visual-body">The disc holds all possible values simultaneously. The wavefunction is intact. Reality has not yet been forced to choose.</p>
+    <div class="phase-bar">
+      <div class="phase-row">
+        <span class="phase-dot blue"></span>
+        <span class="phase-label-text">hours · violet-blue spike</span>
+        <span class="phase-val" id="ph-h">--</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-dot cyan"></span>
+        <span class="phase-label-text">minutes · cyan spike</span>
+        <span class="phase-val" id="ph-m">--</span>
+      </div>
+      <div class="phase-row">
+        <span class="phase-dot white"></span>
+        <span class="phase-label-text">seconds · ice-white spike</span>
+        <span class="phase-val" id="ph-s">--</span>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <a href="simulation.html" class="btn-primary">Collapse the wavefunction →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── MANIFESTO ── -->
 <section class="manifesto reveal" id="about">
   <p class="manifesto-quote">
-    "The present moment<br>
-    has no thickness <span>until it is measured.</span><br>
+    "The present moment has no thickness<br>
+    <span>until it is measured.</span><br>
     A clock that knows this<br>is more honest than one that does not."
   </p>
-  <span class="manifesto-attribution">— Design notes, QUANTA v1.0, 2024</span>
+  <span class="manifesto-attr">— Design notes, QUANTA v1.0, 2024</span>
 </section>
 
 <!-- ── DIVIDER ── -->
 <div class="section-divider reveal">
-  <div class="section-divider-line"></div>
-  <span class="section-divider-label">Visualization modes</span>
-  <div class="section-divider-line"></div>
+  <div class="sdivline"></div>
+  <span class="sdivlabel">Visualization modes</span>
+  <div class="sdivline"></div>
 </div>
 
-<!-- ══════════════════════
-     MODES
-══════════════════════ -->
+<!-- ── MODES ── -->
 <section class="modes" id="modes">
   <div class="modes-intro reveal">
-    <span class="modes-intro-label">Two ways to see</span>
+    <span class="modes-intro-label">Three ways to see</span>
     <h2 class="modes-intro-title">Choose your quantum model</h2>
-    <p class="modes-intro-body">
-      QUANTA offers two renderings of the same underlying mathematics. Particle mode builds a diffuse probability cloud from individual points; wave mode expresses the same uncertainty as undulating interference patterns. Both collapse to the same answer.
-    </p>
+    <p class="modes-intro-body">QUANTA renders the same underlying mathematics three different ways. Each mode expresses the probability distribution of time differently — but all collapse to the same eigenstate when observed.</p>
   </div>
-
   <div class="modes-list reveal">
     <div class="mode-item">
       <span class="mode-pill">particle</span>
       <div class="mode-content">
         <span class="mode-title">Particle Mode</span>
-        <p class="mode-desc">Thousands of individual probability points drift in a bounded cloud. On observation, they contract to three luminous spikes, each tip labelled with its eigenvalue. Drag to rotate the disc in three-dimensional space.</p>
+        <p class="mode-desc">Thousands of individual probability points drift in a bounded cloud. On observation, they contract to three luminous spikes, each tip labelled with its eigenvalue. Drag to rotate the disc in 3D space.</p>
       </div>
     </div>
     <div class="mode-item">
-      <span class="mode-pill">wave</span>
+      <span class="mode-pill">gaussian</span>
       <div class="mode-content">
-        <span class="mode-title">Wave Mode</span>
-        <p class="mode-desc">Standing waves radiate from the disc's centre, their amplitudes encoding time. Collapse sends a ripple of constructive interference outward — the moment of measurement made visible as geometry.</p>
+        <span class="mode-title">Gaussian Mode</span>
+        <p class="mode-desc">A smooth probability density surface — the continuous cousin of particle mode. The bell curves encoding each time dimension overlap and shimmer in superposition before resolving to sharp peaks.</p>
+      </div>
+    </div>
+    <div class="mode-item">
+      <span class="mode-pill">3d</span>
+      <div class="mode-content">
+        <span class="mode-title">3D Orbital Mode</span>
+        <p class="mode-desc">A spherical s-orbital shell of particles surrounds a glowing nucleus. The three clock spikes extend outward through the shell in full perspective projection — time as spatial geometry.</p>
       </div>
     </div>
     <div class="mode-item">
       <span class="mode-pill">auto</span>
       <div class="mode-content">
         <span class="mode-title">Watch Behaviour</span>
-        <p class="mode-desc">Switch away and return. The act of navigating back counts as a fresh observation — the wavefunction collapses automatically the moment you look at the page, just as a glance at a watch would.</p>
-      </div>
-    </div>
-    <div class="mode-item">
-      <span class="mode-pill">z-axis</span>
-      <div class="mode-content">
-        <span class="mode-title">Depth Control</span>
-        <p class="mode-desc">Adjust the disc's tilt on the z-axis to move between a face-on view and full perspective projection. The three eigenstates become more spatially distinct at acute angles.</p>
+        <p class="mode-desc">Switching tabs counts as looking away. Returning counts as observation. The wavefunction collapses the moment you come back — like glancing at a watch on your wrist.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════
-     CTA BAND
-══════════════════════ -->
+<!-- ── DIVIDER ── -->
+<div class="section-divider reveal">
+  <div class="sdivline"></div>
+  <span class="sdivlabel">Technical specifications</span>
+  <div class="sdivline"></div>
+</div>
+
+<!-- ── SPECS ── -->
+<div class="specs reveal-stagger">
+  <div class="spec-item">
+    <span class="spec-val">4000+</span>
+    <span class="spec-unit">particles</span>
+    <p class="spec-label">Individual probability points in the superposition cloud, each with independent drift velocity.</p>
+  </div>
+  <div class="spec-item">
+    <span class="spec-val">60</span>
+    <span class="spec-unit">fps render</span>
+    <p class="spec-label">Smooth Canvas 2D animation loop, with requestAnimationFrame scheduling and offscreen buffering.</p>
+  </div>
+  <div class="spec-item">
+    <span class="spec-val">3</span>
+    <span class="spec-unit">colour channels</span>
+    <p class="spec-label">Hours in violet-blue · minutes in cyan · seconds in ice-white. Each eigenstate visually distinct.</p>
+  </div>
+  <div class="spec-item">
+    <span class="spec-val">0</span>
+    <span class="spec-unit">dependencies</span>
+    <p class="spec-label">Pure HTML, CSS, and vanilla JavaScript. No frameworks, no build step, no network requests after load.</p>
+  </div>
+</div>
+
+<!-- ── CTA BAND ── -->
 <div class="cta-band reveal">
   <div class="cta-band-copy">
     <h2 class="cta-band-title">The time is unknown.<br>Until you decide to know it.</h2>
@@ -940,38 +919,147 @@ footer {
   <span class="footer-logo">QUANTA</span>
   <span class="footer-copy">© 2026 · A thought experiment in interface design</span>
   <ul class="footer-links">
-    <li><a href="#">Source</a></li>
-    <li><a href="#">Physics</a></li>
-    <li><a href="#">Contact</a></li>
+    <li><a href="simulation.html">Simulation</a></li>
+    <li><a href="#principles">Principles</a></li>
+    <li><a href="#about">About</a></li>
   </ul>
 </footer>
 
 <script>
-// Nav scroll class
+/* ── NAV scroll ── */
 const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 40);
-}, { passive: true });
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40), { passive: true });
 
-// Reveal on scroll
-const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
-const io = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+/* ── Scroll reveal ── */
+const revEls = document.querySelectorAll('.reveal, .reveal-stagger');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.10 });
+revEls.forEach(el => io.observe(el));
+document.querySelectorAll('.hero .reveal').forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 120));
+
+/* ── SVG Clock ── */
+const CX = 170, CY = 170;
+const R_H = 70, R_M = 88, R_S = 97; // hand lengths from centre
+
+// Build hour ticks + numerals
+const ticksG = document.getElementById('ticks');
+const numsG  = document.getElementById('numerals');
+for (let i = 0; i < 60; i++) {
+  const ang = (i / 60) * Math.PI * 2 - Math.PI / 2;
+  const isHour = i % 5 === 0;
+  const r1 = isHour ? 150 : 153, r2 = isHour ? 158 : 156;
+  const x1 = CX + Math.cos(ang) * r1, y1 = CY + Math.sin(ang) * r1;
+  const x2 = CX + Math.cos(ang) * r2, y2 = CY + Math.sin(ang) * r2;
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+  line.setAttribute('stroke', isHour ? 'rgba(59,158,255,0.45)' : 'rgba(59,158,255,0.15)');
+  line.setAttribute('stroke-width', isHour ? '1.5' : '0.8');
+  ticksG.appendChild(line);
+
+  if (isHour) {
+    const h = i === 0 ? 12 : i / 5;
+    const nr = 140;
+    const tx = CX + Math.cos(ang) * nr, ty = CY + Math.sin(ang) * nr;
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', tx); t.setAttribute('y', ty);
+    t.setAttribute('class', 'clock-label');
+    t.setAttribute('style', 'font-size:8px;fill:rgba(59,158,255,0.38);');
+    t.textContent = h;
+    numsG.appendChild(t);
+  }
+}
+
+function rotateHand(id, glowId, labelId, angle, length, backLen) {
+  const rad = (angle - 90) * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const tx = CX + cos * length, ty = CY + sin * length;
+  const bx = CX - cos * backLen, by = CY - sin * backLen;
+  const el = document.getElementById(id);
+  const gl = document.getElementById(glowId);
+  el.setAttribute('x1', bx); el.setAttribute('y1', by);
+  el.setAttribute('x2', tx); el.setAttribute('y2', ty);
+  gl.setAttribute('x1', bx); gl.setAttribute('y1', by);
+  gl.setAttribute('x2', tx); gl.setAttribute('y2', ty);
+  if (labelId) {
+    const lbl = document.getElementById(labelId);
+    const lr = length + 10;
+    lbl.setAttribute('x', CX + Math.cos(rad) * lr);
+    lbl.setAttribute('y', CY + Math.sin(rad) * lr);
+  }
+}
+
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const p2 = n => String(n).padStart(2,'0');
+
+function tickClock() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
+
+  const sDeg = (s + ms/1000) * 6;
+  const mDeg = (m + (s + ms/1000)/60) * 6;
+  const hDeg = ((h % 12) + m/60) * 30;
+
+  rotateHand('hhand','hglow','label-h', hDeg, R_H, 15);
+  rotateHand('mhand','mglow','label-m', mDeg, R_M, 15);
+  rotateHand('shand','sglow','label-s', sDeg, R_S, 15);
+
+  const h12 = h % 12 || 12, ap = h < 12 ? 'am' : 'pm';
+  document.getElementById('digital-time').textContent = `${p2(h12)}:${p2(m)}:${p2(s)} ${ap}`;
+  document.getElementById('digital-date').textContent = `${DAYS[now.getDay()]} · ${now.getDate()} ${MONS[now.getMonth()]}`;
+
+  // Update phase display
+  document.getElementById('ph-h').textContent = p2(h);
+  document.getElementById('ph-m').textContent = p2(m);
+  document.getElementById('ph-s').textContent = p2(s);
+}
+setInterval(tickClock, 50);
+tickClock();
+
+/* ── Particle field ── */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+const W = 340, H = 340;
+const NUM_P = 180;
+const particles = [];
+
+for (let i = 0; i < NUM_P; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 30 + Math.random() * 120;
+  particles.push({
+    x: CX + Math.cos(angle) * radius,
+    y: CY + Math.sin(angle) * radius,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    size: 0.5 + Math.random() * 1.2,
+    alpha: 0.1 + Math.random() * 0.35,
+    hue: Math.random() < 0.5 ? '59,158,255' : Math.random() < 0.5 ? '107,191,255' : '180,230,255'
   });
-}, { threshold: 0.12 });
-revealEls.forEach(el => io.observe(el));
+}
 
-// Boot: hero copy reveals immediately
-document.querySelectorAll('.hero .reveal').forEach((el, i) => {
-  setTimeout(() => el.classList.add('visible'), i * 120);
-});
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  const now = Date.now() / 1000;
+  particles.forEach(p => {
+    p.x += p.vx + Math.sin(now * 0.4 + p.y * 0.02) * 0.08;
+    p.y += p.vy + Math.cos(now * 0.3 + p.x * 0.02) * 0.08;
+    // soft boundary — drift back gently
+    const dx = p.x - CX, dy = p.y - CY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > 145) { p.vx -= dx * 0.0008; p.vy -= dy * 0.0008; }
+    if (dist < 18)  { p.vx += dx * 0.002;  p.vy += dy * 0.002; }
 
-// Smooth-scroll "Open the clock" to the iframe
-document.getElementById('scrollToFrame')?.addEventListener('click', e => {
-  e.preventDefault();
-  document.querySelector('.hero-clock')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
+    const flicker = 0.7 + 0.3 * Math.sin(now * 2 + p.x);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${p.hue},${p.alpha * flicker})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
 </script>
 </body>
 </html>
