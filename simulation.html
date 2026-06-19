@@ -902,6 +902,7 @@ window.addEventListener('DOMContentLoaded', function () {
   var collapseT = 0, spikeT = 0, fadeT = 0;
   var spikeAngles = {h:0,m:0,s:0}, spikeVals = {h:0,m:0,s:0};
   var busy = false, gT = 0, dt = 0.016;
+  var measureGen = 0; // bumped on hard reset to invalidate in-flight measure() chains
   var waves = [], pts = [];
 
   /* ─── Colour themes ──────────────────────────── */
@@ -1021,7 +1022,22 @@ window.addEventListener('DOMContentLoaded', function () {
   function resetView() {
     zoom = 1; panX = 0; panY = 0;
     zoom3d = 1.0;
+    rotX3 = 0.28; rotY3 = 0.0;
     updateZLvl();
+
+    /* Hard-reset the wavefunction state too: invalidate any in-flight
+       measure() animation chain (observing/collapsing/collapsed/fading)
+       and snap straight back to the unobserved cloud, in every mode. */
+    measureGen++;
+    initCloud();
+    phase='super'; collapseT=0; spikeT=0; fadeT=0; waves=[];
+    timeEl.classList.remove('show');
+    dateEl.classList.remove('show');
+    legendEl.classList.remove('show');
+    dotEl.classList.remove('active');
+    setPhase('superposition · unobserved', false);
+    btn.disabled=false; busy=false;
+
     showToast('1× · reset');
   }
 
@@ -1758,6 +1774,7 @@ window.addEventListener('DOMContentLoaded', function () {
      3D MODE — WebGL orbital + coplanar clock spikes
      ════════════════════════════════════════════════════ */
   var zoom3d = 1.0; // separate zoom for 3D camera
+  var rotX3 = 0.28, rotY3 = 0.0; // 3D camera orbit rotation (default pose)
 
   function resize3D() {
     var area = document.getElementById('cloudArea');
@@ -1986,7 +2003,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
     /* ── Orbit drag (mouse + touch) ── */
     var drag3d = false, lastX3 = 0, lastY3 = 0;
-    var rotX3 = 0.28, rotY3 = 0.0;
 
     canvas3d.addEventListener('mousedown', function(e){ drag3d=true; lastX3=e.clientX; lastY3=e.clientY; });
     window.addEventListener('mousemove', function(e){
@@ -2518,6 +2534,8 @@ window.addEventListener('DOMContentLoaded', function () {
     legendEl.classList.remove('show');
     dotEl.classList.remove('active');
 
+    var myGen = ++measureGen; // invalidated if hardReset() runs before this chain finishes
+
     var now=new Date();
     spikeVals={h:now.getHours(),m:now.getMinutes(),s:now.getSeconds()};
     spikeAngles=timeToAngles(spikeVals.h,spikeVals.m,spikeVals.s);
@@ -2526,6 +2544,7 @@ window.addEventListener('DOMContentLoaded', function () {
     setPhase('observing ···', false);
 
     setTimeout(function(){
+      if (myGen !== measureGen) return;
       phase='collapsing';
       setPhase('wave function collapsing', true);
       dotEl.classList.add('active');
@@ -2533,15 +2552,17 @@ window.addEventListener('DOMContentLoaded', function () {
       var wc = T().wave;
       addWave(0.50, wc[0][0],wc[0][1],wc[0][2]);
 
-      anim(function(v){collapseT=v;},0,1,1350,eIO,function(){
+      anim(function(v){ if (myGen===measureGen) collapseT=v; },0,1,1350,eIO,function(){
+        if (myGen !== measureGen) return;
         phase='collapsed';
         flash(0.30, 1.6);
         addWave(1.08,wc[1][0],wc[1][1],wc[1][2]);
-        setTimeout(function(){addWave(1.46,wc[2][0],wc[2][1],wc[2][2]);},210);
-        setTimeout(function(){addWave(0.74,wc[3][0],wc[3][1],wc[3][2]);},440);
+        setTimeout(function(){ if (myGen===measureGen) addWave(1.46,wc[2][0],wc[2][1],wc[2][2]); },210);
+        setTimeout(function(){ if (myGen===measureGen) addWave(0.74,wc[3][0],wc[3][1],wc[3][2]); },440);
         setPhase('eigenstate', true);
 
-        anim(function(v){spikeT=v;},0,1,1250,eOut,function(){
+        anim(function(v){ if (myGen===measureGen) spikeT=v; },0,1,1250,eOut,function(){
+          if (myGen !== measureGen) return;
           var h12=spikeVals.h%12||12, ap=spikeVals.h<12?'am':'pm';
           timeEl.textContent=pad2(h12)+':'+pad2(spikeVals.m)+':'+pad2(spikeVals.s)+'\u2009'+ap;
           var d=new Date();
@@ -2553,15 +2574,18 @@ window.addEventListener('DOMContentLoaded', function () {
           setPhase('measurement complete', false);
 
           setTimeout(function(){
+            if (myGen !== measureGen) return;
             phase='fading';
             dotEl.classList.remove('active');
             setPhase('decoherence', false);
             setTimeout(function(){
+              if (myGen !== measureGen) return;
               timeEl.classList.remove('show');
               dateEl.classList.remove('show');
               legendEl.classList.remove('show');
             }, 200);
-            anim(function(v){fadeT=v;},0,1,1700,eIO,function(){
+            anim(function(v){ if (myGen===measureGen) fadeT=v; },0,1,1700,eIO,function(){
+              if (myGen !== measureGen) return;
               initCloud();
               phase='super'; collapseT=0; spikeT=0; fadeT=0; waves=[];
               setPhase('superposition · unobserved', false);
