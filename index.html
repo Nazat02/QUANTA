@@ -2,1203 +2,337 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QUANTA — Quantum State Clock</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Space+Mono:wght@400;700&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+<meta name="description" content="A timepiece that behaves like a quantum particle. Time exists only when you look.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--ink:#020408;--b:59,158,255;--bright:#6bbfff;--warm:#a8d8ff;--h:100,140,255;--m:0,210,255;--s:180,230,255;
+--frost:rgba(210,230,255,.94);--mid:rgba(210,230,255,.74);--low:rgba(210,230,255,.56);--line:rgba(59,158,255,.18);--hi:rgba(59,158,255,.42);
+--disp:'Cormorant Garamond',Georgia,serif;--mono:'Space Mono',monospace;--sans:'Inter',system-ui,sans-serif;--ease:cubic-bezier(.16,1,.3,1)}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--frost);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip;line-height:1.65}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:1px solid var(--bright);outline-offset:4px}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse at 60% 50%,transparent 45%,rgba(2,4,8,.7) 100%)}
+#grain{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 5vw;position:relative;z-index:2}
+nav{position:fixed;top:0;left:0;right:0;z-index:20;border-bottom:1px solid transparent;transition:.4s}
+nav.on{background:rgba(2,4,8,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:10px}.logo svg{width:24px;height:24px}
+.logo b{font-family:var(--disp);font-weight:500;font-size:16px;letter-spacing:.28em;text-transform:uppercase;color:rgba(200,225,255,.88)}
+.logo i{width:1px;height:11px;background:var(--hi)}.logo span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:rgba(var(--b),.75)}
+.links{display:flex;gap:34px;list-style:none}.links a{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--low);transition:.2s}.links a:hover{color:var(--bright)}
+.gb{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgb(var(--b));border:1px solid var(--hi);border-radius:3px;padding:10px 18px;transition:.25s}
+.gb:hover{background:rgba(var(--b),.12);color:var(--bright)}
 
-:root {
-  --ink:         #020408;
-  --ink-2:       #050810;
-  --ink-3:       #080d18;
-  --ink-4:       #0d1424;
-  --blue:        #3b9eff;
-  --blue-bright: #6bbfff;
-  --blue-warm:   #a8d8ff;
-  --blue-dim:    #1a4a8a;
-  --blue-glow:   rgba(59,158,255,0.18);
-  --blue-subtle: rgba(59,158,255,0.07);
-  --blue-border: rgba(59,158,255,0.18);
-  --frost:       rgba(210,230,255,0.92);
-  --frost-mid:   rgba(210,230,255,0.50);
-  --frost-low:   rgba(210,230,255,0.24);
-  --font-display:'Cormorant Garamond', Georgia, serif;
-  --font-mono:   'Space Mono', monospace;
-  --font-body:   'Inter', sans-serif;
-  --ease:        cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* scroll story */
+.story{position:relative;height:420vh}
+.scene{position:sticky;top:0;height:100svh;overflow:visible;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:80px 5vw 3vh;gap:2vw;z-index:2}
+.scene::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 45% 55% at 72% 52%,rgba(30,80,180,.2),transparent 70%),radial-gradient(ellipse 80% 50% at 10% 0%,rgba(10,40,120,.14),transparent 60%)}
+.txt{max-width:520px;justify-self:end;width:100%}
+.caps{display:grid}
+.cap{grid-area:1/1;display:flex;flex-direction:column;gap:20px;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.cap.on{opacity:1;transform:none;pointer-events:auto}
+.st{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:rgba(var(--b),.9)}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(var(--b),.5)}
+.cap.live .dot{background:rgb(var(--s));box-shadow:0 0 0 3px rgba(180,230,255,.14),0 0 14px rgba(var(--b),.7)}
+h1,h2{font-family:var(--disp);font-weight:300;font-style:italic;line-height:1.03;letter-spacing:-.015em}
+.cap h1,.cap h2{font-size:clamp(40px,5vw,76px);text-shadow:0 0 50px rgba(var(--b),.25)}
+.cap p{font-size:15px;font-weight:300;color:var(--mid);max-width:420px;line-height:1.75}
+.dots{display:flex;gap:8px;margin-top:22px}.dots i{width:26px;height:2px;background:var(--line);transition:.5s}.dots i.on{background:rgb(var(--b));box-shadow:0 0 10px rgba(var(--b),.7)}
+.acts{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-top:26px}
+.obs{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:12px;height:52px;min-width:196px;padding:0 24px;background:transparent;border:1px solid rgba(var(--b),.4);border-radius:3px;cursor:pointer;overflow:hidden;font:inherit;transition:.3s}
+.obs::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(var(--b),.14),rgba(var(--b),.04) 40%,transparent 65%)}
+.obs::after{content:"";position:absolute;top:0;left:22%;right:22%;height:1px;background:linear-gradient(90deg,transparent,rgba(180,225,255,.35),transparent)}
+.orb{width:5px;height:5px;border-radius:50%;background:rgb(var(--b));box-shadow:0 0 10px rgba(var(--b),.7),0 0 20px rgba(var(--b),.3);transition:.3s}
+.obs span{position:relative;font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(200,225,255,.9)}
+.obs:hover{border-color:rgba(var(--b),.75);box-shadow:0 6px 32px rgba(20,60,160,.4),0 0 28px rgba(var(--b),.18);transform:translateY(-1px)}
+.obs:hover .orb{background:var(--warm);transform:scale(1.3)}
+.tl{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--low);border-bottom:1px solid var(--hi);padding-bottom:4px;transition:.2s}
+.tl:hover{color:var(--frost)}
+.tip{margin-top:18px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--low)}
 
-html { scroll-behavior: smooth; }
-body {
-  background: var(--ink);
-  color: var(--frost);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
+/* the timepiece */
+.obj{display:flex;flex-direction:column;align-items:center;justify-self:start;width:100%}
+.watch{--d:min(40vw,66vh);position:relative;width:var(--d);height:var(--d);transform:perspective(1200px) rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));transition:transform .25s ease-out;
+  filter:drop-shadow(0 50px 50px rgba(0,0,0,.8)) drop-shadow(0 0 70px rgba(var(--b),.16))}
+.case{position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.06) 0 .6deg,rgba(0,0,0,.06) .6deg 1.2deg),conic-gradient(from 200deg,#131b2b,#7f93b0,#1c2638,#c9d8ee,#18202f,#7286a3,#131b2b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),inset 0 0 22px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.7)}
+.bezel{position:absolute;inset:4.5%;border-radius:50%;background:conic-gradient(from 20deg,#05080f,#26344d,#07101c,#3a4d6d,#05080f);box-shadow:inset 0 3px 8px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.16)}
+.crown{position:absolute;right:-3.4%;top:45%;width:5%;height:10%;border-radius:2px 5px 5px 2px;background:repeating-linear-gradient(0deg,#41526f 0 2px,#182133 2px 4px);box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+.dial{position:absolute;inset:9%;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 42%,#0b1324,#03060d 70%);box-shadow:inset 0 0 40px rgba(0,0,0,.9),inset 0 0 0 1px rgba(59,158,255,.16)}
+#cv{position:absolute;inset:0;width:100%;height:100%}
+.mark{position:absolute;top:23%;left:0;right:0;text-align:center;pointer-events:none}
+.mark b{display:block;font-family:var(--disp);font-weight:500;font-size:calc(var(--d)*.034);letter-spacing:.34em;padding-left:.34em;color:rgba(200,225,255,.7)}
+.mark i{display:block;margin-top:4px;font-style:normal;font-family:var(--mono);font-size:calc(var(--d)*.014);letter-spacing:.2em;color:rgba(var(--b),.6)}
+.glass{position:absolute;inset:9%;border-radius:50%;pointer-events:none;background:radial-gradient(circle at var(--sx,32%) var(--sy,20%),rgba(255,255,255,.2),rgba(255,255,255,0) 36%),linear-gradient(140deg,rgba(255,255,255,.1),rgba(255,255,255,0) 42%,rgba(120,180,255,.05));box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 12px 30px rgba(0,0,0,.5)}
+.time{position:relative;height:84px;width:100%;margin-top:24px;display:flex;align-items:center;justify-content:center}
+.time>*{position:absolute;transition:opacity .8s var(--ease),transform .8s var(--ease)}
+#unk{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--low)}
+#rt{font-family:var(--disp);font-style:italic;font-weight:300;font-size:clamp(40px,4.6vw,66px);line-height:1;opacity:0;transform:translateY(8px);text-shadow:0 0 40px rgba(var(--b),.35),0 0 80px rgba(30,80,200,.2)}
+#rt b{font-weight:300}.time.show #unk{opacity:0}.time.show #rt{opacity:1;transform:none}
 
-.bg-ambient {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 50% 55%, rgba(30,80,180,0.09) 0%, transparent 70%),
-    radial-gradient(ellipse 90% 50% at 15% 0%,  rgba(10,40,120,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 50% at 85% 100%,rgba(20,60,160,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 8%,  rgba(59,158,255,0.04) 0%, transparent 60%);
-}
-
-/* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 48px;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.4s, background 0.4s;
-  min-height: 60px;
-}
-nav.scrolled {
-  background: rgba(2,4,8,0.88);
-  backdrop-filter: blur(20px);
-  border-color: var(--blue-border);
-}
-.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; }
-.nav-logo-text {
-  font-family: var(--font-display); font-size: 14px; font-weight: 500;
-  letter-spacing: 0.30em; color: rgba(200,225,255,0.82); text-transform: uppercase;
-}
-.nav-logo-sep { width: 1px; height: 10px; background: var(--blue-border); margin: 0 2px; }
-.nav-logo-sub {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.15em;
-  color: rgba(59,158,255,0.42); text-transform: lowercase;
-}
-.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
-.nav-links a {
-  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--frost-low); text-decoration: none; transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--blue-bright); }
-.nav-cta {
-  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.20em;
-  text-transform: uppercase; color: var(--blue); background: var(--blue-subtle);
-  border: 1px solid var(--blue-border); border-radius: 6px; padding: 9px 20px;
-  text-decoration: none; transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-.nav-cta:hover { background: rgba(59,158,255,0.14); border-color: rgba(59,158,255,0.40); color: var(--blue-bright); }
-
-/* ── HERO ── */
-.hero {
-  position: relative; z-index: 1;
-  min-height: 100vh;
-  display: grid; grid-template-columns: 1fr 1fr;
-  align-items: center; padding-top: 80px;
-}
-.hero-copy {
-  padding: 80px 56px 80px 80px;
-  display: flex; flex-direction: column; gap: 28px;
-}
-.hero-eyebrow { display: flex; align-items: center; gap: 10px; }
-.hero-dot {
-  width: 5px; height: 5px; border-radius: 50%; background: var(--blue);
-  box-shadow: 0 0 8px rgba(59,158,255,0.7);
-  animation: dotpulse 2s ease-in-out infinite;
-}
-@keyframes dotpulse {
-  0%,100% { box-shadow: 0 0 6px rgba(59,158,255,0.6); }
-  50%      { box-shadow: 0 0 18px rgba(59,158,255,0.25); }
-}
-.hero-eyebrow-text {
-  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.24em;
-  text-transform: uppercase; color: rgba(59,158,255,0.52);
-}
-.hero-headline {
-  font-family: var(--font-display); font-size: clamp(52px, 5.5vw, 82px);
-  font-weight: 300; line-height: 1.04; letter-spacing: -0.01em; color: var(--frost);
-}
-.hero-headline em { font-style: italic; font-weight: 300; color: var(--blue-warm); }
-.hero-body {
-  font-family: var(--font-body); font-size: 14px; font-weight: 300;
-  line-height: 1.75; color: var(--frost-mid); max-width: 380px;
-}
-.hero-actions { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
-.btn-primary {
-  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--ink); background: var(--blue);
-  border: none; border-radius: 6px; padding: 14px 28px;
-  cursor: pointer; text-decoration: none; transition: background 0.2s;
-}
-.btn-primary:hover { background: var(--blue-bright); }
-.btn-ghost {
-  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--frost-mid); background: transparent;
-  border: none; padding: 14px 4px; cursor: pointer; text-decoration: none;
-  display: flex; align-items: center; gap: 8px; transition: color 0.2s;
-}
-.btn-ghost:hover { color: var(--frost); }
-.btn-ghost svg { transition: transform 0.2s; }
-.btn-ghost:hover svg { transform: translateX(3px); }
-.hero-stats {
-  display: flex; gap: 32px; padding-top: 16px;
-  border-top: 1px solid var(--blue-border); margin-top: 8px;
-}
-.hero-stat { display: flex; flex-direction: column; gap: 4px; }
-.hero-stat-val {
-  font-family: var(--font-display); font-size: 28px; font-weight: 300;
-  color: var(--frost); line-height: 1;
-}
-.hero-stat-label {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.20em;
-  text-transform: uppercase; color: rgba(59,158,255,0.42);
-}
-
-/* ── HERO COL 2 (clock + readout) ── */
-.hero-col2 {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border-left: 1px solid var(--blue-border);
-  min-height: 100vh;
-  position: relative; z-index: 1;
-  padding: 44px 0;
-  gap: 20px;
-}
-
-/* ── SVG CLOCK PANE ── */
-.hero-visual {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 22px;
-  width: 100%;
-}
-.hero-visual::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to right, var(--ink) 0%, transparent 60px);
-  z-index: 2; pointer-events: none;
-}
-.hero-visual::after {
-  content: '';
-  position: absolute;
-  width: 420px; height: 420px;
-  background: radial-gradient(circle, rgba(59,158,255,0.08) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-/* ── QUANTUM CLOCK SVG ── */
-#qclock-wrapper {
-  position: relative; z-index: 3;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px;
-  width: 100%;
-}
-#qclock {
-  position: relative;
-  /* fluid: 420px on desktop, scales down on smaller screens */
-  width: min(420px, 90vw);
-  height: min(420px, 90vw);
-  flex-shrink: 0;
-  margin: 0 auto;
-}
-#clock-svg {
-  width: 100%; height: 100%;
-  display: block;
-}
-
-/* Digital readout — always below the clock, never inside it */
-#clock-info {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  z-index: 4;
-  padding: 4px 0 0;
-}
-#clock-info-time {
-  font-family: 'Space Mono', monospace;
-  font-size: 13px; letter-spacing: 0.12em;
-  color: rgba(210,230,255,0.65);
-}
-#clock-info-date {
-  font-family: 'Space Mono', monospace;
-  font-size: 8px; letter-spacing: 0.14em;
-  color: rgba(59,158,255,0.45);
-}
-#clock-info-tz {
-  font-family: 'Space Mono', monospace;
-  font-size: 6.5px; letter-spacing: 0.12em;
-  color: rgba(59,158,255,0.28);
-  max-width: 300px; text-align: center;
-}
-
-/* particle field canvas — always matches #qclock size */
-#particle-canvas {
-  position: absolute; inset: 0; z-index: 1;
-  width: 100%; height: 100%;
-}
-
-/* Outer decorative rings */
-.clock-ring-outer {
-  fill: none;
-  stroke: rgba(59,158,255,0.10);
-  stroke-width: 1;
-}
-.clock-ring-mid {
-  fill: none;
-  stroke: rgba(59,158,255,0.07);
-  stroke-width: 0.5;
-  stroke-dasharray: 4 8;
-}
-.clock-ring-tick {
-  fill: none;
-  stroke: rgba(59,158,255,0.22);
-  stroke-width: 1;
-}
-.clock-center-glow {
-  fill: radial-gradient(circle, rgba(59,158,255,0.6), transparent);
-}
-
-/* Hands */
-.hand-h { stroke: rgba(100,140,255,0.85); stroke-width: 3; stroke-linecap: round; fill: none; }
-.hand-m { stroke: rgba(0,210,255,0.85);   stroke-width: 2; stroke-linecap: round; fill: none; }
-.hand-s { stroke: rgba(180,230,255,0.95); stroke-width: 1; stroke-linecap: round; fill: none; }
-.hand-glow-h { stroke: rgba(100,140,255,0.25); stroke-width: 12; stroke-linecap: round; fill: none; filter: blur(4px); }
-.hand-glow-m { stroke: rgba(0,210,255,0.20);   stroke-width: 8;  stroke-linecap: round; fill: none; filter: blur(3px); }
-.hand-glow-s { stroke: rgba(180,230,255,0.18); stroke-width: 5;  stroke-linecap: round; fill: none; filter: blur(2px); }
-
-/* Labels */
-.clock-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 7px;
-  fill: rgba(59,158,255,0.45);
-  letter-spacing: 0.15em;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.clock-title-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.20em;
-  color: rgba(59,158,255,0.40);
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 28px;
-}
-.clock-time-display {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  fill: rgba(210,230,255,0.55);
-  letter-spacing: 0.12em;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.clock-date-display {
-  font-family: 'Space Mono', monospace;
-  font-size: 7px;
-  fill: rgba(59,158,255,0.35);
-  letter-spacing: 0.14em;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.clock-tz-display {
-  font-family: 'Space Mono', monospace;
-  font-size: 5px;
-  fill: rgba(59,158,255,0.22);
-  letter-spacing: 0.12em;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-
-/* ── SECTION DIVIDER ── */
-.section-divider {
-  position: relative; z-index: 1;
-  display: flex; align-items: center; gap: 20px;
-  padding: 0 80px; margin: 80px 0 0;
-}
-.sdivline { flex: 1; height: 1px; background: var(--blue-border); }
-.sdivlabel {
-  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.26em;
-  text-transform: uppercase; color: rgba(59,158,255,0.34); white-space: nowrap;
-}
-
-/* ── PRINCIPLES ── */
-.principles {
-  position: relative; z-index: 1;
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 1px; background: var(--blue-border);
-  border: 1px solid var(--blue-border);
-  margin: 40px 80px; border-radius: 12px; overflow: hidden;
-}
-.principle {
-  background: var(--ink-2); padding: 52px 44px;
-  display: flex; flex-direction: column; gap: 20px;
-  transition: background 0.3s;
-}
-.principle:hover { background: var(--ink-3); }
-.principle-index {
-  font-family: var(--font-mono); font-size: 8px;
-  letter-spacing: 0.24em; color: rgba(59,158,255,0.36); text-transform: uppercase;
-}
-.principle-icon {
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--blue-subtle); border: 1px solid var(--blue-border); border-radius: 8px;
-}
-.principle-title {
-  font-family: var(--font-display); font-size: 32px; font-weight: 300;
-  font-style: italic; line-height: 1.10; color: var(--frost); letter-spacing: -0.01em;
-}
-.principle-body {
-  font-family: var(--font-body); font-size: 13px; font-weight: 300;
-  line-height: 1.75; color: var(--frost-low);
-}
-.principle-detail {
-  margin-top: auto; padding-top: 24px; border-top: 1px solid var(--blue-border);
-  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.18em;
-  color: rgba(59,158,255,0.40); text-transform: lowercase;
-}
-
-/* ── HOW IT WORKS ── */
-.how {
-  position: relative; z-index: 1;
-  padding: 60px 80px 100px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-}
-.how-steps { display: flex; flex-direction: column; gap: 0; }
-.how-step {
-  display: flex; gap: 28px; padding: 32px 0;
-  border-bottom: 1px solid var(--blue-border);
-  position: relative;
-}
-.how-step:first-child { padding-top: 0; }
-.how-step-num {
-  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em;
-  color: rgba(59,158,255,0.35); padding-top: 4px; flex-shrink: 0; width: 28px;
-}
-.how-step-body { display: flex; flex-direction: column; gap: 8px; }
-.how-step-title {
-  font-family: var(--font-display); font-size: 22px; font-weight: 400;
-  color: var(--frost); line-height: 1.2;
-}
-.how-step-desc {
-  font-family: var(--font-body); font-size: 13px; font-weight: 300;
-  line-height: 1.70; color: var(--frost-low);
-}
-.how-visual {
-  display: flex; flex-direction: column; gap: 16px;
-  background: var(--ink-2); border: 1px solid var(--blue-border);
-  border-radius: 12px; padding: 36px; position: relative; overflow: hidden;
-}
-.how-visual::before {
-  content: '';
-  position: absolute; top: -40px; right: -40px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(59,158,255,0.07) 0%, transparent 70%);
-  pointer-events: none;
-}
-.how-visual-label {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: rgba(59,158,255,0.38);
-}
-.how-visual-title {
-  font-family: var(--font-display); font-size: 26px; font-weight: 300;
-  font-style: italic; color: var(--frost); line-height: 1.2;
-}
-.how-visual-body {
-  font-family: var(--font-body); font-size: 12.5px; font-weight: 300;
-  line-height: 1.68; color: var(--frost-low);
-}
-.phase-bar { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-.phase-row { display: flex; align-items: center; gap: 12px; }
-.phase-dot {
-  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-}
-.phase-dot.blue  { background: rgba(59,158,255,0.8); box-shadow: 0 0 8px rgba(59,158,255,0.5); }
-.phase-dot.cyan  { background: rgba(0,210,255,0.8);  box-shadow: 0 0 8px rgba(0,210,255,0.5); }
-.phase-dot.white { background: rgba(180,230,255,0.9);box-shadow: 0 0 8px rgba(180,230,255,0.5); }
-.phase-label-text {
-  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.16em;
-  text-transform: lowercase; color: var(--frost-low); flex: 1;
-}
-.phase-val {
-  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
-  color: var(--frost-mid);
-}
-
-/* ── MANIFESTO ── */
-.manifesto {
-  position: relative; z-index: 1;
-  padding: 120px 80px;
-  display: flex; flex-direction: column; align-items: center;
-  text-align: center; gap: 24px;
-  border-top: 1px solid var(--blue-border);
-  border-bottom: 1px solid var(--blue-border);
-}
-.manifesto-quote {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 3.6vw, 58px);
-  font-weight: 300; font-style: italic;
-  line-height: 1.18; color: var(--frost); max-width: 820px; letter-spacing: -0.01em;
-}
-.manifesto-quote span { color: var(--blue-warm); font-style: normal; }
-.manifesto-attr {
-  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.26em;
-  text-transform: uppercase; color: rgba(59,158,255,0.38);
-}
-
-/* ── MODES ── */
-.modes {
-  position: relative; z-index: 1;
-  padding: 80px 80px 100px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
-}
-.modes-intro { display: flex; flex-direction: column; gap: 20px; padding-top: 8px; }
-.modes-intro-label {
-  font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.26em;
-  text-transform: uppercase; color: rgba(59,158,255,0.44);
-}
-.modes-intro-title {
-  font-family: var(--font-display); font-size: clamp(36px,3.2vw,54px);
-  font-weight: 300; line-height: 1.10; color: var(--frost); letter-spacing: -0.01em;
-}
-.modes-intro-body {
-  font-family: var(--font-body); font-size: 14px; font-weight: 300;
-  line-height: 1.72; color: var(--frost-mid); max-width: 400px;
-}
-.modes-list {
-  display: flex; flex-direction: column; gap: 1px;
-  border: 1px solid var(--blue-border); border-radius: 10px; overflow: hidden;
-}
-.mode-item {
-  background: var(--ink-2); padding: 22px 26px;
-  display: flex; align-items: flex-start; gap: 14px;
-  transition: background 0.25s;
-}
-.mode-item:hover { background: var(--ink-3); }
-.mode-item + .mode-item { border-top: 1px solid var(--blue-border); }
-.mode-pill {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
-  text-transform: lowercase; color: var(--blue); background: var(--blue-subtle);
-  border: 1px solid var(--blue-border); border-radius: 4px; padding: 4px 10px;
-  white-space: nowrap; margin-top: 2px; flex-shrink: 0;
-}
-.mode-content { display: flex; flex-direction: column; gap: 5px; }
-.mode-title {
-  font-family: var(--font-display); font-size: 19px; font-weight: 400;
-  color: var(--frost); line-height: 1.2;
-}
-.mode-desc {
-  font-family: var(--font-body); font-size: 12.5px; font-weight: 300;
-  line-height: 1.65; color: var(--frost-low);
-}
-
-/* ── TECH SPECS ── */
-.specs {
-  position: relative; z-index: 1;
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 0;
-  border: 1px solid var(--blue-border);
-  margin: 40px 80px; border-radius: 12px; overflow: hidden;
-}
-.spec-item {
-  background: var(--ink-2); padding: 32px 28px;
-  display: flex; flex-direction: column; gap: 6px;
-  transition: background 0.25s;
-  border-right: 1px solid var(--blue-border);
-}
-.spec-item:last-child { border-right: none; }
-.spec-item:hover { background: var(--ink-3); }
-.spec-val {
-  font-family: var(--font-display); font-size: 42px; font-weight: 300;
-  color: var(--blue-warm); line-height: 1;
-}
-.spec-unit {
-  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.18em;
-  color: rgba(59,158,255,0.42); text-transform: lowercase;
-}
-.spec-label {
-  font-family: var(--font-body); font-size: 12px; font-weight: 300;
-  color: var(--frost-low); line-height: 1.5;
-  border-top: 1px solid var(--blue-border);
-  padding-top: 12px; margin-top: 8px;
-}
-
-/* ── CTA BAND ── */
-.cta-band {
-  position: relative; z-index: 1;
-  margin: 80px 80px 120px;
-  background: var(--ink-3); border: 1px solid var(--blue-border);
-  border-radius: 14px; padding: 72px 80px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 48px; overflow: hidden;
-}
-.cta-band::before {
-  content: '';
-  position: absolute; top: -60px; right: -60px;
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(59,158,255,0.09) 0%, transparent 70%);
-  pointer-events: none;
-}
-.cta-band-copy { display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
-.cta-band-title {
-  font-family: var(--font-display); font-size: clamp(32px,3vw,50px);
-  font-weight: 300; font-style: italic; line-height: 1.12; color: var(--frost);
-}
-.cta-band-sub {
-  font-family: var(--font-body); font-size: 13.5px; font-weight: 300;
-  line-height: 1.7; color: var(--frost-mid);
-}
-.cta-band-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; flex-shrink: 0; }
-.cta-band-note {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
-  text-transform: uppercase; color: rgba(59,158,255,0.32); text-align: right;
-}
-
-/* ── FOOTER ── */
-footer {
-  position: relative; z-index: 1;
-  padding: 32px 80px;
-  border-top: 1px solid var(--blue-border);
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-}
-.footer-logo {
-  font-family: var(--font-display); font-size: 12.5px; font-weight: 500;
-  letter-spacing: 0.28em; text-transform: uppercase; color: rgba(200,225,255,0.28);
-}
-.footer-copy {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.14em;
-  color: rgba(59,158,255,0.22);
-}
-.footer-links { display: flex; gap: 24px; list-style: none; }
-.footer-links a {
-  font-family: var(--font-mono); font-size: 7.5px; letter-spacing: 0.18em;
-  text-transform: uppercase; color: rgba(180,215,255,0.20); text-decoration: none; transition: color 0.2s;
-}
-.footer-links a:hover { color: rgba(59,158,255,0.55); }
-
-/* ── INLINE-STYLE REPLACEMENTS (responsive-safe) ── */
-.section-divider--how { margin-top: 80px; }
-.how-step--last { border-bottom: none; }
-.how-visual-cta { margin-top: 20px; }
-
-/* ── SCROLL REVEAL ── */
-.reveal {
-  opacity: 0; transform: translateY(22px);
-  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
-}
-.reveal.visible { opacity: 1; transform: none; }
-.reveal-stagger {
-  opacity: 0;
-  transition: opacity 0.7s var(--ease);
-}
-.reveal-stagger.visible { opacity: 1; }
-.reveal-stagger > * {
-  opacity: 0; transform: translateY(18px);
-  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
-}
-.reveal-stagger.visible > *:nth-child(1) { opacity:1;transform:none;transition-delay:0s; }
-.reveal-stagger.visible > *:nth-child(2) { opacity:1;transform:none;transition-delay:0.10s; }
-.reveal-stagger.visible > *:nth-child(3) { opacity:1;transform:none;transition-delay:0.20s; }
-.reveal-stagger.visible > *:nth-child(4) { opacity:1;transform:none;transition-delay:0.30s; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1100px) {
-  .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 0; }
-  .hero-copy { padding: 96px 40px 44px; }
-  .hero-col2 {
-    min-height: auto; border-left: none;
-    border-top: 1px solid var(--blue-border);
-    padding: 56px 24px;
-  }
-  .hero-visual::before { display: none; } /* no left-bleed gradient when stacked */
-  .principles { grid-template-columns: 1fr; margin: 48px 40px; }
-  .principle { padding: 48px 40px; }
-  .how { grid-template-columns: 1fr; padding: 40px 40px 80px; gap: 48px; }
-  .modes { grid-template-columns: 1fr; padding: 80px 40px 80px; gap: 40px; }
-  .specs { grid-template-columns: repeat(2,1fr); margin: 40px 40px; }
-  .spec-item { border-right: none; border-bottom: 1px solid var(--blue-border); }
-  .spec-item:nth-child(odd) { border-right: 1px solid var(--blue-border); }
-  .spec-item:nth-last-child(-n+2) { border-bottom: none; }
-  .cta-band { flex-direction: column; align-items: flex-start; margin: 60px 40px 80px; padding: 48px 40px; gap: 32px; }
-  .cta-band-actions { align-items: flex-start; width: 100%; }
-  nav { padding: 16px 24px; }
-  .nav-links { display: none; }
-  .section-divider { padding: 0 40px; }
-  .manifesto { padding: 80px 40px; }
-  footer { flex-direction: column; text-align: center; padding: 24px 40px; gap: 14px; }
-  .footer-links { justify-content: center; }
-}
-@media (max-width: 600px) {
-  .hero-copy { padding: 88px 24px 40px; gap: 24px; }
-  .hero-headline { font-size: clamp(38px, 10vw, 56px); }
-  .hero-body { font-size: 14px; }
-  .hero-stats { gap: 20px; flex-wrap: wrap; padding-top: 16px; }
-  .hero-stat-val { font-size: 24px; }
-  .hero-actions { flex-wrap: wrap; gap: 12px; }
-  .hero-col2 { padding: 140px 16px 96px; gap: 32px; }
-  #clock-info-time { font-size: 12px; }
-  #clock-info-date { font-size: 7.5px; }
-  #clock-info-tz   { font-size: 6px; }
-  .principles { margin: 48px 20px; }
-  .principle { padding: 44px 28px; }
-  .principle-title { font-size: 26px; }
-  .how { padding: 48px 24px 72px; gap: 44px; }
-  .how-visual { padding: 32px 28px; }
-  .how-step { gap: 20px; padding: 28px 0; }
-  .specs { grid-template-columns: repeat(2,1fr); margin: 48px 20px; }
-  .spec-item { padding: 28px 20px; }
-  .spec-val { font-size: 32px; }
-  .spec-item:nth-last-child(-n+2) { border-bottom: none; }
-  .cta-band { margin: 48px 20px 64px; padding: 40px 24px; gap: 28px; }
-  .cta-band-title { font-size: clamp(26px, 7vw, 36px); }
-  .cta-band-sub { font-size: 13px; }
-  .section-divider { padding: 0 24px; margin: 64px 0 0; }
-  .manifesto { padding: 68px 24px; }
-  .manifesto-quote { font-size: clamp(24px, 6.5vw, 38px); }
-  .modes { padding: 64px 24px 64px; gap: 36px; }
-  .modes-list { border-radius: 8px; }
-  .mode-item { padding: 20px 20px; gap: 12px; }
-  nav { padding: 16px 20px; }
-  .nav-cta { padding: 8px 16px; font-size: 8px; }
-  footer { padding: 28px 20px; gap: 14px; }
-  .footer-links { gap: 16px; flex-wrap: wrap; justify-content: center; }
-  .reveal, .reveal-stagger > * { transition-duration: 0.35s; transform: translateY(8px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal-stagger > * { transition: none; opacity: 1; transform: none; }
-  .hero-dot { animation: none; }
-}
+/* sections */
+section.s{position:relative;z-index:2;padding:130px 0;border-top:1px solid var(--line);background:var(--ink)}
+h2.big{font-size:clamp(30px,3.4vw,50px);max-width:14em;margin-bottom:38px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:90px}
+dl>div{padding:24px 0;border-bottom:1px solid var(--line)}dl>div:first-child{border-top:1px solid var(--line)}
+dt{font-family:var(--disp);font-weight:400;font-size:24px;line-height:1.15;margin-bottom:8px}
+dd{font-size:14px;font-weight:300;color:var(--mid);line-height:1.75}
+.legend{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:70px;font-family:var(--mono);font-size:11px;letter-spacing:.14em}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:10px;background:currentColor;box-shadow:0 0 10px currentColor}
+.cta{text-align:center;display:flex;flex-direction:column;align-items:center;gap:36px;padding:170px 5vw;background:radial-gradient(ellipse 50% 60% at 50% 60%,rgba(30,80,180,.16),transparent 70%),var(--ink)}
+.cta h2{font-size:clamp(34px,4.4vw,64px);max-width:15em}
+.note{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--low)}
+footer{position:relative;z-index:2;background:var(--ink);border-top:1px solid var(--line);font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--low)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding-top:30px;padding-bottom:30px}
+footer ul{display:flex;gap:24px;list-style:none}footer a:hover{color:var(--bright)}
+@media(max-width:900px){
+  .links,.logo span,.logo i{display:none}
+  .scene{grid-template-columns:1fr;grid-template-rows:1fr auto;padding:74px 6vw 2vh;gap:0}
+  .obj{grid-row:1;justify-self:center}.txt{grid-row:2;justify-self:center}
+  .watch{--d:min(74vw,34vh)}.time{height:60px;margin-top:12px}.caps{height:auto}
+  .cap h1,.cap h2{font-size:clamp(32px,9vw,46px)}.cap p{font-size:14px}.cap{gap:14px}
+  .acts{display:none}.tip{display:none}.two{grid-template-columns:1fr;gap:70px}section.s{padding:90px 0}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.cap,.watch{transition:none}}
+.lead{margin:-14px 0 60px;color:var(--mid);font-weight:300;max-width:540px}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--low)}
+.eq{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:rgba(var(--b),.85)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:0 50px}
+.trio article{padding:34px 0;border-top:1px solid rgba(var(--c),.7);box-shadow:0 -1px 18px rgba(var(--c),.25);display:flex;flex-direction:column;gap:12px}
+.trio h3{color:rgb(var(--c));margin:0;font-size:34px}.trio p{font-size:14px;font-weight:300;color:var(--mid);line-height:1.75}
+.ledger{display:grid;grid-template-columns:repeat(3,1fr);gap:0 50px}
+.ledger>div{padding:28px 0;border-top:1px solid var(--line)}.ledger b{display:block;font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.16em;color:rgb(var(--b));margin-bottom:10px}
+.ledger p{font-size:14px;font-weight:300;color:var(--mid);line-height:1.75}
+.themes{display:flex;gap:18px}
+.sw{width:46px;height:46px;border-radius:50%;border:1px solid var(--hi);cursor:pointer;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.6),rgb(var(--c)) 42%,#03060d 100%);box-shadow:0 0 26px rgba(var(--c),.45);transition:transform .2s}
+.sw:hover{transform:scale(1.1)}.sw[aria-pressed=true]{outline:1px solid var(--frost);outline-offset:4px}
+.quote{padding:160px 5vw;text-align:center}
+.quote p{font-family:var(--disp);font-style:italic;font-weight:300;font-size:clamp(30px,4vw,60px);line-height:1.15;max-width:17em;margin:0 auto 30px;text-shadow:0 0 50px rgba(var(--b),.25)}
+.faq{max-width:900px}.faq details{border-bottom:1px solid var(--line);padding:24px 0}.faq details:first-of-type{border-top:1px solid var(--line)}
+.faq summary{cursor:pointer;font-family:var(--disp);font-size:26px;list-style:none;display:flex;justify-content:space-between;gap:20px}
+.faq summary::-webkit-details-marker{display:none}.faq summary::after{content:"+";color:rgb(var(--b));font-family:var(--mono)}.faq details[open] summary::after{content:"−"}
+.faq p{margin-top:14px;max-width:640px;font-size:14px;font-weight:300;color:var(--mid);line-height:1.75}
+@media(max-width:900px){.trio,.ledger{grid-template-columns:1fr}}
+.strap{position:absolute;left:27%;width:46%;height:17%;background:linear-gradient(90deg,#05080f,#18233a 30%,#0b1220 70%,#05080f)}
+.strap::before{content:"";position:absolute;inset:4% 8%;border-left:1px dashed rgba(107,191,255,.28);border-right:1px dashed rgba(107,191,255,.28)}
+.strap.t{top:-13%;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 75%);mask-image:linear-gradient(to bottom,transparent,#000 75%)}
+.strap.b{bottom:-13%;-webkit-mask-image:linear-gradient(to top,transparent,#000 75%);mask-image:linear-gradient(to top,transparent,#000 75%)}
+.lug{position:absolute;width:11%;height:20%;border-radius:6px 6px 3px 3px;background:linear-gradient(90deg,#1a2436,#a5b8d4 45%,#2a3850 72%,#131b2b);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 0 0 1px rgba(0,0,0,.65)}
+.l1{left:23%;top:-6%;transform:rotate(-9deg)}.r1{right:23%;top:-6%;transform:rotate(9deg)}.l2{left:23%;bottom:-6%;transform:rotate(9deg)}.r2{right:23%;bottom:-6%;transform:rotate(-9deg)}
+.case::before{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:conic-gradient(from calc(var(--ry,0deg)*7 + 25deg),transparent 0 18%,rgba(255,255,255,.42) 24%,transparent 32%,transparent 58%,rgba(180,215,255,.3) 66%,transparent 74%);-webkit-mask:radial-gradient(circle,transparent 88%,#000 89.5%);mask:radial-gradient(circle,transparent 88%,#000 89.5%)}
+.dial::before{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(rgba(150,190,255,.024) 0 .8deg,transparent .8deg 2.4deg)}
+.dial::after{content:"";position:absolute;inset:5.5%;border-radius:50%;border:1px solid rgba(59,158,255,.1);pointer-events:none}
+.case{background:linear-gradient(150deg,#243049,#080d17 55%,#121c2e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 0 0 1px rgba(0,0,0,.6)}
+.case::before,.dial::before,.dial::after{display:none}
+.bezel{inset:2.5%;background:#04070d;box-shadow:inset 0 0 0 1px rgba(59,158,255,.15)}
+.dial{inset:5.5%}.glass{inset:5.5%}
+@media(max-height:760px) and (min-width:901px){.cap h1,.cap h2{font-size:clamp(32px,4vw,54px)}.cap p{font-size:14px}.cap{gap:14px}.tip{display:none}.acts{margin-top:18px}.dots{margin-top:16px}}
+@media(max-width:900px) and (max-height:720px){.watch{--d:min(62vw,28vh)}.cap p{font-size:13px;line-height:1.6}.cap h1,.cap h2{font-size:clamp(28px,8vw,38px)}}
+.trio article{box-shadow:none}.trio{overflow:visible}
+.scene{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+.watch{--d:min(46vw,calc(100svh - 240px));filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.case{background:none;box-shadow:0 0 0 1px rgba(59,158,255,.3),0 0 70px rgba(59,158,255,.13)}
+.bezel,.mark,.crown{display:none}
+.dial{inset:0;background:radial-gradient(circle at 50% 45%,#08101f,#020509 72%);box-shadow:inset 0 0 70px rgba(0,0,0,.8),inset 0 0 0 1px rgba(59,158,255,.12)}
+.glass{inset:0;background:radial-gradient(circle at var(--sx,32%) var(--sy,20%),rgba(255,255,255,.09),transparent 34%);box-shadow:none}
+@media(max-width:900px){.scene{grid-template-columns:1fr}.watch{--d:max(210px,min(88vw,calc(100svh - 440px)))}}
+.watch{--d:min(42vw,calc(100svh - 250px))}
+.case{box-shadow:0 0 0 1px rgba(59,158,255,.34)}
+.dial{box-shadow:inset 0 0 0 1px rgba(59,158,255,.08)}
+.case{box-shadow:0 0 0 .5px rgba(107,191,255,.55)}
+.dial{box-shadow:none;background:radial-gradient(circle at 50% 46%,#07101f,#020509 75%)}
+.glass{box-shadow:none}
+.watch{--d:min(50vw,calc(100svh - 215px))}
+@media(max-width:900px){.watch{--d:max(230px,min(88vw,calc(100svh - 410px)))}}
 </style>
 </head>
 <body>
+<div id="vig"></div><div id="grain"></div>
+<nav id="nav"><div class="wrap">
+  <a href="#top" class="logo" aria-label="Quanta home">
+    <svg viewBox="0 0 22 22" fill="none"><g stroke="rgba(59,158,255,.6)" stroke-width=".8"><ellipse cx="11" cy="11" rx="9" ry="3.6"/><ellipse cx="11" cy="11" rx="9" ry="3.6" transform="rotate(60 11 11)"/><ellipse cx="11" cy="11" rx="9" ry="3.6" transform="rotate(120 11 11)"/></g><circle cx="11" cy="11" r="1.8" fill="rgba(59,158,255,.9)"/><circle cx="11" cy="11" r=".7" fill="rgba(210,235,255,.98)"/></svg>
+    <b>Quanta</b><i></i><span>quantum state clock</span></a>
+  <ul class="links"><li><a href="#measure">Measurement</a></li><li><a href="#lab">Modes and lab</a></li><li><a href="#details">Details</a></li><li><a href="#faq">FAQ</a></li></ul>
+  <a class="gb" href="simulation.html">Open the clock</a>
+</div></nav>
 
-<div class="bg-ambient"></div>
-
-<!-- ── NAV ── -->
-<nav id="nav">
-  <a href="#" class="nav-logo">
-    <span class="nav-logo-mark">
-      <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8"/>
-        <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8" transform="rotate(60 11 11)"/>
-        <ellipse cx="11" cy="11" rx="9" ry="3.6" stroke="rgba(59,158,255,0.55)" stroke-width="0.8" transform="rotate(120 11 11)"/>
-        <circle cx="11" cy="11" r="1.8" fill="rgba(59,158,255,0.90)"/>
-        <circle cx="11" cy="11" r="0.7" fill="rgba(210,235,255,0.98)"/>
-      </svg>
-    </span>
-    <span class="nav-logo-text">QUANTA</span>
-    <span class="nav-logo-sep"></span>
-    <span class="nav-logo-sub">quantum state clock</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#principles">Principles</a></li>
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#modes">Modes</a></li>
-    <li><a href="#about">About</a></li>
-  </ul>
-  <a href="simulation.html" class="nav-cta">Observe Now</a>
-</nav>
-
-<!-- ── HERO ── -->
-<section class="hero">
-  <div class="hero-copy">
-    <div class="hero-eyebrow reveal">
-      <span class="hero-dot"></span>
-      <span class="hero-eyebrow-text">Quantum State Timepiece · v2.0</span>
-    </div>
-    <h1 class="hero-headline reveal">
-      Time exists<br><em>only when<br>you look.</em>
-    </h1>
-    <p class="hero-body reveal">
-      QUANTA is a clock that behaves like a quantum particle. When unobserved, the hour, minute and second exist in superposition — an indeterminate cloud of all possible states. The moment you look, the wavefunction collapses, and time becomes real.
-    </p>
-    <div class="hero-actions reveal">
-      <a href="simulation.html" class="btn-primary">Open the clock</a>
-      <a href="#principles" class="btn-ghost">
-        How it works
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-    <div class="hero-stats reveal">
-      <div class="hero-stat">
-        <span class="hero-stat-val">∞</span>
-        <span class="hero-stat-label">Superposed states</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-val">1</span>
-        <span class="hero-stat-label">Upon observation</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-val">3</span>
-        <span class="hero-stat-label">Eigenstates revealed</span>
-      </div>
-    </div>
+<div class="story" id="top">
+ <div class="scene" id="scene">
+  <div class="txt">
+   <div class="caps">
+    <div class="cap on"><div class="st"><i class="dot"></i>superposition · unobserved</div><h1>Time exists only when you look.</h1><p>Quanta is a clock that behaves like a quantum particle. Until you look, the hour, minute and second are a cloud of every possible value.</p></div>
+    <div class="cap live"><div class="st"><i class="dot"></i>observation · measuring</div><h2>Then you look.</h2><p>Observation reads your system clock at that exact instant. The cloud has to choose.</p></div>
+    <div class="cap live"><div class="st"><i class="dot"></i>eigenstate · collapsed</div><h2>Three definite values.</h2><p>Hours in violet-blue, minutes in cyan, seconds in ice-white. Each spike tip carries its value.</p></div>
+    <div class="cap"><div class="st"><i class="dot"></i>decoherence · fading</div><h2>And it fades.</h2><p>Within seconds the spikes dissolve. The time is unknown again until the next look.</p></div>
+   </div>
+   <div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i></div>
+   <div class="acts"><a class="obs" href="simulation.html"><i class="orb"></i><span>Open the clock</span></a><a class="tl" href="#lab">Modes and lab</a></div>
+   <p class="tip" id="tip">scroll to observe</p>
   </div>
+  <div class="obj">
+   <div class="watch" id="watch">
+    <div class="case"></div><div class="bezel"></div>
+    <div class="dial" id="dial"><canvas id="cv" role="img" aria-label="A Quanta timepiece dial. As you scroll, its particle cloud collapses into hour, minute and second spikes, then fades."></canvas>
+      <div class="mark"><b>QUANTA</b><i>quantum state clock</i></div></div>
+    <div class="glass"></div>
+   </div>
+   <div class="time" id="time" aria-live="polite"><span id="unk">the time is unknown</span><div id="rt"></div></div>
+  </div>
+ </div>
+</div>
 
-  <!-- ── ANIMATED SVG CLOCK ── -->
-  <div class="hero-col2">
-  <div class="hero-visual reveal">
-    <div id="qclock-wrapper">
-      <div class="clock-title-label">QUANTA · QUANTUM STATE CLOCK</div>
-      <div id="qclock">
-        <svg id="clock-svg" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="rgba(59,158,255,0.5)"/>
-              <stop offset="100%" stop-color="rgba(59,158,255,0)"/>
-            </radialGradient>
-            <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"   stop-color="rgba(30,80,180,0.06)"/>
-              <stop offset="100%" stop-color="rgba(2,4,8,0)"/>
-            </radialGradient>
-            <filter id="blur2"><feGaussianBlur stdDeviation="2"/></filter>
-            <filter id="blur4"><feGaussianBlur stdDeviation="4"/></filter>
-            <filter id="blur1"><feGaussianBlur stdDeviation="1"/></filter>
-          </defs>
+<section class="s" id="measure"><div class="wrap">
+  <h2 class="big">Three hands, three measurements</h2>
+  <p class="lead">Every observation returns three eigenvalues. Each has its own colour, reach and character.</p>
+  <div class="trio">
+    <article style="--c:100,140,255"><h3>Hours</h3><span class="mono">violet-blue · shortest spike</span><p>Points to the hour on a twelve-hour dial and moves the least. Its tip is labelled H with the 24-hour value.</p></article>
+    <article style="--c:0,210,255"><h3>Minutes</h3><span class="mono">cyan · middle spike</span><p>Sits between the other two and drifts smoothly as the seconds pass. Its tip is labelled M.</p></article>
+    <article style="--c:180,230,255"><h3>Seconds</h3><span class="mono">ice-white · longest spike</span><p>The fastest hand, and the reading most likely to be wrong by the time you look again. Its tip is labelled S.</p></article>
+  </div>
+</div></section>
 
-          <!-- bg glow -->
-          <circle cx="170" cy="170" r="165" fill="url(#bgGlow)"/>
+<section class="s" id="lab"><div class="wrap">
+  <div class="legend"><span style="color:rgb(var(--h))">hours · violet-blue</span><span style="color:rgb(var(--m))">minutes · cyan</span><span style="color:rgb(var(--s))">seconds · ice-white</span></div>
+  <div class="two">
+   <div>
+    <h2 class="big">Four ways to see it</h2>
+    <dl>
+      <div><dt>Particle</dt><dd>A bounded cloud of probability points that drifts, then collapses to three spikes. Drag to rotate, scroll to zoom.</dd></div>
+      <div><dt>Gaussian</dt><dd>The same odds as a smooth density surface. Bell curves overlap before resolving to sharp peaks.</dd></div>
+      <div><dt>3D</dt><dd>An orbital shell around a glowing nucleus, with the spikes passing through it in full perspective.</dd></div>
+      <div><dt>Slit</dt><dd>Send the time through a double slit and watch it interfere with itself.</dd></div>
+    </dl>
+   </div>
+   <div>
+    <h2 class="big">The quantum lab</h2>
+    <dl>
+      <div><dt>Uncertainty principle</dt><dd>Hours, minutes and seconds don't commute. Measure one sharply and the other two blur.</dd></div>
+      <div><dt>Entanglement</dt><dd>Link two tabs, or pair another device. Observe one and the other collapses, each showing its own local time.</dd></div>
+      <div><dt>Schrödinger's alarm</dt><dd>Set a time and a chance it rings. Afterwards it is both ringing and silent until you observe it.</dd></div>
+      <div><dt>Quantum Zeno effect</dt><dd>Keep observing while a reading is on screen and it freezes in place.</dd></div>
+    </dl>
+   </div>
+  </div>
+</div></section>
 
-          <!-- outer decorative rings -->
-          <circle cx="170" cy="170" r="158" class="clock-ring-outer"/>
-          <circle cx="170" cy="170" r="148" stroke="rgba(59,158,255,0.05)" stroke-width="0.5" fill="none"/>
-          <circle cx="170" cy="170" r="128" class="clock-ring-mid"/>
-          <circle cx="170" cy="170" r="108" stroke="rgba(59,158,255,0.06)" stroke-width="0.5" fill="none"/>
+<section class="s" id="details"><div class="wrap">
+  <h2 class="big">The details</h2>
+  <div class="ledger">
+    <div><b>Observe</b><p>Press the Observe button or the Space bar. Repeat while a reading is showing to freeze it.</p></div>
+    <div><b>Explore</b><p>Drag to rotate, scroll or pinch to zoom from 0.35× to 7×. Press 0 to reset the view.</p></div>
+    <div><b>Colourways</b><p>Blue, red, green and yellow. Blue is the signature.</p></div>
+    <div><b>Adaptive density</b><p>The particle count adjusts so the cloud stays smooth on slower devices.</p></div>
+    <div><b>Remembers</b><p>Lab settings are saved in your browser and nowhere else.</p></div>
+    <div><b>Pairing</b><p>Device pairing uses WebRTC with a public STUN server. Codes are exchanged by hand.</p></div>
+  </div>
+  <h2 class="big" style="margin-top:110px">Choose a colourway</h2>
+  <div class="themes" role="group" aria-label="Colourway">
+    <button class="sw" style="--c:59,158,255" data-c="59,158,255" aria-pressed="true" aria-label="Blue"></button>
+    <button class="sw" style="--c:255,64,64" data-c="255,64,64" aria-pressed="false" aria-label="Red"></button>
+    <button class="sw" style="--c:20,240,100" data-c="20,240,100" aria-pressed="false" aria-label="Green"></button>
+    <button class="sw" style="--c:255,198,40" data-c="255,198,40" aria-pressed="false" aria-label="Yellow"></button>
+  </div>
+  <p class="mono" style="margin-top:18px">picking one returns you to the timepiece, recoloured</p>
+</div></section>
 
-          <!-- hour tick marks -->
-          <g id="ticks"></g>
+<section class="s quote"><p>The present moment has no thickness until it is measured. A clock that knows this is more honest than one that does not.</p><span class="mono">Design notes, QUANTA</span></section>
 
-          <!-- hour numerals -->
-          <g id="numerals"></g>
+<section class="s" id="faq"><div class="wrap faq">
+  <h2 class="big">Questions</h2>
+  <details><summary>Is this a real quantum system?</summary><p>No. Quanta is a visual thought experiment: your device's ordinary clock, presented with quantum vocabulary. The measurement is your system time, read at the moment you look.</p></details>
+  <details><summary>Is the time really hidden?</summary><p>The time is always your system clock. What changes is whether Quanta shows it. It appears when you observe and fades as your knowledge decays.</p></details>
+  <details><summary>Do I need an account?</summary><p>No. It runs in your browser.</p></details>
+  <details><summary>How does device pairing work?</summary><p>One device creates a code, the other joins with it and sends a reply back. It uses WebRTC with a public STUN server, and you exchange the codes by hand.</p></details>
+</div></section>
 
-          <!-- glow hands (blur) -->
-          <line id="hglow" x1="170" y1="170" x2="170" y2="100" class="hand-glow-h" filter="url(#blur4)"/>
-          <line id="mglow" x1="170" y1="170" x2="170" y2="85"  class="hand-glow-m" filter="url(#blur4)"/>
-          <line id="sglow" x1="170" y1="170" x2="170" y2="78"  class="hand-glow-s" filter="url(#blur2)"/>
-
-          <!-- hands -->
-          <line id="hhand" x1="170" y1="185" x2="170" y2="100" class="hand-h"/>
-          <line id="mhand" x1="170" y1="185" x2="170" y2="82"  class="hand-m"/>
-          <line id="shand" x1="170" y1="185" x2="170" y2="72"  class="hand-s"/>
-
-          <!-- centre -->
-          <circle cx="170" cy="170" r="28" fill="url(#centerGlow)" opacity="0.7"/>
-          <circle cx="170" cy="170" r="14" fill="rgba(2,4,8,0.90)" stroke="rgba(59,158,255,0.30)" stroke-width="1"/>
-          <circle cx="170" cy="170" r="4"  fill="rgba(59,158,255,0.90)"/>
-          <circle cx="170" cy="170" r="1.8" fill="rgba(210,235,255,0.98)"/>
-
-          <!-- (title moved outside the SVG for proper spacing) -->
-        </svg>
-
-        <!-- particle canvas overlay -->
-        <canvas id="particle-canvas" width="340" height="340"></canvas>
-      </div>
-    </div><!-- end qclock-wrapper -->
-
-    <!-- Digital readout: inside hero-visual, below the clock -->
-    <div id="clock-info">
-      <span id="clock-info-time">00:00:00</span>
-      <span id="clock-info-date">loading...</span>
-      <span id="clock-info-tz"></span>
-    </div>
-  </div><!-- end hero-visual -->
-  </div><!-- end hero-col2 -->
+<section class="cta">
+  <h2>The time is unknown until you decide to know it.</h2>
+  <a class="obs" href="simulation.html"><i class="orb"></i><span>Open the clock</span></a>
+  <p class="note">No account. Runs in your browser.</p>
 </section>
-
-<!-- ── DIVIDER ── -->
-<div class="section-divider reveal">
-  <div class="sdivline"></div>
-  <span class="sdivlabel">Three quantum principles</span>
-  <div class="sdivline"></div>
-</div>
-
-<!-- ── PRINCIPLES ── -->
-<div class="principles reveal-stagger" id="principles">
-  <div class="principle">
-    <span class="principle-index">principle · i</span>
-    <div class="principle-icon">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="6.5" stroke="rgba(59,158,255,0.6)" stroke-width="1"/>
-        <circle cx="9" cy="9" r="3" stroke="rgba(107,191,255,0.4)" stroke-width="0.75"/>
-        <circle cx="9" cy="9" r="1" fill="rgba(180,230,255,0.9)"/>
-      </svg>
-    </div>
-    <h2 class="principle-title">Superposition</h2>
-    <p class="principle-body">Between observations, every possible time exists simultaneously. The particle cloud expresses this probabilistic fog — each point a candidate moment, each drift a flicker of possibility.</p>
-    <div class="principle-detail">ψ = Σ αₙ|n⟩ · unobserved state</div>
-  </div>
-  <div class="principle">
-    <span class="principle-index">principle · ii</span>
-    <div class="principle-icon">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="7" stroke="rgba(59,158,255,0.25)" stroke-width="0.75"/>
-        <path d="M9 2 L9 9 L15 9" stroke="rgba(107,191,255,0.75)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="9" cy="9" r="1.2" fill="rgba(59,158,255,0.9)"/>
-      </svg>
-    </div>
-    <h2 class="principle-title">Observation</h2>
-    <p class="principle-body">The act of looking is not passive. When you press Observe, you become the measurement apparatus. Your attention is the instrument that forces reality to commit to a single value.</p>
-    <div class="principle-detail">⟨ψ|Ô|ψ⟩ · wavefunction collapse</div>
-  </div>
-  <div class="principle">
-    <span class="principle-index">principle · iii</span>
-    <div class="principle-icon">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M3 9 L9 3 L15 9 L9 15 Z" stroke="rgba(59,158,255,0.55)" stroke-width="1" fill="none"/>
-        <path d="M6 9 L9 6 L12 9 L9 12 Z" fill="rgba(59,158,255,0.20)"/>
-        <circle cx="9" cy="9" r="1" fill="rgba(180,230,255,0.9)"/>
-      </svg>
-    </div>
-    <h2 class="principle-title">Eigenstate</h2>
-    <p class="principle-body">Collapse is irreversible. Three spikes emerge — hours, minutes, seconds — each a definite eigenvalue of the time operator. The system holds this state briefly before decoherence returns it to the fog.</p>
-    <div class="principle-detail">Ô|ψ⟩ = λ|ψ⟩ · definite value</div>
-  </div>
-</div>
-
-<!-- ── DIVIDER ── -->
-<div class="section-divider reveal section-divider--how">
-  <div class="sdivline"></div>
-  <span class="sdivlabel">How it works</span>
-  <div class="sdivline"></div>
-</div>
-
-<!-- ── HOW IT WORKS ── -->
-<section class="how" id="how">
-  <div class="how-steps reveal">
-    <div class="how-step">
-      <span class="how-step-num">01</span>
-      <div class="how-step-body">
-        <span class="how-step-title">Page loads in superposition</span>
-        <p class="how-step-desc">The moment you open QUANTA, thousands of particles drift across the disc in a probability cloud. No time is displayed. The system is in an indeterminate state — all hours, all minutes, all seconds at once.</p>
-      </div>
-    </div>
-    <div class="how-step">
-      <span class="how-step-num">02</span>
-      <div class="how-step-body">
-        <span class="how-step-title">Observation triggers collapse</span>
-        <p class="how-step-desc">Press Observe — or simply return to the tab after switching away. Your attention acts as the measurement event. The system reads the system clock at the exact moment of observation and begins to collapse.</p>
-      </div>
-    </div>
-    <div class="how-step">
-      <span class="how-step-num">03</span>
-      <div class="how-step-body">
-        <span class="how-step-title">Three eigenstates emerge</span>
-        <p class="how-step-desc">The particle cloud contracts into three luminous spikes along the disc — hours in violet-blue, minutes in cyan, seconds in ice-white. Each spike tip shows its exact value. Time is known.</p>
-      </div>
-    </div>
-    <div class="how-step how-step--last">
-      <span class="how-step-num">04</span>
-      <div class="how-step-body">
-        <span class="how-step-title">Decoherence returns the fog</span>
-        <p class="how-step-desc">After a few seconds, the eigenstate decoheres. The spikes dissolve back into the probability cloud. Time becomes unknown again — until the next observation.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="how-visual reveal">
-    <span class="how-visual-label">Current phase</span>
-    <span class="how-visual-title">Superposition · unobserved</span>
-    <p class="how-visual-body">The disc holds all possible values simultaneously. The wavefunction is intact. Reality has not yet been forced to choose.</p>
-    <div class="phase-bar">
-      <div class="phase-row">
-        <span class="phase-dot blue"></span>
-        <span class="phase-label-text">hours · violet-blue spike</span>
-        <span class="phase-val" id="ph-h">--</span>
-      </div>
-      <div class="phase-row">
-        <span class="phase-dot cyan"></span>
-        <span class="phase-label-text">minutes · cyan spike</span>
-        <span class="phase-val" id="ph-m">--</span>
-      </div>
-      <div class="phase-row">
-        <span class="phase-dot white"></span>
-        <span class="phase-label-text">seconds · ice-white spike</span>
-        <span class="phase-val" id="ph-s">--</span>
-      </div>
-    </div>
-    <div class="how-visual-cta">
-      <a href="simulation.html" class="btn-primary">Collapse the wavefunction →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── MANIFESTO ── -->
-<section class="manifesto reveal" id="about">
-  <p class="manifesto-quote">
-    "The present moment has no thickness<br>
-    <span>until it is measured.</span><br>
-    A clock that knows this<br>is more honest than one that does not."
-  </p>
-  <span class="manifesto-attr">— Design notes, QUANTA v1.0, 2024</span>
-</section>
-
-<!-- ── DIVIDER ── -->
-<div class="section-divider reveal">
-  <div class="sdivline"></div>
-  <span class="sdivlabel">Visualization modes</span>
-  <div class="sdivline"></div>
-</div>
-
-<!-- ── MODES ── -->
-<section class="modes" id="modes">
-  <div class="modes-intro reveal">
-    <span class="modes-intro-label">Three ways to see</span>
-    <h2 class="modes-intro-title">Choose your quantum model</h2>
-    <p class="modes-intro-body">QUANTA renders the same underlying mathematics three different ways. Each mode expresses the probability distribution of time differently — but all collapse to the same eigenstate when observed.</p>
-  </div>
-  <div class="modes-list reveal">
-    <div class="mode-item">
-      <span class="mode-pill">particle</span>
-      <div class="mode-content">
-        <span class="mode-title">Particle Mode</span>
-        <p class="mode-desc">Thousands of individual probability points drift in a bounded cloud. On observation, they contract to three luminous spikes, each tip labelled with its eigenvalue. Drag to rotate the disc in 3D space.</p>
-      </div>
-    </div>
-    <div class="mode-item">
-      <span class="mode-pill">gaussian</span>
-      <div class="mode-content">
-        <span class="mode-title">Gaussian Mode</span>
-        <p class="mode-desc">A smooth probability density surface — the continuous cousin of particle mode. The bell curves encoding each time dimension overlap and shimmer in superposition before resolving to sharp peaks.</p>
-      </div>
-    </div>
-    <div class="mode-item">
-      <span class="mode-pill">3d</span>
-      <div class="mode-content">
-        <span class="mode-title">3D Orbital Mode</span>
-        <p class="mode-desc">A spherical s-orbital shell of particles surrounds a glowing nucleus. The three clock spikes extend outward through the shell in full perspective projection — time as spatial geometry.</p>
-      </div>
-    </div>
-    <div class="mode-item">
-      <span class="mode-pill">auto</span>
-      <div class="mode-content">
-        <span class="mode-title">Watch Behaviour</span>
-        <p class="mode-desc">Switching tabs counts as looking away. Returning counts as observation. The wavefunction collapses the moment you come back — like glancing at a watch on your wrist.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── DIVIDER ── -->
-<div class="section-divider reveal">
-  <div class="sdivline"></div>
-  <span class="sdivlabel">Technical specifications</span>
-  <div class="sdivline"></div>
-</div>
-
-<!-- ── SPECS ── -->
-<div class="specs reveal-stagger">
-  <div class="spec-item">
-    <span class="spec-val">4000+</span>
-    <span class="spec-unit">particles</span>
-    <p class="spec-label">Individual probability points in the superposition cloud, each with independent drift velocity.</p>
-  </div>
-  <div class="spec-item">
-    <span class="spec-val">60</span>
-    <span class="spec-unit">fps render</span>
-    <p class="spec-label">Smooth Canvas 2D animation loop, with requestAnimationFrame scheduling and offscreen buffering.</p>
-  </div>
-  <div class="spec-item">
-    <span class="spec-val">3</span>
-    <span class="spec-unit">colour channels</span>
-    <p class="spec-label">Hours in violet-blue · minutes in cyan · seconds in ice-white. Each eigenstate visually distinct.</p>
-  </div>
-  <div class="spec-item">
-    <span class="spec-val">0</span>
-    <span class="spec-unit">dependencies</span>
-    <p class="spec-label">Pure HTML, CSS, and vanilla JavaScript. No frameworks, no build step, no network requests after load.</p>
-  </div>
-</div>
-
-<!-- ── CTA BAND ── -->
-<div class="cta-band reveal">
-  <div class="cta-band-copy">
-    <h2 class="cta-band-title">The time is unknown.<br>Until you decide to know it.</h2>
-    <p class="cta-band-sub">Open QUANTA and observe. Or wait — the superposition will hold as long as you do not look. The choice, as in quantum mechanics, is yours.</p>
-  </div>
-  <div class="cta-band-actions">
-    <a href="simulation.html" class="btn-primary">Collapse the wavefunction</a>
-    <span class="cta-band-note">No account required · runs in-browser</span>
-  </div>
-</div>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <span class="footer-logo">QUANTA</span>
-  <span class="footer-copy">© 2026 · A thought experiment in interface design</span>
-  <ul class="footer-links">
-    <li><a href="simulation.html">Simulation</a></li>
-    <li><a href="#principles">Principles</a></li>
-    <li><a href="#about">About</a></li>
-  </ul>
-</footer>
+<footer><div class="wrap"><span>© 2026 QUANTA · A thought experiment in interface design</span><ul><li><a href="simulation.html">Simulation</a></li><li><a href="#lab">Lab</a></li></ul></div></footer>
 
 <script>
-/* ── NAV scroll ── */
-const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40), { passive: true });
+const $=id=>document.getElementById(id),p2=n=>String(n).padStart(2,'0'),still=matchMedia('(prefers-reduced-motion:reduce)').matches,cl=(x,a,b)=>x<a?a:x>b?b:x;
+addEventListener('scroll',()=>$('nav').classList.toggle('on',scrollY>40),{passive:true});
+const story=$('top'),scene=$('scene'),watch=$('watch'),dial=$('dial'),cv=$('cv'),ctx=cv.getContext('2d'),caps=[...document.querySelectorAll('.cap')],dots=[...$('dots').children],timeEl=$('time'),rt=$('rt');
+const SP=[[100,140,255],[0,210,255],[180,230,255]],FOG=[[59,158,255],[107,191,255],[210,235,255]],LEN=[.56,.8,.97];
+function spr(c){const s=document.createElement('canvas');s.width=s.height=64;const g=s.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);
+  r.addColorStop(0,'rgba(255,255,255,.95)');r.addColorStop(.07,`rgba(${c},1)`);r.addColorStop(.22,`rgba(${c},.42)`);r.addColorStop(.5,`rgba(${c},.1)`);r.addColorStop(1,`rgba(${c},0)`);g.fillStyle=r;g.fillRect(0,0,64,64);return s}
+const sprF=FOG.map(spr),sprS=SP.map(spr);
+let D,R,dpr,vis=true;
+function size(){const r=dial.getBoundingClientRect();D=dial.clientWidth||r.width;dpr=Math.min(devicePixelRatio||1,2);cv.width=cv.height=D*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);R=D*.43}
+new ResizeObserver(size).observe(dial);size();
+new IntersectionObserver(e=>vis=e[0].isIntersecting).observe(scene);
 
-/* ── Scroll reveal ── */
-const revEls = document.querySelectorAll('.reveal, .reveal-stagger');
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-}, { threshold: 0.10, rootMargin: '0px 0px -10% 0px' });
-revEls.forEach(el => io.observe(el));
-document.querySelectorAll('.hero .reveal').forEach((el, i) => setTimeout(() => el.classList.add('visible'), i * 120));
+/* pointer: crystal glare + gentle tilt of the case */
+scene.addEventListener('pointermove',e=>{const r=watch.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  watch.style.setProperty('--sx',cl(x,0,1)*100+'%');watch.style.setProperty('--sy',cl(y,0,1)*100+'%');
+  if(!still){watch.style.setProperty('--ry',cl((x-.5)*10,-7,7)+'deg');watch.style.setProperty('--rx',cl(-(y-.5)*10,-7,7)+'deg')}});
+scene.addEventListener('pointerleave',()=>{watch.style.setProperty('--ry','0deg');watch.style.setProperty('--rx','0deg')});
 
-/* ── SVG Clock ── */
-const CX = 170, CY = 170;
-const R_H = 70, R_M = 88, R_S = 97; // hand lengths from centre
+const N=innerWidth<700?3200:6000,P=[];
+for(let i=0;i<N;i++)P.push({a:Math.random()*6.283,r:Math.pow(Math.random(),.8)*.97+.03,w:(Math.random()-.5)*.1,s:.5+Math.random()*1.2,al:.3+Math.random()*.6,
+  k:i%3,ph:Math.random()*6.283,u:Math.random(),v:Math.random()-.5,f:i%6===0,h:i%4===0,c:Math.random()<.75?0:(Math.random()<.5?1:2)});
+const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+P.forEach(q=>{if(q.r<.34&&q.c===0)q.c=Math.random()<.55?1:2;q.al*=q.r<.5?1:.85});
+let ps=0,pc=0,idx=-1,ang=[0,0,0],val=[0,0,0];
 
-// Build hour ticks + numerals
-const ticksG = document.getElementById('ticks');
-const numsG  = document.getElementById('numerals');
-for (let i = 0; i < 60; i++) {
-  const ang = (i / 60) * Math.PI * 2 - Math.PI / 2;
-  const isHour = i % 5 === 0;
-  const r1 = isHour ? 150 : 153, r2 = isHour ? 158 : 156;
-  const x1 = CX + Math.cos(ang) * r1, y1 = CY + Math.sin(ang) * r1;
-  const x2 = CX + Math.cos(ang) * r2, y2 = CY + Math.sin(ang) * r2;
-  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-  line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-  line.setAttribute('stroke', isHour ? 'rgba(59,158,255,0.45)' : 'rgba(59,158,255,0.15)');
-  line.setAttribute('stroke-width', isHour ? '1.5' : '0.8');
-  ticksG.appendChild(line);
+function capture(){const d=new Date(),h=d.getHours(),m=d.getMinutes(),s=d.getSeconds();val=[h,m,s];
+  ang=[((h%12)+m/60)/12*6.283-1.5708,(m+s/60)/60*6.283-1.5708,s/60*6.283-1.5708];
+  rt.innerHTML=`<b style="color:rgb(${SP[0]})">${p2(h)}</b>:<b style="color:rgb(${SP[1]})">${p2(m)}</b>:<b style="color:rgb(${SP[2]})">${p2(s)}</b>`}
 
-  if (isHour) {
-    const h = i === 0 ? 12 : i / 5;
-    const nr = 140;
-    const tx = CX + Math.cos(ang) * nr, ty = CY + Math.sin(ang) * nr;
-    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    t.setAttribute('x', tx); t.setAttribute('y', ty);
-    t.setAttribute('class', 'clock-label');
-    t.setAttribute('style', 'font-size:8px;fill:rgba(59,158,255,0.38);');
-    t.textContent = h;
-    numsG.appendChild(t);
+function drawHands(c,cx,cy){
+  if(c>.02){const BW=[.02,.014,.005],TL=[.05,.06,.09];ctx.save();ctx.globalAlpha=c;ctx.translate(cx,cy);ctx.lineCap='round';
+    for(let k=0;k<3;k++){const col=SP[k],L=LEN[k]*R,bw=BW[k]*R,tl=TL[k]*R;ctx.save();ctx.rotate(ang[k]);
+      ctx.shadowColor=`rgba(${col},.9)`;ctx.shadowBlur=D*.035;
+      ctx.beginPath();ctx.moveTo(-tl,0);ctx.lineTo(-tl*.5,-bw*.7);ctx.lineTo(L*.1,-bw);ctx.lineTo(L,0);ctx.closePath();
+      ctx.fillStyle=`rgb(${col.map(v=>Math.min(255,v*.55+110)|0)})`;ctx.fill();ctx.shadowBlur=0;
+      ctx.beginPath();ctx.moveTo(-tl,0);ctx.lineTo(-tl*.5,bw*.7);ctx.lineTo(L*.1,bw);ctx.lineTo(L,0);ctx.closePath();
+      ctx.fillStyle=`rgb(${col.map(v=>v*.4|0)})`;ctx.fill();
+      ctx.strokeStyle='rgba(240,250,255,.92)';ctx.lineWidth=Math.max(1,bw*.2);ctx.beginPath();ctx.moveTo(L*.14,0);ctx.lineTo(L*.93,0);ctx.stroke();
+      
+      ctx.restore()}
+    ctx.restore()}
+  const hr=R*.022;ctx.fillStyle='rgb(215,237,255)';ctx.shadowColor='rgba(59,158,255,.95)';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(cx,cy,hr,0,6.283);ctx.fill();ctx.shadowBlur=0}
+function frame(ms){
+  requestAnimationFrame(frame);
+  const span=story.offsetHeight-innerHeight,tgt=cl((scrollY-story.offsetTop)/span,0,1);ps+=(tgt-ps)*.14;const p=ps;
+  const c=p<.2?0:p<.4?ease((p-.2)/.2):p<.72?1:p<.92?1-ease((p-.72)/.2):0;
+  const i=p<.2?0:p<.4?1:p<.72?2:3;
+  if(i!==idx){idx=i;caps.forEach((e,k)=>e.classList.toggle('on',k===i));dots.forEach((e,k)=>e.classList.toggle('on',k<=i));$('tip').style.opacity=i?0:1}
+  if(pc===0&&c>0)capture();pc=c;timeEl.classList.toggle('show',c>.9);
+  if(!vis)return;
+  const t=ms/1000,sp=still?0:1,cx=D/2,cy=D/2;
+  ctx.clearRect(0,0,D,D);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,D*.5);g.addColorStop(0,'rgba(59,158,255,.15)');g.addColorStop(.6,'rgba(20,50,140,.05)');g.addColorStop(1,'rgba(2,4,8,0)');ctx.fillStyle=g;ctx.fillRect(0,0,D,D);
+  ctx.lineWidth=1;
+  for(let k=0;k<12;k++){const a=k/12*6.283;ctx.fillStyle=`rgba(168,216,255,${k%3?.32:.8})`;ctx.beginPath();ctx.arc(cx+Math.cos(a)*D*.486,cy+Math.sin(a)*D*.486,k%3?D*.0025:D*.0045,0,6.283);ctx.fill()}
+  ctx.strokeStyle='rgba(59,158,255,.08)';ctx.beginPath();ctx.arc(cx,cy,R,0,6.283);ctx.stroke();
+  
+  ctx.globalCompositeOperation='lighter';
+  for(const q of P){
+    q.a+=q.w*.016*sp;const rr=q.r+.02*Math.sin(t*.6*sp+q.ph);let x=cx+Math.cos(q.a)*rr*R,y=cy+Math.sin(q.a)*rr*R,e=0;
+    if(c>0&&!q.f){e=c;const A=ang[q.k],d=Math.pow(q.u,.8)*LEN[q.k]*R,sd=(1.5+d*.012)*q.v*2,tx=cx+Math.cos(A)*d-Math.sin(A)*sd,ty=cy+Math.sin(A)*d+Math.cos(A)*sd;x+=(tx-x)*e;y+=(ty-y)*e}
+    const sz=q.s*(D/400+.4);
+    if(e<1){const S=sz*4.8,tw=.65+.35*Math.sin(t*2*sp+q.ph);ctx.globalAlpha=q.al*.62*(1-e)*tw;ctx.drawImage(sprF[q.c],x-S/2,y-S/2,S,S);if(q.h){const B=S*3.6;ctx.globalAlpha=q.al*.13*(1-e)*tw;ctx.drawImage(sprF[q.c],x-B/2,y-B/2,B,B)}}
+    if(e>0){const S=sz*(4.5+e*3);ctx.globalAlpha=Math.min(1,q.al*1.25*e);ctx.drawImage(sprS[q.k],x-S/2,y-S/2,S,S);if(q.h){const B=S*3.2;ctx.globalAlpha=.17*e;ctx.drawImage(sprS[q.k],x-B/2,y-B/2,B,B)}}
   }
+  const n=(1+.2*Math.sin(t*1.3*sp))*R*.4;ctx.globalAlpha=.34;ctx.drawImage(sprF[0],cx-n*1.35,cy-n*1.35,n*2.7,n*2.7);ctx.globalAlpha=.9-c*.3;ctx.drawImage(sprF[2],cx-n/2,cy-n/2,n,n);ctx.globalAlpha=.85;ctx.drawImage(sprF[2],cx-n*.18,cy-n*.18,n*.36,n*.36);
+  ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  if(c>.92){ctx.font=`${Math.max(9,D*.03)}px "Space Mono",monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ['H','M','S'].forEach((l,k)=>{const A=ang[k],d=Math.min(LEN[k]*R+D*.05,D*.44);ctx.fillStyle=`rgba(${SP[k]},${(c-.92)/.08*.95})`;ctx.fillText(l+' '+p2(val[k]),cx+Math.cos(A)*d,cy+Math.sin(A)*d)})}
 }
-
-function rotateHand(id, glowId, angle, length, backLen) {
-  const rad = (angle - 90) * Math.PI / 180;
-  const cos = Math.cos(rad), sin = Math.sin(rad);
-  const tx = CX + cos * length, ty = CY + sin * length;
-  const bx = CX - cos * backLen, by = CY - sin * backLen;
-  const el = document.getElementById(id);
-  const gl = document.getElementById(glowId);
-  el.setAttribute('x1', bx); el.setAttribute('y1', by);
-  el.setAttribute('x2', tx); el.setAttribute('y2', ty);
-  gl.setAttribute('x1', bx); gl.setAttribute('y1', by);
-  gl.setAttribute('x2', tx); gl.setAttribute('y2', ty);
-}
-
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const p2 = n => String(n).padStart(2,'0');
-
-// Show the visitor's own timezone so it's clear the clock reflects their local region.
-(function setTimezoneLabel() {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const offsetMin = -new Date().getTimezoneOffset();
-    const sign = offsetMin >= 0 ? '+' : '-';
-    const abs = Math.abs(offsetMin);
-    const offset = `UTC${sign}${p2(Math.floor(abs / 60))}:${p2(abs % 60)}`;
-    document.getElementById('clock-info-tz').textContent = `${tz.replace(/_/g, ' ')} · ${offset}`;
-  } catch (e) {
-    const offsetMin = -new Date().getTimezoneOffset();
-    const sign = offsetMin >= 0 ? '+' : '-';
-    const abs = Math.abs(offsetMin);
-    document.getElementById('clock-info-tz').textContent = `UTC${sign}${p2(Math.floor(abs / 60))}:${p2(abs % 60)}`;
-  }
-})();
-
-function tickClock() {
-  const now = new Date();
-  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
-
-  const sDeg = (s + ms/1000) * 6;
-  const mDeg = (m + (s + ms/1000)/60) * 6;
-  const hDeg = ((h % 12) + m/60) * 30;
-
-  rotateHand('hhand','hglow', hDeg, R_H, 15);
-  rotateHand('mhand','mglow', mDeg, R_M, 15);
-  rotateHand('shand','sglow', sDeg, R_S, 15);
-
-  const h12 = h % 12 || 12, ap = h < 12 ? 'am' : 'pm';
-  // Write to HTML elements — no longer inside SVG
-  document.getElementById('clock-info-time').textContent = `${p2(h12)}:${p2(m)}:${p2(s)} ${ap}`;
-  document.getElementById('clock-info-date').textContent = `${DAYS[now.getDay()]} · ${now.getDate()} ${MONS[now.getMonth()]}`;
-
-  // Update phase display
-  document.getElementById('ph-h').textContent = p2(h);
-  document.getElementById('ph-m').textContent = p2(m);
-  document.getElementById('ph-s').textContent = p2(s);
-}
-setInterval(tickClock, 50);
-tickClock();
-
-/* ── Particle field ── */
-const canvas = document.getElementById('particle-canvas');
-const ctx = canvas.getContext('2d');
-// Use the qclock container size so canvas always matches the rendered SVG
-const qclockEl = document.getElementById('qclock');
-let W = qclockEl.offsetWidth  || 340;
-let H = qclockEl.offsetHeight || 340;
-
-function resizeCanvas() {
-  W = qclockEl.offsetWidth  || 340;
-  H = qclockEl.offsetHeight || 340;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width  = W + 'px';
-  canvas.style.height = H + 'px';
-  ctx.scale(dpr, dpr);
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas, { passive: true });
-
-const NUM_P = 180;
-const particles = [];
-
-// Particle centre always follows canvas centre
-function pcx() { return W / 2; }
-function pcy() { return H / 2; }
-
-for (let i = 0; i < NUM_P; i++) {
-  const angle = Math.random() * Math.PI * 2;
-  const radius = (30 + Math.random() * 120) / 340 * W; // scale to container
-  particles.push({
-    x: W/2 + Math.cos(angle) * radius,
-    y: H/2 + Math.sin(angle) * radius,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: (Math.random() - 0.5) * 0.3,
-    size: 0.5 + Math.random() * 1.2,
-    alpha: 0.1 + Math.random() * 0.35,
-    hue: Math.random() < 0.5 ? '59,158,255' : Math.random() < 0.5 ? '107,191,255' : '180,230,255'
-  });
-}
-
-function drawParticles() {
-  ctx.clearRect(0, 0, W, H);
-  const now = Date.now() / 1000;
-  const cx = pcx(), cy = pcy();
-  const maxR = W * 0.427; // ~145/340
-  const minR = W * 0.053; // ~18/340
-  particles.forEach(p => {
-    p.x += p.vx + Math.sin(now * 0.4 + p.y * 0.02) * 0.08;
-    p.y += p.vy + Math.cos(now * 0.3 + p.x * 0.02) * 0.08;
-    const dx = p.x - cx, dy = p.y - cy;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist > maxR) { p.vx -= dx * 0.0008; p.vy -= dy * 0.0008; }
-    if (dist < minR) { p.vx += dx * 0.002;  p.vy += dy * 0.002; }
-
-    const flicker = 0.7 + 0.3 * Math.sin(now * 2 + p.x);
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${p.hue},${p.alpha * flicker})`;
-    ctx.fill();
-  });
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
+requestAnimationFrame(frame);
+const EQ=['ψ = Σ αₙ|n⟩','⟨ψ|Ô|ψ⟩','Ô|ψ⟩ = λ|ψ⟩','ρ → diag(ρ)'];
+caps.forEach((e,k)=>e.insertAdjacentHTML('beforeend',`<span class="eq">${EQ[k]}</span>`));
+document.querySelectorAll('.sw').forEach(b=>b.addEventListener('click',()=>{const c=b.dataset.c;FOG[0]=c.split(',').map(Number);sprF[0]=spr(FOG[0]);
+  document.documentElement.style.setProperty('--b',c);document.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b));scrollTo({top:0,behavior:'smooth'})}));
 </script>
 </body>
 </html>
