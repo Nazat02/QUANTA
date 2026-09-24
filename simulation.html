@@ -218,7 +218,7 @@ canvas:active { cursor: grabbing; }
 #controlsRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
   pointer-events: all;
 }
@@ -235,14 +235,14 @@ canvas:active { cursor: grabbing; }
 }
 .mbtn {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(180,215,255,0.30);
   background: transparent;
   border: none;
   border-radius: 5px;
-  padding: 6px 12px;
+  padding: 9px 13px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   -webkit-tap-highlight-color: transparent;
@@ -262,16 +262,24 @@ canvas:active { cursor: grabbing; }
 #themePicker {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 .tswatch {
-  width: 16px; height: 16px;
+  position: relative;
+  width: 18px; height: 18px;
   border-radius: 50%;
   border: 1.5px solid transparent;
   cursor: pointer;
   transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
   -webkit-tap-highlight-color: transparent;
   outline: none;
+}
+/* Invisible 44px hit area so the dot can stay small without failing touch-target size */
+.tswatch::after {
+  content: '';
+  position: absolute;
+  inset: -13px;
+  border-radius: 50%;
 }
 .tswatch:hover  { transform: scale(1.25); }
 .tswatch.active {
@@ -416,22 +424,22 @@ canvas:active { cursor: grabbing; }
 
 .litem {
   display: grid;
-  grid-template-columns: 18px 1fr 34px;
+  grid-template-columns: 18px 1fr 48px;
   align-items: center;
   gap: 14px;
 }
 
 .lkey {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.10em;
   font-weight: 700;
   opacity: 0.85;
 }
 
 .ltrack {
-  height: 1px;
-  background: rgba(59,158,255,0.12);
+  height: 2px;
+  background: rgba(59,158,255,0.14);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -444,8 +452,8 @@ canvas:active { cursor: grabbing; }
 
 .lval {
   font-family: var(--font-mono);
-  font-size: 9px;
-  color: rgba(180,215,255,0.42);
+  font-size: 10px;
+  color: rgba(180,215,255,0.48);
   text-align: right;
   letter-spacing: 0.06em;
 }
@@ -547,9 +555,9 @@ canvas:active { cursor: grabbing; }
 #hint {
   margin-top: 12px;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 0.22em;
-  color: rgba(180,215,255,0.13);
+  color: rgba(180,215,255,0.30);
   text-transform: uppercase;
   text-align: center;
 }
@@ -578,13 +586,13 @@ canvas:active { cursor: grabbing; }
 }
 
 .zbtn {
-  width: 36px; height: 36px;
+  width: 44px; height: 44px;
   background: rgba(2,4,8,0.82);
   border: 1px solid rgba(59,158,255,0.16);
   border-radius: 4px;
   color: rgba(180,215,255,0.40);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -754,6 +762,83 @@ canvas:active { cursor: grabbing; }
   #bezelRing::before { animation: none; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ═══════════════════════════════════
+   QUANTUM LAB (uncertainty · zeno · entangle · alarm · sound)
+   ═══════════════════════════════════ */
+#labToggle {
+  display: flex; align-items: center; gap: 2px;
+  background: rgba(59,158,255,0.04);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px; padding: 3px;
+}
+#lab {
+  position: fixed; z-index: 40;
+  top: 150px; left: 12px; right: 12px; max-width: 340px;
+  max-height: calc(100% - 166px); overflow-y: auto;
+  background: rgba(2,4,8,0.95);
+  border: 1px solid rgba(59,158,255,0.20);
+  border-radius: 10px; padding: 6px 16px 14px;
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  opacity: 0; transform: translateY(-6px); pointer-events: none; visibility: hidden;
+  transition: opacity .22s, transform .22s, visibility 0s .22s;
+  font-family: var(--font-mono); color: rgba(180,215,255,0.55);
+}
+#lab.open { opacity: 1; transform: translateY(0); pointer-events: all; visibility: visible; transition-delay: 0s; }
+@media (min-width: 800px) and (orientation: landscape) {
+  #lab { top: 132px; left: 26px; right: auto; width: 340px; max-height: calc(100% - 150px); }
+}
+.lab-sec { padding: 14px 0 12px; border-bottom: 1px solid rgba(59,158,255,0.10); }
+.lab-sec:last-child { border-bottom: none; }
+.lab-h { font-size: 10px; letter-spacing: .16em; color: rgba(210,235,255,0.82); margin-bottom: 10px; }
+.lab-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.lab-note { font-size: 9px; letter-spacing: .06em; line-height: 1.7; color: rgba(180,215,255,0.42); }
+.chip {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em;
+  color: rgba(180,215,255,0.46); background: transparent;
+  border: 1px solid rgba(59,158,255,0.20); border-radius: 5px;
+  padding: 8px 12px; cursor: pointer; outline: none;
+  transition: background .2s, color .2s, border-color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.chip:hover { color: rgba(210,235,255,0.85); }
+.chip:focus-visible, .mbtn:focus-visible { outline: 1px solid rgba(120,190,255,0.7); outline-offset: 1px; }
+.chip.on { background: rgba(59,158,255,0.18); color: rgba(220,240,255,0.95); border-color: rgba(59,158,255,0.5); }
+.chip.sm { padding: 8px 11px; }
+.lab-in {
+  font-family: var(--font-mono); font-size: 10px; color: rgba(210,235,255,0.9);
+  background: rgba(59,158,255,0.06); border: 1px solid rgba(59,158,255,0.22);
+  border-radius: 5px; padding: 5px 8px; outline: none; color-scheme: dark;
+}
+#pairBox { width: 100%; height: 60px; resize: none; font-size: 9px; letter-spacing: 0; margin-top: 8px; word-break: break-all; line-height: 1.5; }
+#alP { flex: 1; min-width: 80px; accent-color: #3b9eff; }
+.lab-stat { font-size: 8px; letter-spacing: .10em; color: rgba(140,220,255,0.75); margin-top: 4px; min-height: 12px; }
+
+/* Readouts under the Observe button */
+#kn { margin-top: 16px; font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em;
+  color: rgba(180,215,255,0.42); text-align: center; line-height: 1.8; max-width: 260px; }
+#kn div:empty { display: none; }
+#knAlarm.sup { color: rgba(255,214,140,0.75); animation: supPulse 2.4s ease-in-out infinite; }
+@keyframes supPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+@media (min-width: 800px) and (orientation: landscape) { #kn { text-align: left; max-width: 100%; } }
+.fz { display: inline-block; opacity: .88; }
+#timeDisplay.frozen { color: rgba(190,242,255,0.98); text-shadow: 0 0 34px rgba(120,225,255,0.55), 0 0 2px rgba(255,255,255,0.6); }
+@media (prefers-reduced-motion: reduce) { #knAlarm.sup { animation: none; } }
+.lab-top { display:flex; align-items:center; justify-content:space-between; padding: 10px 0 6px; border-bottom: 1px solid rgba(59,158,255,0.10); position: sticky; top: 0; background: rgba(2,4,8,0.97); z-index: 1; }
+.lab-top .lab-h { margin: 0; }
+.chip.on::before { content: '\25CF'; font-size: 6px; margin-right: 6px; vertical-align: 1px; color: rgb(var(--s)); }
+.chip.sm.on::before { display: none; }
+@media (pointer: coarse) { .chip { padding: 11px 13px; } .chip.sm { padding: 11px 12px; } .lab-in { padding: 9px 10px; font-size: 12px; } }
+#knPhys, #knLine { white-space: pre-line; }
+#alDismiss { margin-top: 6px; border-color: rgba(255,214,140,0.55); color: rgba(255,224,170,0.95); }
+#timeDisplay { white-space: nowrap; }
+@media (min-width: 800px) and (orientation: landscape) { #timeDisplay { font-size: clamp(28px, 3vw, 46px); } }
+@keyframes ringFlash { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
+#ringVeil { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(255,214,140,0.0) 40%, rgba(255,214,140,0.22) 100%); }
+#ringVeil.on { animation: ringFlash 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { #ringVeil.on { animation: none; opacity: .6; } }
+
 </style>
 </head>
 <body>
@@ -773,17 +858,6 @@ canvas:active { cursor: grabbing; }
 
   <!-- Top canvas overlay -->
   <div id="canvasTop">
-
-    <!-- Back to landing -->
-    <a href="index.html" id="backLink" style="
-      display:inline-flex;align-items:center;gap:6px;
-      font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.20em;
-      text-transform:uppercase;color:rgba(59,158,255,0.45);text-decoration:none;
-      pointer-events:all;transition:color 0.2s;margin-bottom:4px;
-    " onmouseover="this.style.color='rgba(107,191,255,0.85)'" onmouseout="this.style.color='rgba(59,158,255,0.45)'">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back
-    </a>
 
     <!-- Wordmark -->
     <div id="wordmark">
@@ -815,7 +889,9 @@ canvas:active { cursor: grabbing; }
         <button class="mbtn active" id="modeParticle">Particle</button>
         <button class="mbtn"        id="modeGaussian">Gaussian</button>
         <button class="mbtn"        id="mode3D">3D</button>
+        <button class="mbtn"        id="modeSlit">Slit</button>
       </div>
+      <div id="labToggle"><button class="mbtn" id="labBtn" aria-expanded="false" aria-controls="lab">Lab</button></div>
       <div id="themePicker">
         <button class="tswatch active" id="tsBlue"   title="Blue"   aria-label="Blue theme"></button>
         <button class="tswatch"        id="tsRed"    title="Red"    aria-label="Red theme"></button>
@@ -825,6 +901,68 @@ canvas:active { cursor: grabbing; }
     </div>
 
   </div><!-- /canvasTop -->
+
+
+  <!-- Quantum lab -->
+  <div id="ringVeil"></div>
+  <div id="lab" role="dialog" aria-label="Quantum lab">
+    <div class="lab-top"><span class="lab-h">Quantum lab</span><button class="chip sm" id="labClose" aria-label="Close lab">✕</button></div>
+    <div class="lab-sec">
+      <div class="lab-h">Uncertainty principle</div>
+      <div class="lab-row">
+        <button class="chip" id="uncOn">Uncertainty</button>
+        <span id="uncFocus" class="lab-row" style="margin:0">
+          <span class="lab-note">sharp:</span>
+          <button class="chip sm" data-f="h">H</button>
+          <button class="chip sm" data-f="m">M</button>
+          <button class="chip sm" data-f="s">S</button>
+        </span>
+      </div>
+      <div class="lab-note">Hours, minutes and seconds don't commute. Measure one sharply and the other two blur. The blur is shown as a fan around each hand.</div>
+    </div>
+    <div class="lab-sec">
+      <div class="lab-h">Entanglement</div>
+      <div class="lab-row">
+        <button class="chip" id="entOn">Entangle tabs</button>
+        <button class="chip" id="pairOpen">Pair a device</button>
+      </div>
+      <div id="pairPane" style="display:none">
+        <div class="lab-row">
+          <button class="chip sm" id="pairCreate">1 · Create code</button>
+          <button class="chip sm" id="pairJoin">2 · Join with code</button>
+          <button class="chip sm" id="pairApply">3 · Apply reply</button>
+          <button class="chip sm" id="pairCopy">Copy</button>
+          <button class="chip sm" id="pairClose">Unlink</button>
+        </div>
+        <textarea id="pairBox" class="lab-in" spellcheck="false" placeholder="codes appear here — paste the other device's code here"></textarea>
+        <div class="lab-note" style="margin-top:6px">A creates a code and sends it to B. B pastes it, joins, and sends the reply back. A pastes the reply and applies it. Uses WebRTC, with a public STUN server only while pairing.</div>
+      </div>
+      <div class="lab-stat" id="entStat">not entangled</div>
+      <div class="lab-note">Observing on one side collapses the other, each showing its own local time.</div>
+    </div>
+    <div class="lab-sec">
+      <div class="lab-h">Schrödinger's alarm</div>
+      <div class="lab-row">
+        <button class="chip" id="alOn">Arm alarm</button>
+        <input class="lab-in" type="time" id="alTime" value="07:30" aria-label="Alarm time">
+      </div>
+      <div class="lab-row">
+        <span class="lab-note">ring chance</span>
+        <input type="range" id="alP" min="5" max="95" step="5" value="50" aria-label="Chance the alarm rings">
+        <span class="lab-note" id="alPv">50%</span>
+      </div>
+      <div class="lab-stat" id="alStat"></div>
+      <div class="lab-note">After the alarm time it is both ringing and silent until you observe it.</div>
+    </div>
+    <div class="lab-sec">
+      <div class="lab-h">Sound and readouts</div>
+      <div class="lab-row">
+        <button class="chip" id="sndOn">Sound</button>
+        <button class="chip" id="phyOn">Show physics</button>
+      </div>
+      <div class="lab-note">The fog hums and detunes as your knowledge decays. Collapse rings three tones, one per hand. Observe repeatedly while a reading is on screen to freeze it (quantum Zeno effect).</div>
+    </div>
+  </div>
 
   <!-- Canvas -->
   <div id="cloudArea">
@@ -876,6 +1014,14 @@ canvas:active { cursor: grabbing; }
         <div class="btn-label">Observe</div>
       </button>
 
+      <div id="kn">
+        <div id="knLine"></div>
+        <div id="knPhys"></div>
+        <div id="knEnt"></div>
+        <div id="knAlarm"></div>
+        <button class="chip sm" id="alDismiss">Dismiss alarm</button>
+      </div>
+
       <div id="hint">scroll · pinch · drag to explore</div>
 
     </div>
@@ -890,6 +1036,7 @@ window.addEventListener('DOMContentLoaded', function () {
   var canvas = document.getElementById('c');
   var ctx    = canvas.getContext('2d');
   var W, H, CX, CY, R;
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);   // crisp on retina, capped for speed
 
   /* ─── Zoom / pan state ───────────────────────── */
   var zoom = 1, ZMIN = 0.35, ZMAX = 7;
@@ -904,6 +1051,25 @@ window.addEventListener('DOMContentLoaded', function () {
   var busy = false, gT = 0, dt = 0.016;
   var measureGen = 0; // bumped on hard reset to invalidate in-flight measure() chains
   var waves = [], pts = [];
+
+  /* ─── Quantum lab state ──────────────────────── */
+  var LAB = { uncertainty:false, focus:'m', physics:false, entangle:false, sound:false,
+              alarmOn:false, alarmTime:'07:30', alarmP:50 };
+  try {
+    var _sv = JSON.parse(localStorage.getItem('quanta-lab') || '{}');
+    for (var _k in _sv) if (_k in LAB && _k !== 'sound') LAB[_k] = _sv[_k];
+  } catch (e) {}
+  function saveLab() { try { localStorage.setItem('quanta-lab', JSON.stringify(LAB)); } catch (e) {} }
+
+  var qMul = 1, qAcc = 0, qN = 0;   // adaptive particle density
+  var decoh = 0;                 // 0..1 — how far knowledge of "now" has decayed since the last look
+  var lastObsAt = 0, lastObsVals = null;
+  var spikeSig = {h:0,m:0,s:0};  // uncertainty widths of the last measurement
+  var spikeFocus = 'm';          // which observable was sharp in the last measurement
+  var inHold = false, holdTimer = null, holdDecay = null;
+  var zenoCount = 0, zenoLocked = false, zenoLastPoke = 0;
+  var partner = null;            // {ts,tz} of the last entangled collapse
+  function elapsedS() { return lastObsAt ? (Date.now() - lastObsAt) / 1000 : 0; }
 
   /* ─── Colour themes ──────────────────────────── */
   var THEMES = {
@@ -964,12 +1130,15 @@ window.addEventListener('DOMContentLoaded', function () {
    */
   function resize() {
     var area = document.getElementById('cloudArea');
-    canvas.width  = Math.max(area.clientWidth,  1);
-    canvas.height = Math.max(area.clientHeight, 1);
-    W = canvas.width; H = canvas.height;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    var cw = Math.max(area.clientWidth, 1), ch = Math.max(area.clientHeight, 1);
+    canvas.width  = Math.round(cw * DPR); canvas.height = Math.round(ch * DPR);
+    canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+    W = cw; H = ch;
     CX = W / 2; CY = H / 2;
     R  = Math.min(W, H) * 0.34;
     initCloud();
+    resetSlit();
     if (cloudMode === '3d') resize3D();
   }
   window.addEventListener('resize', function(){ clearTimeout(window._rt); window._rt = setTimeout(resize, 60); });
@@ -1011,12 +1180,12 @@ window.addEventListener('DOMContentLoaded', function () {
       (z > 0.97 && z < 1.03) ? '1×' : z.toFixed(1) + '×';
   }
 
-  function showToast(msg) {
+  function showToast(msg, ms) {
     var el = document.getElementById('toast');
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(toastTmr);
-    toastTmr = setTimeout(function(){ el.classList.remove('show'); }, 1300);
+    toastTmr = setTimeout(function(){ el.classList.remove('show'); }, ms || 1300);
   }
 
   function resetView() {
@@ -1029,9 +1198,11 @@ window.addEventListener('DOMContentLoaded', function () {
        measure() animation chain (observing/collapsing/collapsed/fading)
        and snap straight back to the unobserved cloud, in every mode. */
     measureGen++;
+    clearTimeout(holdTimer); inHold=false; zenoCount=0; zenoLocked=false;
     initCloud();
+    resetSlit();
     phase='super'; collapseT=0; spikeT=0; fadeT=0; waves=[];
-    timeEl.classList.remove('show');
+    timeEl.classList.remove('show','frozen'); setBtnLabel('Observe');
     dateEl.classList.remove('show');
     legendEl.classList.remove('show');
     dotEl.classList.remove('active');
@@ -1119,7 +1290,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
   /* ─── Keyboard ───────────────────────────────── */
   window.addEventListener('keydown', function(e){
-    if (e.code === 'Space' && !busy) { e.preventDefault(); measure(); }
+    var _tg = e.target && e.target.tagName;
+    if (_tg === 'INPUT' || _tg === 'TEXTAREA' || _tg === 'SELECT') return;
+    if (e.code === 'Space' && (_tg === 'BUTTON' || (e.target.closest && e.target.closest('#lab')))) return; // native button activation
+    if (e.code === 'Space' && (!busy || inHold)) { e.preventDefault(); measure(); }
     if (e.code === 'Equal'  || e.code === 'NumpadAdd')      applyZoom(clamp(zoom * 1.25));
     if (e.code === 'Minus'  || e.code === 'NumpadSubtract') applyZoom(clamp(zoom / 1.25));
     if (e.code === 'Digit0' || e.code === 'Numpad0')        resetView();
@@ -1154,12 +1328,13 @@ window.addEventListener('DOMContentLoaded', function () {
   var FADE_LO = 0.05, FADE_HI = 0.16; // sinP band over which a particle eases out near the poles
 
   function seedParticle(shellR, spread, arm, peak) {
-    var rad    = Math.abs(shellR + gauss()*spread);
+    var dev    = gauss();
+    var rad    = Math.abs(shellR + dev*spread);
     var cosP   = 2*Math.random()-1, sinP = Math.sqrt(1-cosP*cosP);
     var az     = Math.random()*Math.PI*2;
     var strayN = Math.abs(rad-shellR)/spread; // distance from the shell's centre, in sigmas
     return {
-      rad:rad, az:az, cosP:cosP, sinP:sinP, restCos:cosP,
+      rad:rad, dev:dev, spread:spread, az:az, cosP:cosP, sinP:sinP, restCos:cosP,
       x:rad*sinP*Math.cos(az), y:rad*sinP*Math.sin(az), z:rad*cosP,
       sx:CX+rad*sinP*Math.cos(az), sy:CY+rad*sinP*Math.sin(az), depth:0.5,
       fade:1,
@@ -1175,8 +1350,9 @@ window.addEventListener('DOMContentLoaded', function () {
   function initCloud() {
     pts = [];
     var shellR = R * 0.68;
-    for (var i=0;i<3200;i++) pts.push(seedParticle(shellR,        R*0.036, 0, 1.0));
-    for (var i=0;i<600; i++) pts.push(seedParticle(shellR*1.27,   R*0.066, 2, 0.14));
+    var nCore = Math.round(9000 * qMul), nHaze = Math.round(2000 * qMul);
+    for (var i=0;i<nCore;i++) pts.push(seedParticle(shellR,        R*0.034, 0, 0.82));
+    for (var i=0;i<nHaze;i++) pts.push(seedParticle(shellR*1.27,   R*0.066, 2, 0.14));
     pts.sort(function(a,b){ return a.z-b.z; });
   }
 
@@ -1188,7 +1364,7 @@ window.addEventListener('DOMContentLoaded', function () {
       p.cosP = Math.max(-0.9999, Math.min(0.9999, cosP));
       p.sinP = Math.sqrt(1-p.cosP*p.cosP);
       var breathe = 1 + Math.sin(gT*0.25+p.seed*0.2)*0.010;
-      var rad = p.rad*breathe;
+      var rad = Math.min(R*1.02, Math.abs(p.shellR + p.dev*p.spread*(1 + 6*decoh))) * breathe;
       p.x = rad*p.sinP*Math.cos(p.az); p.y = rad*p.sinP*Math.sin(p.az);
       p.z = rad*p.cosP;
       p.sx = CX+p.x; p.sy = CY+p.y*0.9+p.z*0.07;
@@ -1282,16 +1458,6 @@ window.addEventListener('DOMContentLoaded', function () {
     ctx.restore();
   }
 
-  /* ─── Draw: orbital rings ────────────────────── */
-  function drawRings() {
-    var rc = T().rings;
-    [[0.68,0.042],[0.49,0.018],[0.90,0.011]].forEach(function(ro){
-      ctx.beginPath(); ctx.arc(CX,CY,R*ro[0],0,Math.PI*2);
-      ctx.strokeStyle='rgba('+rc[0]+','+rc[1]+','+rc[2]+','+ro[1]+')';
-      ctx.lineWidth=0.8; ctx.stroke();
-    });
-  }
-
   /* ─── Draw: gaussian cloud ───────────────────── */
   function drawGaussianCloud(cp) {
     var tc = T().cloud;
@@ -1299,7 +1465,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     var breathe = 1 + 0.025 * Math.sin(gT * 0.52);
     var collapse = 1 - cp * 0.60;
-    var ext = R * breathe * collapse;
+    var ext = R * breathe * collapse * (1 + 0.18*decoh);
 
     // ── TRUE GAUSSIAN: sample e^(-x²) at many radii and map to alpha ──
     // We approximate the bell curve with many colour stops derived from
@@ -1310,7 +1476,7 @@ window.addEventListener('DOMContentLoaded', function () {
     // Helper: build a radial gradient whose alpha follows e^(-(t*k)²)
     function gaussGrad(rad, peakAlpha, k, rr, gg, bb) {
       var gd = ctx.createRadialGradient(CX, CY, 0, CX, CY, rad);
-      var steps = 18;
+      var steps = 32;
       for (var i = 0; i <= steps; i++) {
         var t   = i / steps;                          // 0 → 1 (centre → edge)
         var val = Math.exp(-(t * t) * k);             // 1 → ~0  (bell curve)
@@ -1336,7 +1502,7 @@ window.addEventListener('DOMContentLoaded', function () {
     var extC = ext * 0.30;
     // Interpolate colour → white at centre for the hot-core effect
     var gC = ctx.createRadialGradient(CX, CY, 0, CX, CY, extC);
-    var stepsC = 20;
+    var stepsC = 32;
     for (var i = 0; i <= stepsC; i++) {
       var t    = i / stepsC;
       var val  = Math.exp(-(t * t) * 6.0);
@@ -1386,6 +1552,7 @@ window.addEventListener('DOMContentLoaded', function () {
   function drawGaussianSpikes(sp) {
     if (sp <= 0) return;
     SP.forEach(function(spDef) {
+      if (spikeSig[spDef.key]) return; // blurred hands are drawn as fans instead
       var r = spDef.rgb[0], g = spDef.rgb[1], b = spDef.rgb[2];
       var ang = spikeAngles[spDef.key], val = spikeVals[spDef.key];
       var len = (R * 0.16 + (val / spDef.max) * (R * 0.82 - R * 0.16)) * sp;
@@ -1431,7 +1598,7 @@ window.addEventListener('DOMContentLoaded', function () {
         var lx = CX + Math.cos(ang) * ldist, ly = CY + Math.sin(ang) * ldist;
         ctx.save();
         ctx.globalAlpha = lp;
-        ctx.font = '300 ' + Math.floor(Math.min(W, H) * 0.044) + 'px "Space Grotesk",sans-serif';
+        ctx.font = '300 ' + Math.floor(Math.min(W, H) * 0.044) + 'px "Inter",sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.shadowColor = 'rgba('+r+','+g+','+b+',0.92)'; ctx.shadowBlur = 22;
         ctx.fillStyle = 'rgba(255,255,255,0.95)';
@@ -1450,7 +1617,7 @@ window.addEventListener('DOMContentLoaded', function () {
    * only touches plain pixel blits. Keeps the particle field at 60fps.
    */
   var GLOW_ATLAS = {};
-  var GLOW_SIZE  = 32; /* px — sprite canvas side length */
+  var GLOW_SIZE  = 64; /* px — sprite canvas side length */
 
   function getGlowSprite(r, g, b) {
     var key = r + ',' + g + ',' + b;
@@ -1462,16 +1629,17 @@ window.addEventListener('DOMContentLoaded', function () {
     var sc  = spr.getContext('2d');
     var mid = s / 2;
     var grad = sc.createRadialGradient(mid, mid, 0, mid, mid, mid);
-    grad.addColorStop(0.00, 'rgba('+r+','+g+','+b+',1)');
-    grad.addColorStop(0.35, 'rgba('+r+','+g+','+b+',0.55)');
-    grad.addColorStop(1.00, 'rgba('+r+','+g+','+b+',0)');
+    for (var gi = 0; gi <= 10; gi++) {           /* true gaussian falloff — no banding */
+      var gt = gi / 10, ga = gi === 10 ? 0 : Math.exp(-gt * gt * 4.4);
+      grad.addColorStop(gt, 'rgba('+r+','+g+','+b+','+ga.toFixed(4)+')');
+    }
     sc.fillStyle = grad;
     sc.fillRect(0, 0, s, s);
     GLOW_ATLAS[key] = spr;
     return spr;
   }
 
-  function clearGlowAtlas() { GLOW_ATLAS = {}; }
+  function clearGlowAtlas() { GLOW_ATLAS = {}; NUC_SPR = {}; }
 
   function drawCloud(cp) {
     if (cloudMode === 'gaussian') { drawGaussianCloud(cp); return; }
@@ -1492,6 +1660,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
       if (cp > 0) {
         var ang = spikeAngles[spike.key];
+        var _sg = spikeSig[spike.key];
+        if (_sg) ang += Math.sin(p.seed * 7.13) * uncHalf(spike.key, _sg) * 0.85;
         var targetDist = p.shellR;
         var tx = CX + Math.cos(ang) * targetDist;
         var ty = CY + Math.sin(ang) * targetDist;
@@ -1585,6 +1755,7 @@ window.addEventListener('DOMContentLoaded', function () {
   function drawSpikes(prog) {
     if (prog<=0) return;
     SP.forEach(function(sp){
+      if (spikeSig[sp.key]) return; // blurred hands are drawn as fans instead
       var r=sp.rgb[0],g=sp.rgb[1],b=sp.rgb[2];
       var ang=spikeAngles[sp.key], val=spikeVals[sp.key];
       var len=(R*0.16+(val/sp.max)*(R*0.86-R*0.16))*prog;
@@ -1624,7 +1795,7 @@ window.addEventListener('DOMContentLoaded', function () {
         var lx=CX+Math.cos(ang)*ldist, ly=CY+Math.sin(ang)*ldist;
         ctx.save();
         ctx.globalAlpha=lp;
-        ctx.font='300 '+Math.floor(Math.min(W,H)*0.044)+'px "Space Grotesk",sans-serif';
+        ctx.font='300 '+Math.floor(Math.min(W,H)*0.044)+'px "Inter",sans-serif';
         ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.shadowColor='rgba('+r+','+g+','+b+',0.92)'; ctx.shadowBlur=22;
         ctx.fillStyle='rgba(255,255,255,0.95)';
@@ -1634,43 +1805,428 @@ window.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  /* ─── Decoherence clock ──────────────────────────
+     The cloud's width is tied to real elapsed time since the last
+     observation: tight right after a look, a wide haze minutes later.
+  ──────────────────────────────────────────────── */
+  function stepDecoh() {
+    var tgt = (phase === 'super') ? (lastObsAt ? 1 - Math.exp(-elapsedS() / 50) : 0.35) : 0;
+    decoh += (tgt - decoh) * (tgt > decoh ? 0.012 : 0.06);
+  }
+
+  /* ─── Uncertainty fans ───────────────────────────
+     Non-sharp hands are drawn with an angular wedge of ±σ around them. */
+  function uncHalf(key, sg) { return Math.max(0.05, sg / (key === 'h' ? 12 : 60) * Math.PI * 2); }
+  function uncAlpha(half) { return 0.60 * Math.exp(-half * 1.1); } // wider range → fainter
+
+  /* soft ghost text: several faint copies spread by σ, so the number reads as blurred */
+  function ghostText(c, txt, x, y, spread, rgb, a) {
+    for (var k = 0; k < 8; k++) {
+      var t = k / 8 * Math.PI * 2;
+      c.fillStyle = 'rgba(255,255,255,' + (a * 0.13) + ')';
+      c.fillText(txt, x + Math.cos(t) * spread, y + Math.sin(t) * spread);
+    }
+    c.shadowColor = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0.85)'; c.shadowBlur = 16 + spread * 3;
+    c.fillStyle = 'rgba(255,255,255,' + (a * 0.30) + ')';
+    c.fillText(txt, x, y);
+  }
+
+  function drawUncFan(sp) {
+    if (sp <= 0) return;
+    SP.forEach(function (d) {
+      var sg = spikeSig[d.key]; if (!sg) return;
+      var half = uncHalf(d.key, sg), al = uncAlpha(half) * sp;
+      var ang = spikeAngles[d.key], val = spikeVals[d.key];
+      var r = d.rgb[0], g = d.rgb[1], b = d.rgb[2];
+      var len = (R * 0.16 + (val / d.max) * (R * 0.82 - R * 0.16)) * sp;
+      var gr = ctx.createRadialGradient(CX, CY, R * 0.04, CX, CY, len * 1.12);
+      gr.addColorStop(0,    'rgba(' + r + ',' + g + ',' + b + ',' + al + ')');
+      gr.addColorStop(0.65, 'rgba(' + r + ',' + g + ',' + b + ',' + (al * 0.55) + ')');
+      gr.addColorStop(1,    'rgba(' + r + ',' + g + ',' + b + ',0)');
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      [1, 0.66, 0.36, 0.14].forEach(function (k) {
+        ctx.beginPath(); ctx.moveTo(CX, CY); ctx.arc(CX, CY, len * 1.12, ang - half * k, ang + half * k); ctx.closePath();
+        ctx.globalAlpha = 0.5; ctx.fillStyle = gr; ctx.fill();
+      });
+      ctx.restore();
+      if (sp > 0.55) {
+        var lp = (sp - 0.55) / 0.45, ld = len * 1.12 + R * 0.10;
+        ctx.save();
+        ctx.globalAlpha = lp;
+        ctx.font = '300 ' + Math.floor(Math.min(W, H) * 0.044) + 'px "Inter",sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ghostText(ctx, String(val).padStart(2, '0'), CX + Math.cos(ang) * ld, CY + Math.sin(ang) * ld, 1.5 + sg * 0.22, d.rgb, 1);
+        ctx.restore();
+      }
+    });
+  }
+
+  /* ─── Zeno lock ring ─────────────────────────── */
+  function drawZenoRing() {
+    if (!zenoLocked) return;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(170,235,255,0.38)'; ctx.lineWidth = 1;
+    ctx.setLineDash([2, 7]); ctx.lineDashOffset = -gT * 10;
+    ctx.beginPath(); ctx.arc(CX, CY, R * 1.0, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]); ctx.strokeStyle = 'rgba(170,235,255,0.14)';
+    ctx.beginPath(); ctx.arc(CX, CY, R * 1.07, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ─── Double-slit mode ───────────────────────────
+     Unobserved: each particle is a wave that passes both slits and the
+     accumulated hits build interference fringes. Observed ("which path?"):
+     detectors at the slits make the path known, the fringes wash out and
+     two separate bands remain — one per slit.
+     Geometry is fitted to the canvas (phones included) and drawn in a
+     local frame centred on the atom, so the screen strip never clips.
+  ──────────────────────────────────────────────── */
+  var SLIT_N = 56;
+  var slit = { hits: [], parts: [], acc: 0, bins: new Float32Array(SLIT_N), sm: new Float32Array(SLIT_N), V: -1, unc: 0 };
+
+  function slitGeom() {
+    var Y    = Math.max(40, Math.min(R * 1.05, H * 0.27));           // screen half-height
+    var mg   = Math.max(10, W * 0.035);
+    var half = Math.min(W / 2 - mg, Y * 2.8);                        // half-width of the whole rig
+    var barW = Math.max(36, Math.min(W * 0.19, R * 0.6));            // room for dots + histogram
+    var sx = -half + 6, dx = half - barW - 8;
+    return { sx: sx, wx: sx + (dx - sx) * 0.38, dx: dx, d: Y * 0.17, Y: Y, barW: barW };
+  }
+
+  /* Landing probability density on the screen.
+     V = fringe visibility (1 = path unknown, 0 = path fully known).
+     V=1 : cos² fringes under one broad envelope.
+     V=0 : a particle lands only in the band lined up with the slit it used
+           (sgn = -1 top slit, +1 bottom slit). Values between mix the two. */
+  function slitPdf(y, g, V, sgn) {
+    var u = g.unc || 0;                                     // 0 = sharp which-path detector, 1 = very uncertain
+    var s1 = g.Y * 0.36, s2 = g.Y * (0.15 + 0.05 * u), c2 = g.Y * 0.42 * (1 - 0.10 * u);
+    var central = Math.exp(-y * y / (2 * s1 * s1));
+    var yb = y - sgn * c2, yo = y + sgn * c2;
+    var band = 0.9 * Math.exp(-yb * yb / (2 * s2 * s2))
+             + 0.9 * 0.30 * u * Math.exp(-yo * yo / (2 * s2 * s2));   // smeared into the wrong band
+    var env = V * central + (1 - V) * band;
+    var fr = 0.5 * (1 + Math.cos(Math.PI * 2 / (g.Y * 0.23) * y));
+    return env * ((1 - V) + V * fr);
+  }
+  /* what the screen shows overall (both slits equally likely) */
+  function slitMarginal(y, g, V) { return 0.5 * (slitPdf(y, g, V, -1) + slitPdf(y, g, V, 1)); }
+
+  function slitSample(g, V, sgn) {
+    for (var i = 0; i < 160; i++) {
+      var y = (Math.random() * 2 - 1) * g.Y;
+      if (Math.random() < slitPdf(y, g, V, sgn)) return y;
+    }
+    return sgn * g.Y * 0.42 * (1 - V);
+  }
+
+  /* Clears in-flight particles, the accumulated screen data and the spawn
+     accumulator — used when the experiment should start fresh: entering
+     slit mode, resizing (stored offsets are raw pixels) and on Reset. */
+  function resetSlit() {
+    slit.parts.length = 0;
+    slit.hits.length = 0;
+    slit.acc = 0;
+    slit.V = -1; slit.unc = 0;
+    for (var i = 0; i < SLIT_N; i++) { slit.bins[i] = 0; slit.sm[i] = 0; }
+  }
+
+  function drawSlit(cp) {
+    var g = slitGeom(), tc = T().cloud;
+    var Vt = Math.max(0, 1 - cp) * (1 - 0.45 * decoh);
+    if (slit.V < 0) slit.V = Vt;
+    /* Uncertainty mode: the which-path reading is itself blurred, so after a
+       measurement the bands smear, leak into each other and keep a faint
+       residual fringe — "two bands, but unclear". */
+    var uncOn = (spikeSig.h || spikeSig.m || spikeSig.s) ? 1 : 0;
+    slit.unc += (uncOn * cp - slit.unc) * Math.min(1, dt * 6);
+    g.unc = slit.unc;
+    Vt = Math.min(1, Vt + 0.18 * slit.unc);
+    slit.V += (Vt - slit.V) * Math.min(1, dt * 9);          // ease, never jump
+    var V = slit.V;
+
+    /* emit wave-particles */
+    slit.acc += dt * 160;
+    while (slit.acc >= 1) {
+      slit.acc -= 1;
+      if (slit.parts.length < 320) {
+        slit.parts.push({ u: 0, y: null, pv: V, sl: Math.random() < 0.5 ? -1 : 1,
+                          both: V > 0.5, v: 0.9 + Math.random() * 0.4 });
+      }
+    }
+
+    ctx.save();
+    ctx.translate(CX, CY);                                   // local frame: origin = atom centre
+    ctx.globalAlpha = 1 - 0.25 * cp;
+
+    /* wavefronts */
+    ctx.lineWidth = 1;
+    for (var j = 0; j < 4; j++) {
+      var fr = (gT * 0.22 + j * 0.25) % 1;
+      ctx.strokeStyle = 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',' + ((1 - fr) * 0.16 * V) + ')';
+      for (var sl = -1; sl <= 1; sl += 2) {
+        ctx.beginPath(); ctx.arc(g.wx, sl * g.d, fr * (g.dx - g.wx) * 1.05, -1.0, 1.0); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',' + ((1 - fr) * 0.08) + ')';
+      ctx.beginPath(); ctx.arc(g.sx, 0, fr * (g.wx - g.sx), -0.5, 0.5); ctx.stroke();
+    }
+
+    /* wall with two slits */
+    var sw = g.Y * 0.05;
+    ctx.strokeStyle = 'rgba(180,215,255,0.5)'; ctx.lineWidth = 3; ctx.lineCap = 'butt';
+    ctx.beginPath();
+    ctx.moveTo(g.wx, -g.Y * 1.05); ctx.lineTo(g.wx, -g.d - sw / 2);
+    ctx.moveTo(g.wx, -g.d + sw / 2); ctx.lineTo(g.wx, g.d - sw / 2);
+    ctx.moveTo(g.wx, g.d + sw / 2); ctx.lineTo(g.wx, g.Y * 1.05);
+    ctx.stroke();
+    /* which-path detectors fade in as knowledge of the path appears */
+    var det = Math.max(cp, 1 - (V - 0.18 * slit.unc) / Math.max(0.01, 1 - 0.45 * decoh));
+    det = Math.max(0, Math.min(1, det));
+    if (det > 0.05) {
+      ctx.strokeStyle = 'rgba(255,205,130,' + (0.8 * det * (1 - 0.35 * slit.unc)) + ')'; ctx.lineWidth = 1.4;
+      ctx.setLineDash(slit.unc > 0.3 ? [2, 3] : []);
+      for (var d2 = -1; d2 <= 1; d2 += 2) { ctx.beginPath(); ctx.arc(g.wx, d2 * g.d, sw * 1.7, 0, Math.PI * 2); ctx.stroke(); }
+      ctx.setLineDash([]);
+    }
+
+    /* source */
+    var sg = ctx.createRadialGradient(g.sx, 0, 0, g.sx, 0, R * 0.06);
+    sg.addColorStop(0, 'rgba(255,255,255,0.95)');
+    sg.addColorStop(0.25, 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',0.7)');
+    sg.addColorStop(1, 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',0)');
+    ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(g.sx, 0, R * 0.06, 0, Math.PI * 2); ctx.fill();
+
+    /* flying particles */
+    ctx.globalCompositeOperation = 'lighter';
+    var sprite = getGlowSprite(Math.min(255, tc[0] + 60), Math.min(255, tc[1] + 60), Math.min(255, tc[2] + 40));
+    var baseA = 1 - 0.25 * cp;
+    for (var i = slit.parts.length - 1; i >= 0; i--) {
+      var p = slit.parts[i];
+      p.u += dt * p.v;
+      /* the landing point is decided as the particle crosses the wall, using
+         the which-path knowledge that exists at that moment */
+      if (p.y === null && p.u >= 0.4) { p.pv = V; p.y = slitSample(g, V, p.sl); }
+      if (p.u >= 1) {
+        slit.hits.push({ y: p.y, w: 1, v: p.pv, jx: Math.random() });
+        if (slit.hits.length > 2500) slit.hits.shift();
+        slit.parts.splice(i, 1); continue;
+      }
+      var wy = p.sl * g.d, x, y, f;
+      if (p.u < 0.4) {
+        f = p.u / 0.4; x = g.sx + (g.wx - g.sx) * f;
+        if (p.both) {                                        // wave packet: broad, dim, spans both slits
+          ctx.globalAlpha = baseA * 0.26;
+          ctx.drawImage(sprite, x - 7, -7, 14, 14);
+        } else {
+          y = wy * f;
+          ctx.globalAlpha = baseA * 0.85;
+          ctx.drawImage(sprite, x - 5, y - 5, 10, 10);
+        }
+      } else {
+        f = (p.u - 0.4) / 0.6; x = g.wx + (g.dx - g.wx) * f;
+        if (p.both) {                                        // two half-strength branches that recombine
+          ctx.globalAlpha = baseA * 0.5;
+          y = -g.d + (p.y + g.d) * f; ctx.drawImage(sprite, x - 4, y - 4, 8, 8);
+          y =  g.d + (p.y - g.d) * f; ctx.drawImage(sprite, x - 4, y - 4, 8, 8);
+        } else {
+          y = wy + (p.y - wy) * f;
+          ctx.globalAlpha = baseA * 0.9;
+          ctx.drawImage(sprite, x - 5, y - 5, 10, 10);
+        }
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1 - 0.25 * cp;
+
+    /* screen data: hits fade quickly when they were recorded under a
+       different which-path regime than the current one, slowly otherwise */
+    var n = SLIT_N, bins = slit.bins, sm = slit.sm, k = 0, b;
+    for (b = 0; b < n; b++) bins[b] = 0;
+    for (var h = 0; h < slit.hits.length; h++) {
+      var ht = slit.hits[h];
+      ht.w *= (1 - dt * (0.02 + 2.4 * Math.abs(V - ht.v)));
+      if (ht.w < 0.04) continue;
+      slit.hits[k++] = ht;
+      var bi = Math.floor((ht.y + g.Y) / (2 * g.Y) * n);
+      if (bi >= 0 && bi < n) bins[bi] += ht.w;
+    }
+    slit.hits.length = k;
+    for (b = 0; b < n; b++) {                                // [1 2 1] smoothing
+      sm[b] = (2 * bins[b] + (b > 0 ? bins[b - 1] : bins[b]) + (b < n - 1 ? bins[b + 1] : bins[b])) / 4;
+    }
+    var mx = 6; for (b = 0; b < n; b++) if (sm[b] > mx) mx = sm[b];
+    var bh = 2 * g.Y / n;
+
+    /* screen plate */
+    ctx.strokeStyle = 'rgba(180,215,255,0.32)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(g.dx, -g.Y); ctx.lineTo(g.dx, g.Y); ctx.stroke();
+
+    /* impact dots on the plate (newest hits) */
+    var dotX = g.dx + 4, dotW = g.barW * 0.26;
+    for (var q = Math.max(0, slit.hits.length - 500); q < slit.hits.length; q++) {
+      var hq = slit.hits[q];
+      ctx.fillStyle = 'rgba(' + Math.min(255, tc[0] + 90) + ',' + Math.min(255, tc[1] + 90) + ',' + Math.min(255, tc[2] + 60) + ',' + Math.min(0.9, hq.w * 0.9) + ')';
+      ctx.fillRect(dotX + hq.jx * dotW, hq.y - 0.8, 1.8, 1.8);
+    }
+
+    /* accumulated intensity histogram */
+    var bx = g.dx + 4 + g.barW * 0.32, bmax = g.barW * 0.68 - 2;
+    for (var b3 = 0; b3 < n; b3++) {
+      var ratio = sm[b3] / mx;
+      if (ratio < 0.02) continue;
+      ctx.fillStyle = 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',' + (0.30 + 0.65 * ratio) + ')';
+      ctx.fillRect(bx, -g.Y + b3 * bh, ratio * bmax, Math.max(1, bh - 1));
+    }
+
+    /* predicted distribution for the current which-path knowledge */
+    var pk = 0.001, ys = [], pv = [], sN = 90, s0;
+    for (s0 = 0; s0 <= sN; s0++) {
+      var yy = -g.Y + 2 * g.Y * s0 / sN, pp = slitMarginal(yy, g, V);
+      ys.push(yy); pv.push(pp); if (pp > pk) pk = pp;
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.40)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    for (s0 = 0; s0 <= sN; s0++) {
+      var px = bx + (pv[s0] / pk) * bmax;
+      if (s0) ctx.lineTo(px, ys[s0]); else ctx.moveTo(px, ys[s0]);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    /* caption (above the rig so the clock read-out never covers it) */
+    var lbl = slit.unc > 0.4 ? 'two bands · path unclear (uncertainty)'
+            : V > 0.5 ? 'interference · path unknown'
+            : V < 0.18 ? 'two bands · path known'
+            : 'which-path information leaking…';
+    ctx.fillStyle = 'rgba(180,215,255,0.62)';
+    ctx.font = '10px "Space Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(lbl, (g.sx + g.dx + g.barW) / 2, -g.Y * 1.12);
+    ctx.fillStyle = 'rgba(180,215,255,0.38)';
+    ctx.fillText('fringe visibility ' + Math.round(V * 100) + '%', (g.sx + g.dx + g.barW) / 2, -g.Y * 1.12 + 14);
+    ctx.restore();
+  }
+
+
+  /* ─── Atom core: nucleon cluster + orbiting electrons ─────────── */
+  var NUC_SPR = {};
+  var NUC = (function () {
+    var a = [], n = 13;
+    for (var i = 0; i < n; i++) {                       /* fibonacci-sphere packing */
+      var y = 1 - (i / (n - 1)) * 2, rr = Math.sqrt(Math.max(0, 1 - y * y)), th = i * 2.399963;
+      a.push({ x: Math.cos(th) * rr * 0.72, y: y * 0.72, z: Math.sin(th) * rr * 0.72, p: i % 2 === 0 });
+    }
+    a.push({ x: 0, y: 0, z: 0, p: false });
+    return a;
+  })();
+  function nucSprite(proton) {
+    var key = activeTheme + (proton ? 'p' : 'n');
+    if (NUC_SPR[key]) return NUC_SPR[key];
+    var tc = T().cloud, S = 96, c = document.createElement('canvas');
+    c.width = c.height = S;
+    var x = c.getContext('2d'), m = S / 2;
+    var base = proton ? [Math.min(255, tc[0] + 70), Math.min(255, tc[1] + 70), Math.min(255, tc[2] + 40)]
+                      : [(tc[0] * 0.45 + 120) | 0, (tc[1] * 0.45 + 130) | 0, (tc[2] * 0.45 + 150) | 0];
+    var g = x.createRadialGradient(m * 0.72, m * 0.66, m * 0.05, m, m, m * 0.98);
+    g.addColorStop(0.00, 'rgba(255,255,255,1)');
+    g.addColorStop(0.22, 'rgba(' + base.join(',') + ',1)');
+    g.addColorStop(0.68, 'rgba(' + ((base[0] * 0.55) | 0) + ',' + ((base[1] * 0.55) | 0) + ',' + ((base[2] * 0.6) | 0) + ',1)');
+    g.addColorStop(0.94, 'rgba(' + ((base[0] * 0.22) | 0) + ',' + ((base[1] * 0.22) | 0) + ',' + ((base[2] * 0.3) | 0) + ',0.95)');
+    g.addColorStop(1.00, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(m, m, m, 0, Math.PI * 2); x.fill();
+    return (NUC_SPR[key] = c);
+  }
+
+  function drawAtomCore(cp) {
+    var tc = T().cloud, pf = 0.5 + 0.5 * Math.sin(gT * 1.35);
+    /* corona */
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    var cr = R * (0.085 + pf * 0.006);
+    var cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, cr);
+    for (var i = 0; i <= 12; i++) {
+      var t = i / 12;
+      cg.addColorStop(t, 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',' + (Math.exp(-t * t * 4.2) * 0.62).toFixed(4) + ')');
+    }
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(CX, CY, cr, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    /* nucleons, slowly tumbling, depth-sorted */
+    var t1 = gT * 0.42, cy = Math.cos(t1), sy = Math.sin(t1), t2 = gT * 0.29, cx = Math.cos(t2), sx = Math.sin(t2);
+    var rN = R * 0.019, spread = rN * 1.75, arr = [];
+    for (var k = 0; k < NUC.length; k++) {
+      var n = NUC[k], x1 = n.x * cy + n.z * sy, z1 = -n.x * sy + n.z * cy;
+      arr.push({ x: x1, y: n.y * cx - z1 * sx, z: n.y * sx + z1 * cx, p: n.p });
+    }
+    arr.sort(function (a, b) { return a.z - b.z; });
+    for (var j = 0; j < arr.length; j++) {
+      var a = arr[j], depth = (a.z + 0.8) / 1.6, d = rN * (0.85 + depth * 0.3);
+      ctx.globalAlpha = 0.55 + 0.45 * Math.max(0, Math.min(1, depth));
+      ctx.drawImage(nucSprite(a.p), CX + a.x * spread - d, CY + a.y * spread - d, d * 2, d * 2);
+    }
+    ctx.globalAlpha = 1;
+    /* white-hot bloom on top */
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    var hr = R * 0.03, hg = ctx.createRadialGradient(CX, CY, 0, CX, CY, hr);
+    hg.addColorStop(0, 'rgba(255,255,255,0.55)'); hg.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(CX, CY, hr, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  /* soft two-level bloom from down-scaled copies of the frame */
+  var bloomA = document.createElement('canvas'), bloomB = document.createElement('canvas');
+  function bloomPass(strength) {
+    var w = Math.max(2, (canvas.width / 4) | 0), h = Math.max(2, (canvas.height / 4) | 0);
+    if (bloomA.width !== w || bloomA.height !== h) { bloomA.width = w; bloomA.height = h; bloomB.width = Math.max(2, w >> 1); bloomB.height = Math.max(2, h >> 1); }
+    var a = bloomA.getContext('2d'), b = bloomB.getContext('2d');
+    a.globalCompositeOperation = 'copy'; a.drawImage(canvas, 0, 0, w, h);
+    b.globalCompositeOperation = 'copy'; b.drawImage(bloomA, 0, 0, bloomB.width, bloomB.height);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'lighter'; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.globalAlpha = strength * 0.55; ctx.drawImage(bloomA, 0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = strength * 0.65; ctx.drawImage(bloomB, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+
+  function qualityWatch(ms) {
+    if (document.hidden || ms > 250) { qAcc = 0; qN = 0; return; }
+    qAcc += ms; qN++;
+    if (qN >= 90) {
+      var avg = qAcc / qN; qAcc = 0; qN = 0;
+      if (avg > 27 && qMul > 0.46 && phase === 'super' && cloudMode === 'particle') { qMul = Math.max(0.45, qMul * 0.72); initCloud(); }
+    }
+  }
+
   /* ─── Render loop ────────────────────────────── */
   var _lastRafT = 0;
   function render(now) {
+    var _raw = _lastRafT ? now - _lastRafT : 16;
     dt = _lastRafT ? Math.min((now - _lastRafT) / 1000, 0.012) : 0.008;
     _lastRafT = now;
+    qualityWatch(_raw);
     gT += dt;
+    stepDecoh();
     var _isActive = phase==='collapsing'||phase==='collapsed'||phase==='fading';
-    if (!_isActive) updateCloud();
+    if (!_isActive && cloudMode !== 'slit') updateCloud();
 
     /* Always clear 2D canvas — prevents stale frames showing on mode switch */
-    ctx.setTransform(1,0,0,1,0,0);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
     ctx.clearRect(0,0,W,H);
 
     if (cloudMode !== '3d') {
       drawBG();
-      ctx.setTransform(zoom, 0, 0, zoom, CX + panX - CX*zoom, CY + panY - CY*zoom);
+      ctx.setTransform(DPR*zoom, 0, 0, DPR*zoom, DPR*(CX + panX - CX*zoom), DPR*(CY + panY - CY*zoom));
       var cp = phase==='collapsing' ? collapseT : (phase==='collapsed'||phase==='fading') ? 1 : 0;
       var sp = phase==='collapsed' ? spikeT : phase==='fading' ? spikeT*(1-fadeT) : 0;
-      drawRings();
-      drawCloud(cp);
+      if (cloudMode === 'slit') { drawSlit(cp); } else { drawCloud(cp); }
       drawWaves();
+      drawZenoRing();
+      drawUncFan(sp);
+      if (cloudMode === 'slit') { drawSpikes(sp); }
       if (cloudMode === 'particle') {
-        /* Simple glowing nucleus */
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        var nc = T().cloud;
-        var ng = ctx.createRadialGradient(CX, CY, 0, CX, CY, R*0.045);
-        ng.addColorStop(0,   'rgba(255,255,255,0.95)');
-        ng.addColorStop(0.2, 'rgba('+nc[0]+','+nc[1]+','+nc[2]+',0.80)');
-        ng.addColorStop(1,   'rgba('+nc[0]+','+nc[1]+','+nc[2]+',0)');
-        ctx.beginPath(); ctx.arc(CX, CY, R*0.045, 0, Math.PI*2);
-        ctx.fillStyle = ng; ctx.fill();
-        ctx.restore();
+        drawAtomCore(cp);
         drawSpikes(sp);
       }
       if (cloudMode === 'gaussian') { drawNucleus(); drawGaussianSpikes(sp); }
-      ctx.setTransform(1,0,0,1,0,0);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      bloomPass(cloudMode === 'particle' ? 0.62 : cloudMode === 'gaussian' ? 0.30 : 0.38);
     }
     requestAnimationFrame(render);
   }
@@ -1738,13 +2294,15 @@ window.addEventListener('DOMContentLoaded', function () {
 
   function setMode(m) {
     cloudMode = m;
+    if (m === 'slit') resetSlit();
     document.getElementById('modeParticle').classList.toggle('active', m==='particle');
     document.getElementById('modeGaussian').classList.toggle('active', m==='gaussian');
     document.getElementById('mode3D').classList.toggle('active',       m==='3d');
+    document.getElementById('modeSlit').classList.toggle('active',     m==='slit');
     var is3d = m === '3d';
 
     /* Clear the 2D canvas so old mode frames don't bleed through */
-    ctx.setTransform(1,0,0,1,0,0);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     /* Clear the 3D overlay canvas if it exists */
@@ -1768,6 +2326,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
   document.getElementById('modeParticle').addEventListener('click', function(){ setMode('particle'); });
   document.getElementById('modeGaussian').addEventListener('click', function(){ setMode('gaussian'); });
+  document.getElementById('modeSlit').addEventListener('click',     function(){ setMode('slit'); });
   document.getElementById('mode3D').addEventListener('click',       function(){ setMode('3d'); });
 
   /* ════════════════════════════════════════════════════
@@ -1778,13 +2337,15 @@ window.addEventListener('DOMContentLoaded', function () {
 
   function resize3D() {
     var area = document.getElementById('cloudArea');
-    canvas3d.width  = area.clientWidth;
-    canvas3d.height = area.clientHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    var cw3 = Math.max(area.clientWidth, 1), ch3 = Math.max(area.clientHeight, 1);
+    canvas3d.width  = Math.round(cw3 * DPR); canvas3d.height = Math.round(ch3 * DPR);
+    canvas3d.style.width = cw3 + 'px'; canvas3d.style.height = ch3 + 'px';
     if (gl3d) gl3d.viewport(0, 0, canvas3d.width, canvas3d.height);
   }
 
   function init3D() {
-    gl3d = canvas3d.getContext('webgl', {antialias:true, alpha:false}) ||
+    gl3d = canvas3d.getContext('webgl', {antialias:true, alpha:false, powerPreference:'high-performance'}) ||
            canvas3d.getContext('experimental-webgl', {antialias:true, alpha:false});
     if (!gl3d) { console.warn('WebGL not available'); return; }
 
@@ -1807,6 +2368,9 @@ window.addEventListener('DOMContentLoaded', function () {
       'uniform float   uFadeT;',
       'uniform vec3    uAngles;',   // h,m,s clock angles (XZ plane)
       'uniform float   uZoom;',
+      'uniform float   uWiden;',
+      'uniform float   uDpr;',
+      'uniform float   uTime;',
       'varying float   vBright;',
       'varying vec3    vCol;',
       'uniform vec3    uCloudCol;',
@@ -1814,7 +2378,8 @@ window.addEventListener('DOMContentLoaded', function () {
       'uniform vec3    uColM;',
       'uniform vec3    uColS;',
       'void main(){',
-      '  vec3 p = aXYZ;',
+      '  float r00 = length(aXYZ);',
+      '  vec3 p = aXYZ / max(r00, 0.001) * (0.62 + (r00 - 0.62) * (1.0 + uWiden * 5.0));',
       /* collapse: squeeze cloud toward origin */
       '  float scale = max(0.06, 1.0 - uCollapseT * 0.94);',
       '  p *= scale;',
@@ -1846,25 +2411,33 @@ window.addEventListener('DOMContentLoaded', function () {
       '  proj.x *= uRes.y / uRes.x;',
       '  gl_Position = vec4(proj, 0.0, 1.0);',
       '  float df = clamp(depth / (camZ * 1.6), 0.0, 1.0);',
-      '  gl_PointSize = clamp((3.0 + df * 2.5) * aBright * uZoom, 0.8, 10.0) * (1.0 - uFadeT);',
-      '  vBright = aBright * df * (1.0 - uFadeT);',
+      '  float tw = 0.86 + 0.14 * sin(uTime * 1.6 + aXYZ.x * 23.0 + aXYZ.y * 17.0 + aXYZ.z * 11.0);',
+      '  gl_PointSize = clamp((3.0 + df * 2.5) * aBright * tw * uZoom * uDpr, 0.8, 10.0 * uDpr) * (1.0 - uFadeT);',
+      '  vBright = aBright * tw * df * (1.0 - uFadeT);',
       '}'
     ].join('\n');
 
     var FS_PTS = [
+      '#ifdef GL_FRAGMENT_PRECISION_HIGH',
+      'precision highp float;',
+      '#else',
       'precision mediump float;',
+      '#endif',
       'varying float vBright;',
       'varying vec3  vCol;',
       'void main(){',
       '  vec2 uv = gl_PointCoord - 0.5;',
       '  float d = dot(uv,uv) * 4.0;',
       '  if(d > 1.0) discard;',
-      /* wide soft halo fades gently outward */
-      '  float halo = exp(-d * 1.1);',
-      '  float core = exp(-d * 10.0);',
+      /* smooth to zero at the rim so large points never show a hard edge */
+      '  float halo = exp(-d * 1.5) * (1.0 - d * d);',
+      '  float core = exp(-d * 11.0);',
       '  vec3 deepBlue = vCol * 0.55;',
-      '  vec3 col = deepBlue * halo + vec3(0.72, 0.88, 1.0) * core * 0.7;',
-      '  float alpha = (halo * 0.38 + core * 1.2) * vBright * 4.2;',
+      '  vec3 col = deepBlue * halo + vec3(0.78, 0.92, 1.0) * core * 0.75;',
+      '  float alpha = (halo * 0.34 + core * 1.1) * vBright * 2.5;',
+      /* tiny dither hides 8-bit banding in the soft falloff */
+      '  float n = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);',
+      '  alpha += (n - 0.5) / 128.0 * step(0.002, alpha);',
       '  gl_FragColor = vec4(col * alpha, alpha);',
       '}'
     ].join('\n');
@@ -1933,7 +2506,7 @@ window.addEventListener('DOMContentLoaded', function () {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
 
     /* ── Particles: dense uniform spherical s-orbital shell ── */
-    var N = 16000;
+    var N = 56000;
     var posArr   = new Float32Array(N * 3);
     var brightArr = new Float32Array(N);
     var a0 = 0.62;   /* shell peak radius */
@@ -1979,6 +2552,9 @@ window.addEventListener('DOMContentLoaded', function () {
         uFadeT:     gl.getUniformLocation(progPts, 'uFadeT'),
         uAngles:    gl.getUniformLocation(progPts, 'uAngles'),
         uZoom:      gl.getUniformLocation(progPts, 'uZoom'),
+        uWiden:     gl.getUniformLocation(progPts, 'uWiden'),
+        uDpr:       gl.getUniformLocation(progPts, 'uDpr'),
+        uTime:      gl.getUniformLocation(progPts, 'uTime'),
         uCloudCol:  gl.getUniformLocation(progPts, 'uCloudCol'),
         uColH:      gl.getUniformLocation(progPts, 'uColH'),
         uColM:      gl.getUniformLocation(progPts, 'uColM'),
@@ -2058,8 +2634,8 @@ window.addEventListener('DOMContentLoaded', function () {
     if(!gl3d || !glState) return;
 
     var gl = gl3d;
-    var W3 = canvas3d.width, H3 = canvas3d.height;
-    gl.viewport(0, 0, W3, H3);
+    var W3 = canvas3d.width / DPR, H3 = canvas3d.height / DPR;   /* css px */
+    gl.viewport(0, 0, canvas3d.width, canvas3d.height);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     var tc = T().cloud;
@@ -2092,6 +2668,9 @@ window.addEventListener('DOMContentLoaded', function () {
     gl.uniform1f(glState.pts.uFadeT,             Math.max(fd, sp * 0.85)); /* fade cloud as sticks grow */
     gl.uniform3f(glState.pts.uAngles,            spikeAngles.h, spikeAngles.m, spikeAngles.s);
     gl.uniform1f(glState.pts.uZoom,              zoom3d);
+    gl.uniform1f(glState.pts.uWiden,             decoh);
+    gl.uniform1f(glState.pts.uDpr,               DPR);
+    gl.uniform1f(glState.pts.uTime,              gT);
     gl.uniform3f(glState.pts.uCloudCol,          tc[0]/255, tc[1]/255, tc[2]/255);
     gl.uniform3f(glState.pts.uColH,              255/255, 105/255,  97/255);
     gl.uniform3f(glState.pts.uColM,              255/255, 196/255,  66/255);
@@ -2108,7 +2687,9 @@ window.addEventListener('DOMContentLoaded', function () {
     var oc = glState.overlayCtx;
 
     /* ── 2D overlay: natural ambient glow + spike sticks ── */
-    ov.width = W3; ov.height = H3;
+    ov.width = Math.round(W3 * DPR); ov.height = Math.round(H3 * DPR);
+    ov.style.width = W3 + 'px'; ov.style.height = H3 + 'px';
+    oc.setTransform(DPR, 0, 0, DPR, 0, 0);
     oc.clearRect(0, 0, W3, H3);
 
     /* ── Centre nucleus — simple clean glow, no ring artifacts ── */
@@ -2187,6 +2768,9 @@ window.addEventListener('DOMContentLoaded', function () {
       oc.restore();
     })();
 
+
+    /* Nucleus in 3D mode is represented solely by the single blue glow-dot
+       drawn above ("Centre nucleus") — no separate nucleon cluster here. */
 
 
     if(sp > 0.05){
@@ -2368,6 +2952,40 @@ window.addEventListener('DOMContentLoaded', function () {
 
         var cr = sd.rgb[0], cg = sd.rgb[1], cb = sd.rgb[2];
 
+        /* blurred hand (uncertainty mode): widened, translucent fan instead of a stick */
+        var sgm = spikeSig[sd.key];
+        if (sgm) {
+          var uh = uncHalf(sd.key, sgm), ua = uncAlpha(uh) * lp;
+          var rr = Math.sqrt(Math.pow(projTip.x-origin.x,2) + Math.pow(projTip.y-origin.y,2));
+          if (rr < 2) return;
+          var ug = oc.createRadialGradient(origin.x, origin.y, 0, origin.x, origin.y, rr * 1.12);
+          ug.addColorStop(0,    'rgba('+cr+','+cg+','+cb+','+ua+')');
+          ug.addColorStop(0.65, 'rgba('+cr+','+cg+','+cb+','+(ua*0.55)+')');
+          ug.addColorStop(1,    'rgba('+cr+','+cg+','+cb+',0)');
+          oc.save();
+          oc.globalCompositeOperation = 'lighter';
+          [1, 0.66, 0.36, 0.14].forEach(function (kk) {
+            oc.beginPath(); oc.moveTo(origin.x, origin.y);
+            for (var qq = -1; qq <= 1.001; qq += 0.2) {
+              var aa = sd.ang + uh * kk * qq;
+              var pp = project3D(Math.cos(aa) * r0, 0, Math.sin(aa) * r0);
+              if (pp) oc.lineTo(pp.x, pp.y);
+            }
+            oc.closePath(); oc.globalAlpha = 0.5; oc.fillStyle = ug; oc.fill();
+          });
+          oc.restore();
+          if (lp > 0.55) {
+            var S3b = Math.min(W3, H3), ddx = (projTip.x-origin.x)/rr, ddy = (projTip.y-origin.y)/rr;
+            oc.save();
+            oc.globalAlpha = Math.min(1, (lp - 0.55) / 0.45);
+            oc.font = '300 ' + Math.floor(S3b * 0.05) + 'px "Inter",sans-serif';
+            oc.textAlign = 'center'; oc.textBaseline = 'middle';
+            ghostText(oc, String(sd.val).padStart(2, '0'), projTip.x + ddx * S3b * 0.07, projTip.y + ddy * S3b * 0.07, 1.5 + sgm * 0.22, sd.rgb, 1);
+            oc.restore();
+          }
+          return;
+        }
+
         /* ── Draw line stick from origin to tip ── */
         oc.save();
         oc.globalAlpha = lp;
@@ -2514,34 +3132,87 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 
   function setLegend(h,m,s){
+    var sg = spikeSig;
     document.getElementById('fh').style.width=((h/23)*100)+'%'; // 0–23 range
     document.getElementById('fm').style.width=((m/59)*100)+'%';
     document.getElementById('fs').style.width=((s/59)*100)+'%';
-    document.getElementById('vh').textContent=pad2(h);
-    document.getElementById('vm').textContent=pad2(m);
-    document.getElementById('vs').textContent=pad2(s);
+    ['h','m','s'].forEach(function (k) {
+      var v = document.getElementById('v'+k), f = document.getElementById('f'+k);
+      v.style.filter = sg[k] ? 'blur(' + (0.4 + sg[k] * 0.06).toFixed(2) + 'px)' : '';
+      f.style.opacity = sg[k] ? String(Math.max(0.25, uncAlpha(uncHalf(k, sg[k])) + 0.15)) : '';
+    });
+    document.getElementById('vh').textContent=pad2(h)+(sg.h?'±'+sg.h:'');
+    document.getElementById('vm').textContent=pad2(m)+(sg.m?'±'+sg.m:'');
+    document.getElementById('vs').textContent=pad2(s)+(sg.s?'±'+sg.s:'');
   }
 
   var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var MONS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   /* ─── Measure ────────────────────────────────── */
-  function measure() {
-    if (busy) return;
+  function setBtnLabel(t) { var el = btn.querySelector('.btn-label'); if (el) el.textContent = t; }
+  function fz(str, sg) { return sg ? '<span class="fz" style="filter:blur(' + (0.5 + sg * 0.09).toFixed(2) + 'px)">' + str + '</span>' : str; }
+
+  /* Uncertainty principle: the sharp observable is exact, the others are
+     sampled from a Gaussian around the truth. */
+  function applyUncertainty(real) {
+    var sig = {h:0,m:0,s:0}, vals = {h:real.h, m:real.m, s:real.s};
+    if (LAB.uncertainty) {
+      var base = {h:2, m:8, s:12}, mod = {h:24, m:60, s:60};
+      ['h','m','s'].forEach(function (k) {
+        if (k === LAB.focus) return;
+        sig[k] = base[k];
+        vals[k] = (((real[k] + Math.round(gauss() * base[k])) % mod[k]) + mod[k]) % mod[k];
+      });
+    }
+    return { vals: vals, sig: sig };
+  }
+
+  /* Quantum Zeno effect: re-observing a collapsed state keeps returning
+     the same eigenvalue and postpones decoherence. Three quick looks
+     in a row lock it — the reading stays put while real time moves on. */
+  function zenoPoke() {
+    var n = Date.now();
+    zenoCount = (n - zenoLastPoke < 4000) ? zenoCount + 1 : 1;
+    zenoLastPoke = n;
+    clearTimeout(holdTimer);
+    var wc = T().wave;
+    flash(0.10, 0.4); addWave(0.62, wc[3][0], wc[3][1], wc[3][2]);
+    soundPoke();
+    if (zenoCount >= 3 && !zenoLocked) {
+      zenoLocked = true; timeEl.classList.add('frozen');
+      setPhase('zeno lock · state frozen', true); showToast('zeno lock', 1600);
+    } else if (!zenoLocked) {
+      setPhase('re-observed · same value', true);
+    }
+    holdTimer = setTimeout(holdDecay, zenoLocked ? 4200 : 5800);
+  }
+
+  function measure(opts) {
+    opts = opts || {};
+    if (busy) { if (inHold && !opts.remote) zenoPoke(); return; }
     busy=true; btn.disabled=true;
-    timeEl.classList.remove('show');
+    timeEl.classList.remove('show','frozen');
     dateEl.classList.remove('show');
     legendEl.classList.remove('show');
     dotEl.classList.remove('active');
 
     var myGen = ++measureGen; // invalidated if hardReset() runs before this chain finishes
+    if (!opts.remote && !opts.quiet) entSend({ type: 'collapse' });
 
     var now=new Date();
-    spikeVals={h:now.getHours(),m:now.getMinutes(),s:now.getSeconds()};
+    var u = applyUncertainty({h:now.getHours(), m:now.getMinutes(), s:now.getSeconds()});
+    spikeVals = u.vals; spikeSig = u.sig;
     spikeAngles=timeToAngles(spikeVals.h,spikeVals.m,spikeVals.s);
+    spikeFocus = LAB.focus;
+    if (LAB.uncertainty) {
+      /* the sharp hand must be exact: don't let the other hands' jitter leak into its angle */
+      var _ra = timeToAngles(now.getHours(), now.getMinutes(), now.getSeconds());
+      spikeAngles[spikeFocus] = _ra[spikeFocus];
+    }
     initCloud();
     phase='flutter'; collapseT=0; spikeT=0; fadeT=0; waves=[];
-    setPhase('observing ···', false);
+    setPhase(opts.remote ? 'entangled · partner observed' : 'observing ···', false);
 
     setTimeout(function(){
       if (myGen !== measureGen) return;
@@ -2549,6 +3220,7 @@ window.addEventListener('DOMContentLoaded', function () {
       setPhase('wave function collapsing', true);
       dotEl.classList.add('active');
       flash(0.07, 0.5);
+      soundCollapse(spikeVals);
       var wc = T().wave;
       addWave(0.50, wc[0][0],wc[0][1],wc[0][2]);
 
@@ -2564,17 +3236,26 @@ window.addEventListener('DOMContentLoaded', function () {
         anim(function(v){ if (myGen===measureGen) spikeT=v; },0,1,1250,eOut,function(){
           if (myGen !== measureGen) return;
           var h12=spikeVals.h%12||12, ap=spikeVals.h<12?'am':'pm';
-          timeEl.textContent=pad2(h12)+':'+pad2(spikeVals.m)+':'+pad2(spikeVals.s)+'\u2009'+ap;
+          timeEl.innerHTML=fz(pad2(h12),spikeSig.h)+':'+fz(pad2(spikeVals.m),spikeSig.m)+':'+fz(pad2(spikeVals.s),spikeSig.s)+'\u2009'+ap;
           var d=new Date();
-          dateEl.textContent=DAYS[d.getDay()]+' · '+d.getDate()+' '+MONS[d.getMonth()];
+          dateEl.textContent=DAYS[d.getDay()]+' · '+d.getDate()+' '+MONS[d.getMonth()]+(spikeSig.h||spikeSig.m||spikeSig.s ? ' · sharp '+spikeFocus.toUpperCase() : '');
           setLegend(spikeVals.h,spikeVals.m,spikeVals.s);
           timeEl.classList.add('show');
           dateEl.classList.add('show');
           legendEl.classList.add('show');
           setPhase('measurement complete', false);
+          lastObsAt = Date.now(); lastObsVals = { h:spikeVals.h, m:spikeVals.m, s:spikeVals.s };
+          resolveAlarm();
 
-          setTimeout(function(){
+          /* the reading stays on screen; observing again now triggers the Zeno effect */
+          inHold = true; zenoCount = 0; zenoLocked = false; zenoLastPoke = 0;
+          btn.disabled = false; setBtnLabel('Observe again');
+
+          holdDecay = function(){
             if (myGen !== measureGen) return;
+            inHold = false; zenoCount = 0; zenoLocked = false;
+            setBtnLabel('Observe'); btn.disabled = true;
+            timeEl.classList.remove('frozen');
             phase='fading';
             dotEl.classList.remove('active');
             setPhase('decoherence', false);
@@ -2591,13 +3272,309 @@ window.addEventListener('DOMContentLoaded', function () {
               setPhase('superposition · unobserved', false);
               btn.disabled=false; busy=false;
             });
-          }, 5800);
+          };
+          holdTimer = setTimeout(holdDecay, 5800);
         });
       });
     }, 380);
   }
 
-  btn.addEventListener('click', measure);
+  btn.addEventListener('click', function(){ measure(); });
+
+  /* ─── Sound ──────────────────────────────────────
+     Web Audio only, no assets. A low drone hums while unobserved and
+     detunes as decoherence grows; collapse rings one tone per hand. */
+  var audio = { ctx: null, master: null, drone: null };
+  function ensureAudio() {
+    if (!audio.ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      audio.ctx = new AC();
+      audio.master = audio.ctx.createGain(); audio.master.gain.value = 0.5;
+      audio.master.connect(audio.ctx.destination);
+    }
+    if (audio.ctx.state === 'suspended') audio.ctx.resume();
+    return true;
+  }
+  function startDrone() {
+    if (!ensureAudio() || audio.drone) return;
+    var c = audio.ctx, g = c.createGain(); g.gain.value = 0; g.connect(audio.master);
+    var oscs = [55, 82.4, 110].map(function (f) {
+      var o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(g); o.start(); return o;
+    });
+    audio.drone = { g: g, oscs: oscs };
+  }
+  function updateDrone() {
+    if (!audio.drone) return;
+    var t = audio.ctx.currentTime;
+    var vol = (LAB.sound && phase === 'super' && !document.hidden) ? 0.05 + 0.05 * decoh : 0;
+    audio.drone.g.gain.setTargetAtTime(vol, t, 0.3);
+    audio.drone.oscs[1].detune.setTargetAtTime(decoh * 35, t, 0.3);
+    audio.drone.oscs[2].detune.setTargetAtTime(-decoh * 50, t, 0.3);
+  }
+  function tone(freq, when, dur, vol, type) {
+    var c = audio.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.linearRampToValueAtTime(vol, when + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    o.connect(g); g.connect(audio.master); o.start(when); o.stop(when + dur + 0.05);
+  }
+  function soundCollapse(v) {
+    if (!LAB.sound || !audio.ctx) return;
+    var t = audio.ctx.currentTime + 0.05, pent = [0,2,4,7,9];
+    function note(base, val, max) {
+      var i = Math.round(val / max * 14);
+      return base * Math.pow(2, (pent[i % 5] + 12 * Math.floor(i / 5)) / 12);
+    }
+    tone(note(110, v.h, 23), t, 2.6, 0.16);
+    tone(note(220, v.m, 59), t + 0.12, 2.2, 0.12);
+    tone(note(440, v.s, 59), t + 0.24, 1.8, 0.09);
+  }
+  function soundPoke() {
+    if (!LAB.sound || !audio.ctx) return;
+    tone(880 * Math.pow(1.05946, Math.min(zenoCount, 6) * 2), audio.ctx.currentTime, 0.3, 0.06, 'triangle');
+  }
+  function soundAlarm() {
+    if (!ensureAudio()) return;
+    var t = audio.ctx.currentTime + 0.05;
+    for (var i = 0; i < 8; i++) tone(i % 2 ? 988 : 784, t + i * 0.26, 0.2, 0.18, 'square');
+  }
+
+  /* ─── Entanglement ───────────────────────────────
+     Two channels: BroadcastChannel (tabs in this browser) and an optional
+     manual WebRTC pairing for other devices. Observing on one end collapses
+     the other; each end reads its own local time. */
+  var CH_ID = Math.random().toString(36).slice(2, 9);
+  var ent = { bc: null, tabs: {}, dc: null, pc: null };
+  function peerCount() { return Object.keys(ent.tabs).length + ((ent.dc && ent.dc.readyState === 'open') ? 1 : 0); }
+  function entSend(msg) {
+    msg.from = CH_ID; msg.tz = new Date().getTimezoneOffset(); msg.ts = Date.now();
+    try { if (ent.bc) ent.bc.postMessage(msg); } catch (e) {}
+    try { if (ent.dc && ent.dc.readyState === 'open') ent.dc.send(JSON.stringify(msg)); } catch (e) {}
+  }
+  function entReceive(msg, via) {
+    if (!msg || msg.from === CH_ID) return;
+    if (msg.type === 'hello' && via === 'bc') {
+      var fresh = !ent.tabs[msg.from];
+      ent.tabs[msg.from] = Date.now();
+      if (!msg.ack) entSend({ type: 'hello', ack: true });
+      if (fresh) showToast('entangled', 1400);
+    } else if (msg.type === 'bye' && via === 'bc') {
+      delete ent.tabs[msg.from];
+    } else if (msg.type === 'collapse') {
+      partner = { ts: msg.ts, tz: msg.tz };
+      if (!busy) measure({ remote: true });
+    }
+  }
+  function entEnable(on) {
+    if (on && !ent.bc && 'BroadcastChannel' in window) {
+      ent.bc = new BroadcastChannel('quanta-entangle');
+      ent.bc.onmessage = function (e) { entReceive(e.data, 'bc'); };
+      entSend({ type: 'hello' });
+    }
+    if (!on && ent.bc) { entSend({ type: 'bye' }); ent.bc.close(); ent.bc = null; ent.tabs = {}; }
+  }
+  window.addEventListener('pagehide', function () { if (ent.bc) entSend({ type: 'bye' }); });
+  setInterval(function () {
+    if (!ent.bc) return;
+    entSend({ type: 'hello', ack: true });
+    var cut = Date.now() - 12000;
+    for (var k in ent.tabs) if (ent.tabs[k] < cut) delete ent.tabs[k];
+  }, 4000);
+
+  /* manual WebRTC pairing (no server): copy/paste offer & answer */
+  function rtcNew() {
+    var pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+    pc.onconnectionstatechange = function () { ent.note = 'link ' + pc.connectionState; };
+    ent.pc = pc; return pc;
+  }
+  function rtcWait(pc) {
+    return new Promise(function (res) {
+      if (pc.iceGatheringState === 'complete') return res();
+      pc.addEventListener('icegatheringstatechange', function () { if (pc.iceGatheringState === 'complete') res(); });
+      setTimeout(res, 4000);
+    });
+  }
+  function rtcChannel(dc) {
+    ent.dc = dc;
+    dc.onopen = function () { ent.note = ''; showToast('entangled · device linked', 1800); };
+    dc.onclose = function () { ent.note = 'link closed'; };
+    dc.onmessage = function (e) { try { entReceive(JSON.parse(e.data), 'rtc'); } catch (_) {} };
+  }
+  function b64(o) { return btoa(JSON.stringify(o)); }
+  function unb64(t) { return JSON.parse(atob(t.trim())); }
+  function pairCreate() {
+    var pc = rtcNew(); rtcChannel(pc.createDataChannel('quanta'));
+    ent.note = 'gathering code…';
+    return pc.createOffer().then(function (o) { return pc.setLocalDescription(o); }).then(function () { return rtcWait(pc); })
+      .then(function () { $('pairBox').value = b64(pc.localDescription); ent.note = 'send this code to the other device'; });
+  }
+  function pairJoin() {
+    var offer; try { offer = unb64($('pairBox').value); } catch (e) { ent.note = 'that isn\u2019t a valid code'; return Promise.resolve(); }
+    var pc = rtcNew(); pc.ondatachannel = function (e) { rtcChannel(e.channel); };
+    ent.note = 'gathering reply…';
+    return pc.setRemoteDescription(offer).then(function () { return pc.createAnswer(); })
+      .then(function (a) { return pc.setLocalDescription(a); }).then(function () { return rtcWait(pc); })
+      .then(function () { $('pairBox').value = b64(pc.localDescription); ent.note = 'send this reply back'; })
+      .catch(function () { ent.note = 'join failed — check the code'; });
+  }
+  function pairClose() {
+    try { if (ent.dc) ent.dc.close(); } catch (e) {}
+    try { if (ent.pc) ent.pc.close(); } catch (e) {}
+    ent.dc = null; ent.pc = null; ent.note = 'unlinked'; $('pairBox').value = '';
+  }
+  function pairApply() {
+    var ans; try { ans = unb64($('pairBox').value); } catch (e) { ent.note = 'that isn\u2019t a valid reply'; return Promise.resolve(); }
+    if (!ent.pc) { ent.note = 'create a code first'; return Promise.resolve(); }
+    return ent.pc.setRemoteDescription(ans).then(function () { ent.note = 'connecting…'; })
+      .catch(function () { ent.note = 'apply failed — check the reply'; });
+  }
+
+  /* ─── Schrödinger's alarm ────────────────────── */
+  var alarmKey = null, alarmResult = '', ringUntil = 0, nextBeep = 0;
+  function alarmRingStart() { ringUntil = Date.now() + 60000; nextBeep = 0; }
+  function alarmDismiss() { ringUntil = 0; }
+  function alarmState(now) {
+    if (!LAB.alarmOn) return { st: 'off' };
+    var p = LAB.alarmTime.split(':'), t = new Date(now);
+    t.setHours(+p[0] || 0, +p[1] || 0, 0, 0);
+    var key = t.toDateString() + LAB.alarmTime;
+    if (key === alarmKey) return { st: 'done', key: key };
+    if (now < t) return { st: 'wait', key: key, t: t };
+    if (now - t < 6 * 3600 * 1000) return { st: 'sup', key: key, t: t };
+    return { st: 'missed', key: key };
+  }
+  function resolveAlarm() {
+    var a = alarmState(new Date());
+    if (a.st !== 'sup') return;
+    alarmKey = a.key;
+    var ring = Math.random() * 100 < LAB.alarmP;
+    alarmResult = ring ? 'ringing' : 'silent';
+    if (ring) alarmRingStart();
+    showToast('alarm collapsed · ' + alarmResult, 3200);
+  }
+  function alarmText() {
+    var a = alarmState(new Date());
+    if (a.st === 'off') return '';
+    if (a.st === 'wait') return 'alarm ' + LAB.alarmTime + ' · in ' + fmtDur((a.t - Date.now()) / 1000);
+    if (a.st === 'sup')  return 'alarm ' + LAB.alarmTime + ' · ringing ⊕ silent';
+    if (a.st === 'done') return alarmResult === 'ringing' ? 'alarm collapsed · ringing' : 'alarm collapsed · silent, tunnelled through';
+    return 'alarm ' + LAB.alarmTime + ' · missed';
+  }
+
+  /* ─── Readouts ───────────────────────────────── */
+  function $(id) { return document.getElementById(id); }
+  function fmtDur(sec) {
+    sec = Math.max(0, Math.round(sec));
+    if (sec < 60) return sec + ' s';
+    var m = Math.floor(sec / 60), r = sec % 60;
+    if (m < 60) return m + ' min ' + r + ' s';
+    return Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+  }
+  function fmtVals(v) { return pad2(v.h % 12 || 12) + ':' + pad2(v.m) + ':' + pad2(v.s) + (v.h < 12 ? ' am' : ' pm'); }
+
+  function updateKnowledge() {
+    var e = elapsedS(), txt;
+    if (inHold && zenoLocked)      txt = 'zeno lock · frozen, ' + fmtDur(e) + ' behind real time';
+    else if (inHold && zenoCount)  txt = 'same value on re-measure · ' + fmtDur(e) + ' behind';
+    else if (inHold)               txt = 'σ = 0 · just observed';
+    else if (busy)                 txt = phase === 'fading' ? 'decohering…' : 'observing…';
+    else if (!lastObsAt)           txt = 'never observed · σ = ∞';
+    else                           txt = 'last look ' + fmtVals(lastObsVals) + '\n' + fmtDur(e) + ' ago · σ ±' + fmtDur(Math.max(1, e));
+    $('knLine').textContent = txt;
+
+    var ph = '';
+    if (LAB.physics) {
+      ph = 'Δt ' + e.toFixed(1) + ' s · spread ×' + (1 + 6 * decoh).toFixed(1) + '\nzeno n = ' + zenoCount;
+      if (spikeSig.h || spikeSig.m || spikeSig.s) ph += '\nσ h ±' + spikeSig.h + ' · m ±' + spikeSig.m + ' · s ±' + spikeSig.s + '\nsharp ' + spikeFocus.toUpperCase();
+    }
+    $('knPhys').textContent = ph;
+
+    var n = peerCount(), ent_ = '';
+    if (n > 0) {
+      ent_ = 'entangled × ' + n;
+      if (partner && Date.now() - partner.ts < 60000) {
+        var d = new Date(partner.ts - partner.tz * 60000);
+        ent_ += ' · partner saw ' + pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes()) + ':' + pad2(d.getUTCSeconds());
+      }
+    } else if (LAB.entangle) ent_ = 'entangle on · waiting for a partner';
+    $('knEnt').textContent = ent_;
+
+    var at = alarmText();
+    $('knAlarm').textContent = at;
+    $('knAlarm').classList.toggle('sup', alarmState(new Date()).st === 'sup');
+    $('alStat').textContent = at || 'not armed';
+    var ringing = Date.now() < ringUntil;
+    $('alDismiss').style.display = ringing ? '' : 'none';
+    $('ringVeil').classList.toggle('on', ringing);
+    if (ringing && Date.now() >= nextBeep) {
+      nextBeep = Date.now() + 3000; soundAlarm();
+      try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (_) {}
+    }
+    document.title = ringing ? '\u23F0 Quanta' : 'Quanta';
+
+    var es = n > 0 ? 'entangled · ' + n + ' partner' + (n > 1 ? 's' : '') : (LAB.entangle ? 'listening · no partner yet' : 'not entangled');
+    if (ent.note && !(ent.dc && ent.dc.readyState === 'open')) es += ' · ' + ent.note;
+    $('entStat').textContent = es;
+    updateDrone();
+  }
+
+  /* ─── Lab wiring ─────────────────────────────── */
+  function syncLab() {
+    $('uncOn').classList.toggle('on', LAB.uncertainty);
+    $('uncFocus').style.opacity = LAB.uncertainty ? 1 : 0.4;
+    document.querySelectorAll('#uncFocus [data-f]').forEach(function (c) { c.classList.toggle('on', c.getAttribute('data-f') === LAB.focus); });
+    $('entOn').classList.toggle('on', LAB.entangle);
+    $('alOn').classList.toggle('on', LAB.alarmOn);
+    $('alTime').value = LAB.alarmTime;
+    $('alP').value = LAB.alarmP; $('alPv').textContent = LAB.alarmP + '%';
+    $('sndOn').classList.toggle('on', LAB.sound);
+    $('phyOn').classList.toggle('on', LAB.physics);
+    ['uncOn','entOn','alOn','sndOn','phyOn'].forEach(function (id) { $(id).setAttribute('aria-pressed', $(id).classList.contains('on')); });
+    document.querySelectorAll('#uncFocus [data-f]').forEach(function (c) { c.setAttribute('aria-pressed', c.classList.contains('on')); });
+  }
+  function setLab(open) {
+    $('lab').classList.toggle('open', open);
+    $('labBtn').classList.toggle('active', open); $('labBtn').setAttribute('aria-expanded', open);
+    if (open) $('labClose').focus(); else if ($('lab').contains(document.activeElement)) $('labBtn').focus();
+  }
+  $('labBtn').addEventListener('click', function () { setLab(!$('lab').classList.contains('open')); });
+  $('labClose').addEventListener('click', function () { setLab(false); });
+  window.addEventListener('keydown', function (e) { if (e.key === 'Escape') setLab(false); });
+  document.addEventListener('pointerdown', function (e) {
+    if ($('lab').classList.contains('open') && !$('lab').contains(e.target) && !$('labToggle').contains(e.target)) setLab(false);
+  });
+  $('alDismiss').addEventListener('click', alarmDismiss);
+  $('uncOn').addEventListener('click', function () { LAB.uncertainty = !LAB.uncertainty; saveLab(); syncLab(); showToast(LAB.uncertainty ? 'uncertainty on · sharp ' + LAB.focus.toUpperCase() : 'uncertainty off', 1500); });
+  document.querySelectorAll('#uncFocus [data-f]').forEach(function (c) {
+    c.addEventListener('click', function () { LAB.focus = c.getAttribute('data-f'); saveLab(); syncLab(); showToast('next look measures ' + LAB.focus.toUpperCase() + ' sharply', 1700); });
+  });
+  $('entOn').addEventListener('click', function () {
+    LAB.entangle = !LAB.entangle; saveLab(); entEnable(LAB.entangle); syncLab();
+    if (LAB.entangle && !('BroadcastChannel' in window)) showToast('BroadcastChannel unsupported here', 2200);
+  });
+  $('pairOpen').addEventListener('click', function () {
+    var p = $('pairPane'); p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    this.classList.toggle('on', p.style.display === 'block'); this.setAttribute('aria-expanded', p.style.display === 'block');
+  });
+  $('pairCreate').addEventListener('click', pairCreate);
+  $('pairJoin').addEventListener('click', pairJoin);
+  $('pairApply').addEventListener('click', pairApply);
+  $('pairClose').addEventListener('click', pairClose);
+  $('pairCopy').addEventListener('click', function () {
+    var b = $('pairBox'); b.select();
+    try { (navigator.clipboard ? navigator.clipboard.writeText(b.value) : Promise.reject()).catch(function () { document.execCommand('copy'); }); } catch (e) { try { document.execCommand('copy'); } catch (_) {} }
+    showToast('copied', 900);
+  });
+  $('alOn').addEventListener('click', function () { LAB.alarmOn = !LAB.alarmOn; alarmKey = null; saveLab(); syncLab(); });
+  $('alTime').addEventListener('change', function () { LAB.alarmTime = this.value || '07:30'; alarmKey = null; saveLab(); syncLab(); });
+  $('alP').addEventListener('input', function () { LAB.alarmP = +this.value; $('alPv').textContent = this.value + '%'; saveLab(); });
+  $('sndOn').addEventListener('click', function () {
+    LAB.sound = !LAB.sound; syncLab();
+    if (LAB.sound) { startDrone(); showToast('sound on', 1000); }
+  });
+  $('phyOn').addEventListener('click', function () { LAB.physics = !LAB.physics; saveLab(); syncLab(); });
 
   /* ─── Auto-collapse on watch ─────────────────────
      Mirrors tapping "Observe": the moment you open this page, or come
@@ -2611,7 +3588,7 @@ window.addEventListener('DOMContentLoaded', function () {
     if (now - _lastAutoObserve < 1500) return; // focus + visibilitychange can both fire for one "look"
     if (busy || phase !== 'super') return;      // only from a settled, unobserved state
     _lastAutoObserve = now;
-    measure();
+    measure({ quiet: true });
   }
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') setTimeout(autoObserve, 550);
@@ -2620,6 +3597,10 @@ window.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('pageshow', function () { setTimeout(autoObserve, 550); });
 
   /* ─── Boot ───────────────────────────────────── */
+  syncLab();
+  if (LAB.entangle) entEnable(true);
+  setInterval(updateKnowledge, 250);
+  updateKnowledge();
   setMode('particle');
   resize();
   setTimeout(resize, 300);
